@@ -49,13 +49,41 @@ composer require xavcha/page-content-manager
 
 ### Option 3 : Si la media library est déjà installée
 
-Si vous avez déjà `xavcha/fillament-xavcha-media-library` installé dans votre projet, vous pouvez simplement installer le package :
+Si vous avez déjà `xavcha/fillament-xavcha-media-library` installé dans votre projet, vous avez deux options :
+
+#### Option 3a : Installation normale (si le repository est déjà configuré)
+
+Si le repository VCS est déjà dans votre `composer.json`, installez simplement :
 
 ```bash
 composer require xavcha/page-content-manager
 ```
 
 Composer utilisera automatiquement la version existante de la media library.
+
+#### Option 3b : Installation sans mettre à jour les dépendances (si problème de résolution)
+
+Si Composer a des problèmes à résoudre la dépendance, installez sans mettre à jour :
+
+```bash
+# Installer sans mettre à jour les dépendances existantes
+composer require xavcha/page-content-manager --no-update
+
+# Puis mettre à jour uniquement ce package
+composer update xavcha/page-content-manager --with-dependencies
+```
+
+**Ou** si vous voulez forcer l'utilisation de la version déjà installée :
+
+```bash
+# Ajouter le repository si pas déjà présent
+composer config repositories.fillament-xavcha-media-library vcs https://github.com/xavcha03/fillament_xavcha_media_library
+
+# Installer le package
+composer require xavcha/page-content-manager --ignore-platform-reqs
+```
+
+**Note** : L'option `--ignore-platform-reqs` ignore les vérifications de plateforme mais ne résout pas le problème de dépendance. Utilisez-la seulement si vous êtes sûr que la media library est compatible.
 
 ## Vérification
 
@@ -100,7 +128,44 @@ public function panel(Panel $panel): Panel
 
 ### Erreur : "Could not find package xavcha/fillament-xavcha-media-library"
 
-**Solution** : Assurez-vous d'avoir ajouté le repository VCS dans votre `composer.json` avant d'installer le package.
+**Solution 1** : Ajoutez le repository VCS dans votre `composer.json` :
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/xavcha03/fillament_xavcha_media_library"
+    }
+  ]
+}
+```
+
+Puis réessayez :
+```bash
+composer require xavcha/page-content-manager
+```
+
+**Solution 2** : Si la media library est déjà installée, installez sans mettre à jour :
+
+```bash
+composer require xavcha/page-content-manager --no-update
+composer update xavcha/page-content-manager --with-dependencies
+```
+
+**Solution 3** : Vérifiez que la media library est bien installée :
+
+```bash
+composer show xavcha/fillament-xavcha-media-library
+```
+
+Si elle n'est pas installée, installez-la d'abord :
+
+```bash
+composer config repositories.fillament-xavcha-media-library vcs https://github.com/xavcha03/fillament_xavcha_media_library
+composer require xavcha/fillament-xavcha-media-library:dev-main
+composer require xavcha/page-content-manager
+```
 
 ### Erreur : "no such table: media_files"
 

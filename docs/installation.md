@@ -12,6 +12,8 @@
 
 Ce package nécessite `xavcha/fillament-xavcha-media-library` qui est disponible sur GitHub.
 
+#### Si la media library n'est PAS encore installée
+
 **Ajoutez le repository dans votre `composer.json`** :
 
 ```json
@@ -25,9 +27,26 @@ Ce package nécessite `xavcha/fillament-xavcha-media-library` qui est disponible
 }
 ```
 
-**Note** : Si vous avez déjà `xavcha/fillament-xavcha-media-library` installé dans votre projet, vous pouvez ignorer cette étape. Composer utilisera automatiquement la version existante.
+Puis installez normalement :
+```bash
+composer require xavcha/page-content-manager
+```
 
-Voir [Gestion des Dépendances](dependencies.md) pour plus de détails.
+#### Si la media library est DÉJÀ installée
+
+**Option A** : Si le repository est déjà dans votre `composer.json`, installez simplement :
+```bash
+composer require xavcha/page-content-manager
+```
+
+**Option B** : Si vous avez des problèmes de résolution de dépendances :
+```bash
+# Installer sans mettre à jour les dépendances existantes
+composer require xavcha/page-content-manager --no-update
+composer update xavcha/page-content-manager --with-dependencies
+```
+
+Voir [Gestion des Dépendances](dependencies.md) pour plus de détails et le dépannage.
 
 ### 1. Installation via Composer
 

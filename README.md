@@ -17,6 +17,8 @@ Package Laravel Filament professionnel pour gérer les pages avec un système de
 
 Ce package nécessite `xavcha/fillament-xavcha-media-library` disponible sur GitHub.
 
+#### Si la media library n'est PAS installée
+
 **Ajoutez le repository dans votre `composer.json`** :
 
 ```json
@@ -30,7 +32,21 @@ Ce package nécessite `xavcha/fillament-xavcha-media-library` disponible sur Git
 }
 ```
 
-Voir [Gestion des Dépendances](docs/dependencies.md) pour plus de détails et le dépannage.
+Puis installez :
+```bash
+composer require xavcha/page-content-manager
+```
+
+#### Si la media library est DÉJÀ installée
+
+Si vous avez déjà la media library installée et que Composer a des problèmes :
+
+```bash
+composer require xavcha/page-content-manager --no-update
+composer update xavcha/page-content-manager --with-dependencies
+```
+
+Voir [Gestion des Dépendances](docs/dependencies.md) pour plus de détails et le dépannage complet.
 
 ### Installation du package
 
