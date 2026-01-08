@@ -1,0 +1,24 @@
+/vendor/
+/node_modules/
+/.idea/
+/.vscode/
+*.log
+*.cache
+.DS_Store
+Thumbs.db
+.phpunit.result.cache
+composer.lock
+
+# Workbench
+/workbench/vendor/
+/workbench/node_modules/
+/workbench/.env
+/workbench/.env.backup
+/workbench/storage/logs/*.log
+/workbench/storage/framework/cache/*
+/workbench/storage/framework/sessions/*
+/workbench/storage/framework/views/*
+/workbench/database/*.sqlite
+/workbench/database/*.sqlite-journal
+/workbench/bootstrap/cache/*
+
