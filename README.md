@@ -13,6 +13,27 @@ Package Laravel Filament professionnel pour gérer les pages avec un système de
 
 ## 📦 Installation
 
+### Dépendance requise
+
+Ce package nécessite `xavcha/fillament-xavcha-media-library` disponible sur GitHub.
+
+**Ajoutez le repository dans votre `composer.json`** :
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/xavcha03/fillament_xavcha_media_library"
+    }
+  ]
+}
+```
+
+Voir [Gestion des Dépendances](docs/dependencies.md) pour plus de détails et le dépannage.
+
+### Installation du package
+
 ```bash
 composer require xavcha/page-content-manager
 ```
@@ -209,6 +230,7 @@ class DanceStyleResource extends Resource
 ## 📚 Documentation
 
 - [Guide d'installation](docs/installation.md)
+- [Gestion des dépendances](docs/dependencies.md) ⚠️ Important
 - [Guide d'utilisation](docs/usage.md)
 - [Architecture des blocs](docs/blocks-architecture.md) ⭐ Nouveau
 - [Créer des blocs personnalisés](docs/custom-blocks.md)

@@ -3,10 +3,6 @@
   "description": "Professional Laravel Filament package for managing pages with flexible content blocks system",
   "type": "library",
   "license": "MIT",
-  "repositories": [{
-    "type": "vcs",
-    "url": "https://github.com/xavcha03/fillament_xavcha_media_library"
-  }],
   "require": {
     "php": "^8.2",
     "filament/filament": "^4.5",

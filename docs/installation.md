@@ -8,6 +8,27 @@
 
 ## Installation
 
+### 0. Dépendance requise : Media Library
+
+Ce package nécessite `xavcha/fillament-xavcha-media-library` qui est disponible sur GitHub.
+
+**Ajoutez le repository dans votre `composer.json`** :
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/xavcha03/fillament_xavcha_media_library"
+    }
+  ]
+}
+```
+
+**Note** : Si vous avez déjà `xavcha/fillament-xavcha-media-library` installé dans votre projet, vous pouvez ignorer cette étape. Composer utilisera automatiquement la version existante.
+
+Voir [Gestion des Dépendances](dependencies.md) pour plus de détails.
+
 ### 1. Installation via Composer
 
 ```bash
