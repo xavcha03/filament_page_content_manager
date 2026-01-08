@@ -229,11 +229,13 @@ Pour désactiver les routes :
 'routes' => false,
 ```
 
-## Transformers personnalisés
+## Transformation des blocs
 
-Les transformers sont automatiquement découverts dans :
-- Package : `Xavcha\PageContentManager\Services\Blocks\Transformers\Core\`
-- Application : `App\Services\Blocks\Transformers\Core\` et `Custom\`
+Les blocs sont automatiquement transformés via leur méthode `transform()` définie dans chaque bloc.
 
-Si aucun transformer n'est trouvé pour un type de bloc, les données brutes sont retournées.
+Les blocs sont auto-découverts dans :
+- Package : `src/Blocks/Core/`
+- Application : `app/Blocks/Custom/`
+
+Si un bloc n'a pas de méthode `transform()`, les données brutes sont retournées.
 

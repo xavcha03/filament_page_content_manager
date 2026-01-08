@@ -2,7 +2,7 @@
 
 namespace Xavcha\PageContentManager\Http\Resources;
 
-use Xavcha\PageContentManager\Services\Blocks\SectionTransformerService;
+use Xavcha\PageContentManager\Blocks\SectionTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,7 +15,7 @@ class PageResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $transformerService = app(SectionTransformerService::class);
+        $transformerService = app(SectionTransformer::class);
 
         return [
             'id' => $this->id,

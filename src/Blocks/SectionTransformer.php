@@ -1,16 +1,17 @@
 <?php
 
-namespace Xavcha\PageContentManager\Services\Blocks;
+namespace Xavcha\PageContentManager\Blocks;
 
 use Illuminate\Support\Facades\Log;
+use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 
-class SectionTransformerService
+class SectionTransformer
 {
-    protected BlockTransformerFactory $factory;
+    protected BlockRegistry $registry;
 
-    public function __construct(BlockTransformerFactory $factory)
+    public function __construct(BlockRegistry $registry)
     {
-        $this->factory = $factory;
+        $this->registry = $registry;
     }
 
     /**
@@ -41,8 +42,14 @@ class SectionTransformerService
             }
 
             try {
-                $transformer = $this->factory->getTransformer($type);
-                $transformedData = $transformer->transform($data);
+                $blockClass = $this->registry->get($type);
+                
+                if ($blockClass && method_exists($blockClass, 'transform')) {
+                    $transformedData = $blockClass::transform($data);
+                } else {
+                    // Fallback : retourner les données brutes
+                    $transformedData = $data;
+                }
 
                 $transformed[] = [
                     'type' => $type,

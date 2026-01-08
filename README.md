@@ -87,18 +87,24 @@ Dans `config/page-content-manager.php`, retirez simplement le bloc de la liste :
 
 ### Créer un bloc personnalisé
 
-1. Créez votre bloc dans `app/Filament/Forms/Components/Blocks/Custom/` :
+Créez votre bloc dans `app/Blocks/Custom/` - **un seul fichier** contient le formulaire ET la transformation :
 
 ```php
 <?php
 
-namespace App\Filament\Forms\Components\Blocks\Custom;
+namespace App\Blocks\Custom;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 
-class MonBloc
+class MonBloc implements BlockInterface
 {
+    public static function getType(): string
+    {
+        return 'mon_bloc';
+    }
+
     public static function make(): Block
     {
         return Block::make('mon_bloc')
@@ -110,36 +116,8 @@ class MonBloc
                     ->required(),
             ]);
     }
-}
-```
 
-2. Ajoutez-le dans la configuration :
-
-```php
-'blocks' => [
-    'custom' => [
-        'mon_bloc' => \App\Filament\Forms\Components\Blocks\Custom\MonBloc::class,
-    ],
-],
-```
-
-3. (Optionnel) Créez un transformer pour l'API :
-
-```php
-<?php
-
-namespace App\Services\Blocks\Transformers\Custom;
-
-use Xavcha\PageContentManager\Services\Blocks\Contracts\BlockTransformerInterface;
-
-class MonBlocTransformer implements BlockTransformerInterface
-{
-    public function getType(): string
-    {
-        return 'mon_bloc';
-    }
-
-    public function transform(array $data): array
+    public static function transform(array $data): array
     {
         return [
             'type' => 'mon_bloc',
@@ -148,6 +126,8 @@ class MonBlocTransformer implements BlockTransformerInterface
     }
 }
 ```
+
+**C'est tout !** Le bloc est automatiquement découvert et disponible. Aucune configuration nécessaire.
 
 ## 🔄 Système réutilisable pour autres ressources
 
@@ -230,10 +210,12 @@ class DanceStyleResource extends Resource
 
 - [Guide d'installation](docs/installation.md)
 - [Guide d'utilisation](docs/usage.md)
+- [Architecture des blocs](docs/blocks-architecture.md) ⭐ Nouveau
 - [Créer des blocs personnalisés](docs/custom-blocks.md)
 - [Système réutilisable](docs/reusable-system.md)
 - [Documentation API](docs/api.md)
 - [Tests](docs/testing.md)
+- [Migration v2.0](docs/migration-v2.md)
 
 ## 🧪 Tests
 

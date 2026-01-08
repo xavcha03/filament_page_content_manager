@@ -49,52 +49,32 @@ return [
     | Blocs de contenu
     |--------------------------------------------------------------------------
     |
-    | Configuration des blocs disponibles pour les pages.
-    | Les blocs sont organisés en deux catégories :
-    | - 'core' : Blocs de base inclus par défaut dans le package
-    | - 'custom' : Blocs spécifiques au projet (vide par défaut)
+    | Les blocs sont maintenant auto-découverts dans :
+    | - Package : src/Blocks/Core/
+    | - Application : app/Blocks/Custom/
     |
-    | Pour désactiver un bloc core, retirez-le simplement de la liste.
-    | Pour ajouter un bloc custom, créez-le dans votre projet et ajoutez-le ici.
+    | Vous n'avez plus besoin de les configurer ici, sauf pour :
+    | 1. Désactiver un bloc core (retirez-le de la liste)
+    | 2. Utiliser l'ancien système (rétrocompatibilité)
     |
-    | Format : 'key' => 'Full\Class\Name::class'
-    | ou simplement : 'Full\Class\Name::class' (la clé sera le nom de la classe)
+    | NOUVEAU SYSTÈME (recommandé) :
+    | Créez vos blocs dans app/Blocks/Custom/ en implémentant BlockInterface.
+    | Chaque bloc contient à la fois le formulaire Filament ET la méthode transform().
+    |
+    | ANCIEN SYSTÈME (rétrocompatibilité) :
+    | Utilisez la configuration ci-dessous pour pointer vers les anciens blocs.
     |
     */
 
     'blocks' => [
         'core' => [
-            'hero' => \Xavcha\PageContentManager\Filament\Forms\Components\Blocks\Core\HeroBlock::class,
-            'text' => \Xavcha\PageContentManager\Filament\Forms\Components\Blocks\Core\TextBlock::class,
-            'image' => \Xavcha\PageContentManager\Filament\Forms\Components\Blocks\Core\ImageBlock::class,
-            'gallery' => \Xavcha\PageContentManager\Filament\Forms\Components\Blocks\Core\GalleryBlock::class,
-            'cta' => \Xavcha\PageContentManager\Filament\Forms\Components\Blocks\Core\CTABlock::class,
-            'faq' => \Xavcha\PageContentManager\Filament\Forms\Components\Blocks\Core\FAQBlock::class,
-            'contact_form' => \Xavcha\PageContentManager\Filament\Forms\Components\Blocks\Core\ContactFormBlock::class,
+            // Les blocs core sont auto-découverts depuis src/Blocks/Core/
+            // Vous pouvez les désactiver en les retirant de cette liste
+            // ou en les commentant
         ],
         'custom' => [
-            // Ajoutez ici vos blocs personnalisés
-            // Exemple: 'mon_bloc' => \App\Filament\Forms\Components\Blocks\Custom\MonBloc::class,
+            // Les blocs custom sont auto-découverts depuis app/Blocks/Custom/
+            // Vous pouvez aussi les enregistrer manuellement ici si besoin
         ],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Transformers
-    |--------------------------------------------------------------------------
-    |
-    | Configuration pour les transformers de blocs (utilisés pour l'API).
-    | Les transformers sont auto-découverts dans :
-    | - Le package : src/Services/Blocks/Transformers/Core/
-    | - L'application : app/Services/Blocks/Transformers/Core/ et Custom/
-    |
-    | Vous pouvez créer vos propres transformers dans votre application
-    | en implémentant BlockTransformerInterface.
-    |
-    */
-
-    'transformers' => [
-        'custom_namespace' => 'App\\Services\\Blocks\\Transformers\\Custom',
-        'custom_path' => app_path('Services/Blocks/Transformers/Custom'),
     ],
 ];

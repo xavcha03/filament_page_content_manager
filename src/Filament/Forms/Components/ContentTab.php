@@ -4,6 +4,7 @@ namespace Xavcha\PageContentManager\Filament\Forms\Components;
 
 use Filament\Forms;
 use Filament\Schemas\Components;
+use Xavcha\PageContentManager\Blocks\BlockRegistry;
 
 class ContentTab
 {
@@ -28,33 +29,44 @@ class ContentTab
     }
 
     /**
-     * Récupère les blocs depuis la configuration.
+     * Récupère les blocs depuis le registry ou la configuration (rétrocompatibilité).
      *
      * @return array
      */
     protected static function getBlocks(): array
     {
-        $config = config('page-content-manager.blocks', []);
+        $registry = app(BlockRegistry::class);
+        $allBlocks = $registry->all();
         $blocks = [];
 
-        // Ajouter les blocs core
-        if (isset($config['core']) && is_array($config['core'])) {
-            foreach ($config['core'] as $key => $blockClass) {
-                // Support pour array associatif (key => class) ou array indexé (class)
-                $className = is_string($key) ? $blockClass : $blockClass;
-                if (is_string($className) && class_exists($className) && method_exists($className, 'make')) {
-                    $blocks[] = $className::make();
-                }
+        // Utiliser le registry pour charger les blocs
+        foreach ($allBlocks as $type => $blockClass) {
+            if (method_exists($blockClass, 'make')) {
+                $blocks[] = $blockClass::make();
             }
         }
 
-        // Ajouter les blocs custom
-        if (isset($config['custom']) && is_array($config['custom'])) {
-            foreach ($config['custom'] as $key => $blockClass) {
-                // Support pour array associatif (key => class) ou array indexé (class)
-                $className = is_string($key) ? $blockClass : $blockClass;
-                if (is_string($className) && class_exists($className) && method_exists($className, 'make')) {
-                    $blocks[] = $className::make();
+        // Rétrocompatibilité : si aucun bloc trouvé dans le registry, utiliser la config
+        if (empty($blocks)) {
+            $config = config('page-content-manager.blocks', []);
+
+            // Ajouter les blocs core
+            if (isset($config['core']) && is_array($config['core'])) {
+                foreach ($config['core'] as $key => $blockClass) {
+                    $className = is_string($key) ? $blockClass : $blockClass;
+                    if (is_string($className) && class_exists($className) && method_exists($className, 'make')) {
+                        $blocks[] = $className::make();
+                    }
+                }
+            }
+
+            // Ajouter les blocs custom
+            if (isset($config['custom']) && is_array($config['custom'])) {
+                foreach ($config['custom'] as $key => $blockClass) {
+                    $className = is_string($key) ? $blockClass : $blockClass;
+                    if (is_string($className) && class_exists($className) && method_exists($className, 'make')) {
+                        $blocks[] = $className::make();
+                    }
                 }
             }
         }
