@@ -19,9 +19,9 @@ return [
     | Enregistrement de la ressource Filament
     |--------------------------------------------------------------------------
     |
-    | La ressource Page est automatiquement découverte par Filament.
-    | Si vous souhaitez l'enregistrer manuellement, ajoutez-la dans
-    | votre PanelProvider :
+    | Par défaut, le package enregistre automatiquement la ressource Filament
+    | pour tous les panels. Si vous préférez l'enregistrer manuellement,
+    | définissez cette option à false et ajoutez-la dans votre PanelProvider :
     |
     | use Xavcha\PageContentManager\Filament\Resources\Pages\PageResource;
     |
@@ -30,6 +30,8 @@ return [
     | ]);
     |
     */
+
+    'register_filament_resource' => true,
 
     /*
     |--------------------------------------------------------------------------

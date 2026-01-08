@@ -2,6 +2,7 @@
 
 namespace Xavcha\PageContentManager;
 
+use Filament\Facades\Filament;
 use Illuminate\Support\ServiceProvider;
 
 class PageContentManagerServiceProvider extends ServiceProvider
@@ -37,6 +38,17 @@ class PageContentManagerServiceProvider extends ServiceProvider
             $this->commands([
                 \Xavcha\PageContentManager\Console\Commands\AddPageDetailColumnsCommand::class,
             ]);
+        }
+
+        // Enregistrer automatiquement la ressource Filament pour tous les panels
+        if (config('page-content-manager.register_filament_resource', true)) {
+            Filament::serving(function () {
+                foreach (Filament::getPanels() as $panel) {
+                    $panel->resources([
+                        \Xavcha\PageContentManager\Filament\Resources\Pages\PageResource::class,
+                    ]);
+                }
+            });
         }
     }
 }
