@@ -3,9 +3,9 @@
 ## 🚀 Priorité Haute
 
 ### 1. Cache pour BlockRegistry
-**Problème** : La découverte automatique des blocs se fait à chaque requête, ce qui peut être coûteux.
+**Problème** : La découverte automatique des blocs se fait à chaque requête, ce qui peut être coûteux. Même avec le flag `$autoDiscovered`, le scan de fichiers peut être coûteux en production.
 
-**Solution** : Mettre en cache la liste des blocs découverts.
+**Solution** : Mettre en cache la liste des blocs découverts avec invalidation automatique.
 
 ```php
 // Dans BlockRegistry
@@ -17,14 +17,38 @@ protected function autoDiscoverBlocks(): void
 
     $cacheKey = 'page-content-manager.blocks.registry';
     $cached = Cache::remember($cacheKey, 3600, function () {
-        // Découverte des blocs
+        $blocks = [];
+        
+        // Découverte des blocs Core
+        $packageBlocksPath = __DIR__ . '/Core';
+        if (File::exists($packageBlocksPath)) {
+            // ... logique de découverte
+        }
+        
+        // Découverte des blocs Custom
+        $customBlocksPath = app_path('Blocks/Custom');
+        if (File::exists($customBlocksPath)) {
+            // ... logique de découverte
+        }
+        
+        return $blocks;
     });
     
-    // ...
+    // Charger les blocs depuis le cache
+    foreach ($cached as $type => $class) {
+        $this->blocks[$type] = $class;
+    }
+    
+    $this->autoDiscovered = true;
 }
+
+// Commande pour invalider le cache
+php artisan page-content-manager:blocks:clear-cache
 ```
 
-**Bénéfice** : Performance améliorée, surtout en production.
+**Bénéfice** : Performance améliorée, surtout en production. Réduction significative des appels système.
+
+**Note** : Le cache doit être invalidé lors du développement pour détecter les nouveaux blocs.
 
 ---
 
@@ -272,9 +296,9 @@ php artisan page-content-manager:blocks:stats --json
 ---
 
 ### 3. Validation des blocs au démarrage
-**Problème** : Les erreurs dans les blocs ne sont découvertes qu'à l'utilisation.
+**Problème** : Les erreurs dans les blocs ne sont découvertes qu'à l'utilisation. Pas de validation que les blocs respectent `BlockInterface` au démarrage.
 
-**Solution** : Valider les blocs au boot du service provider.
+**Solution** : Valider les blocs au boot du service provider avec option de configuration.
 
 ```php
 // Dans ServiceProvider
@@ -282,13 +306,40 @@ public function boot(): void
 {
     // ...
     
-    if ($this->app->runningInConsole()) {
+    // Validation optionnelle (désactivée par défaut en production)
+    if (config('page-content-manager.validate_blocks_on_boot', false)) {
         $this->validateBlocks();
+    }
+}
+
+protected function validateBlocks(): void
+{
+    $registry = app(BlockRegistry::class);
+    $blocks = $registry->all();
+    
+    foreach ($blocks as $type => $class) {
+        // Vérifier que toutes les méthodes requises existent
+        if (!method_exists($class, 'getType')) {
+            throw new \RuntimeException("Bloc {$class} manque la méthode getType()");
+        }
+        
+        if (!method_exists($class, 'make')) {
+            throw new \RuntimeException("Bloc {$class} manque la méthode make()");
+        }
+        
+        if (!method_exists($class, 'transform')) {
+            throw new \RuntimeException("Bloc {$class} manque la méthode transform()");
+        }
+        
+        // Vérifier que getType() retourne le bon type
+        if ($class::getType() !== $type) {
+            Log::warning("Type mismatch pour {$class}: attendu {$type}, obtenu {$class::getType()}");
+        }
     }
 }
 ```
 
-**Bénéfice** : Détection précoce des erreurs.
+**Bénéfice** : Détection précoce des erreurs, validation optionnelle pour ne pas impacter les performances en production.
 
 ---
 
@@ -364,29 +415,175 @@ event(new BlockTransformed($blockType, $transformedData));
 ### 8. Validation stricte des données de blocs
 **Problème** : Pas de validation que les données correspondent au schéma.
 
-**Solution** : Ajouter une méthode `validate()` dans BlockInterface.
+**Solution** : Ajouter une méthode `validate()` dans BlockInterface (optionnelle pour rétrocompatibilité).
 
 ```php
-public static function validate(array $data): array; // Retourne les erreurs
+interface BlockInterface
+{
+    // ... méthodes existantes
+    
+    /**
+     * Valide les données du bloc (optionnel).
+     * 
+     * @param array $data Les données à valider
+     * @return array Tableau vide si valide, sinon tableau d'erreurs
+     */
+    public static function validate(array $data): array;
+}
+
+// Implémentation par défaut dans un trait
+trait ValidatesBlockData
+{
+    public static function validate(array $data): array
+    {
+        $errors = [];
+        
+        // Validation basique basée sur le schéma Filament
+        $block = static::make();
+        $schema = $block->getSchema();
+        
+        foreach ($schema as $field) {
+            if ($field->isRequired() && empty($data[$field->getName()])) {
+                $errors[] = "Le champ {$field->getName()} est requis";
+            }
+        }
+        
+        return $errors;
+    }
+}
 ```
 
-**Bénéfice** : Données plus fiables.
+**Bénéfice** : Données plus fiables, validation optionnelle pour ne pas casser la compatibilité.
+
+---
+
+### 8.1. Gestion d'erreurs améliorée pour SectionTransformer
+**Problème** : Dans `SectionTransformer`, les erreurs sont loggées mais les données brutes sont retournées silencieusement. Pas de moyen de savoir qu'une transformation a échoué.
+
+**Solution** : Ajouter une option de configuration pour choisir le comportement (fail-safe vs strict).
+
+```php
+// config/page-content-manager.php
+'transformer' => [
+    'error_handling' => 'fail-safe', // 'fail-safe' ou 'strict'
+    'log_errors' => true,
+    'include_errors_in_response' => false, // Pour le debug
+],
+
+// Dans SectionTransformer
+public function transform(array $sections): array
+{
+    // ...
+    
+    try {
+        $blockClass = $this->registry->get($type);
+        
+        if ($blockClass && method_exists($blockClass, 'transform')) {
+            $transformedData = $blockClass::transform($data);
+        } else {
+            if (config('page-content-manager.transformer.error_handling') === 'strict') {
+                throw new \RuntimeException("Bloc {$type} ne peut pas être transformé");
+            }
+            $transformedData = $data;
+        }
+        
+        $transformed[] = [
+            'type' => $type,
+            'data' => $transformedData,
+        ];
+    } catch (\Throwable $e) {
+        $errorHandling = config('page-content-manager.transformer.error_handling', 'fail-safe');
+        
+        if (config('page-content-manager.transformer.log_errors', true)) {
+            Log::error('Erreur lors de la transformation d\'une section', [
+                'type' => $type,
+                'error' => $e->getMessage(),
+            ]);
+        }
+        
+        if ($errorHandling === 'strict') {
+            throw $e;
+        }
+        
+        // Mode fail-safe : retourner les données brutes avec un flag d'erreur
+        $transformed[] = [
+            'type' => $type,
+            'data' => $data,
+            '_error' => config('page-content-manager.transformer.include_errors_in_response', false) 
+                ? $e->getMessage() 
+                : null,
+        ];
+    }
+}
+```
+
+**Bénéfice** : Plus de contrôle sur la gestion d'erreurs, meilleur debugging, option strict pour la production.
 
 ---
 
 ## 🔧 Priorité Basse
 
 ### 9. Logging amélioré
-**Problème** : Erreurs silencieusement ignorées dans BlockRegistry.
+**Problème** : Erreurs silencieusement ignorées dans BlockRegistry. Pas de visibilité sur ce qui se passe.
 
-**Solution** : Ajouter des logs détaillés.
+**Solution** : Ajouter des logs détaillés avec niveaux configurables.
 
 ```php
-Log::debug('Bloc découvert', ['type' => $type, 'class' => $className]);
-Log::warning('Bloc ignoré', ['reason' => '...']);
+// config/page-content-manager.php
+'logging' => [
+    'enabled' => env('PAGE_CONTENT_MANAGER_LOGGING', false),
+    'level' => 'debug', // debug, info, warning, error
+],
+
+// Dans BlockRegistry
+protected function registerBlockIfValid(string $className): void
+{
+    if (!class_exists($className)) {
+        if (config('page-content-manager.logging.enabled', false)) {
+            Log::debug("Classe de bloc non trouvée", ['class' => $className]);
+        }
+        return;
+    }
+
+    $reflection = new \ReflectionClass($className);
+    
+    if ($reflection->isAbstract() || $reflection->isInterface()) {
+        if (config('page-content-manager.logging.enabled', false)) {
+            Log::debug("Classe de bloc ignorée (abstraite ou interface)", ['class' => $className]);
+        }
+        return;
+    }
+    
+    if (!$reflection->implementsInterface(BlockInterface::class)) {
+        if (config('page-content-manager.logging.enabled', false)) {
+            Log::warning("Classe ne respecte pas BlockInterface", ['class' => $className]);
+        }
+        return;
+    }
+
+    try {
+        $type = $className::getType();
+        $this->register($type, $className);
+        
+        if (config('page-content-manager.logging.enabled', false)) {
+            Log::info("Bloc découvert et enregistré", [
+                'type' => $type,
+                'class' => $className,
+            ]);
+        }
+    } catch (\Throwable $e) {
+        if (config('page-content-manager.logging.enabled', false)) {
+            Log::error("Erreur lors de l'enregistrement du bloc", [
+                'class' => $className,
+                'error' => $e->getMessage(),
+            ]);
+        }
+        return;
+    }
+}
 ```
 
-**Bénéfice** : Meilleur debugging.
+**Bénéfice** : Meilleur debugging, visibilité sur le processus de découverte, désactivable en production.
 
 ---
 
@@ -444,11 +641,86 @@ class HeroBlockTest extends TestCase
 ---
 
 ### 12. Documentation avec exemples visuels
-**Problème** : Documentation textuelle uniquement.
+**Problème** : Documentation textuelle uniquement. Manque d'exemples concrets et complets.
 
-**Solution** : Ajouter des screenshots/exemples dans la doc.
+**Solution** : Ajouter des screenshots/exemples dans la doc avec exemples de code complets.
 
-**Bénéfice** : Meilleure compréhension.
+**Améliorations à ajouter** :
+
+1. **Exemples de réponses API complètes** :
+   - Réponses avec tous les types de blocs
+   - Cas d'erreur avec exemples de réponses
+   - Exemples avec pagination
+
+2. **Exemples de blocs personnalisés complexes** :
+   - Bloc avec relations
+   - Bloc avec validation conditionnelle
+   - Bloc avec transformation de médias multiples
+
+3. **Guide de migration depuis l'ancien système** :
+   - Étapes détaillées
+   - Exemples avant/après
+   - Script de migration automatique
+
+4. **Screenshots de l'interface Filament** :
+   - Vue d'ensemble de la ressource Page
+   - Exemple de formulaire avec blocs
+   - Interface de gestion des blocs
+
+5. **Diagrammes d'architecture** :
+   - Flux de transformation des blocs
+   - Architecture du système de découverte
+   - Relations entre les composants
+
+**Bénéfice** : Meilleure compréhension, onboarding plus rapide, moins de questions de support.
+
+---
+
+### 12.1. Type safety amélioré
+**Problème** : L'interface `BlockInterface` est claire mais manque de type hints stricts. Pas de validation du retour de `transform()`.
+
+**Solution** : Ajouter des PHPDoc plus stricts et utiliser des attributes PHP 8 si disponible.
+
+```php
+interface BlockInterface
+{
+    /**
+     * Retourne le type unique du bloc (ex: 'hero', 'text').
+     *
+     * @return non-empty-string
+     */
+    public static function getType(): string;
+
+    /**
+     * Crée le schéma Filament pour le formulaire du bloc.
+     *
+     * @return Block
+     */
+    public static function make(): Block;
+
+    /**
+     * Transforme les données du bloc pour l'API.
+     *
+     * @param array<string, mixed> $data Les données brutes du bloc
+     * @return array{type: string, ...} Les données transformées pour l'API (doit contenir 'type')
+     */
+    public static function transform(array $data): array;
+}
+
+// Validation du retour dans SectionTransformer
+if (!isset($transformedData['type'])) {
+    throw new \RuntimeException("La méthode transform() doit retourner un array avec la clé 'type'");
+}
+
+if ($transformedData['type'] !== $type) {
+    Log::warning("Type mismatch dans transform()", [
+        'expected' => $type,
+        'got' => $transformedData['type'],
+    ]);
+}
+```
+
+**Bénéfice** : Meilleure détection d'erreurs par les IDE, validation à l'exécution, code plus robuste.
 
 ---
 
@@ -468,14 +740,114 @@ class HeroBlockTest extends TestCase
 ### 14. API versioning
 **Problème** : Pas de versioning pour l'API.
 
-**Solution** : Ajouter un préfixe de version.
+**Solution** : Ajouter un préfixe de version configurable.
 
 ```php
-/api/v1/pages
-/api/v2/pages
+// config/page-content-manager.php
+'api' => [
+    'version' => 'v1',
+    'versioning_enabled' => false, // Activé progressivement
+],
+
+// routes/api.php
+Route::group([
+    'prefix' => config('page-content-manager.api.versioning_enabled') 
+        ? config('page-content-manager.api.version', 'v1')
+        : '',
+    // ...
+], function () {
+    // Routes
+});
 ```
 
-**Bénéfice** : Compatibilité future.
+**Bénéfice** : Compatibilité future, migration progressive possible.
+
+---
+
+### 14.1. Pagination pour l'API
+**Problème** : L'endpoint `GET /api/pages` retourne toutes les pages sans pagination. Peut être problématique avec beaucoup de pages.
+
+**Solution** : Ajouter la pagination optionnelle via paramètre de requête.
+
+```php
+// PageController
+public function index(Request $request): JsonResponse
+{
+    $query = Page::published()
+        ->select('id', 'title', 'slug', 'type')
+        ->orderByRaw("CASE WHEN type = 'home' THEN 0 ELSE 1 END")
+        ->orderBy('title');
+    
+    // Pagination optionnelle
+    if ($request->boolean('paginate', false)) {
+        $pages = $query->paginate($request->integer('per_page', 15));
+        
+        return response()->json([
+            'pages' => $pages->items(),
+            'pagination' => [
+                'current_page' => $pages->currentPage(),
+                'last_page' => $pages->lastPage(),
+                'per_page' => $pages->perPage(),
+                'total' => $pages->total(),
+            ],
+        ]);
+    }
+    
+    // Comportement actuel par défaut (rétrocompatibilité)
+    $pages = $query->get();
+    
+    return response()->json([
+        'pages' => $pages->map(function ($page) {
+            return [
+                'id' => $page->id,
+                'title' => $page->title,
+                'slug' => $page->slug ?: 'home',
+                'type' => $page->type,
+            ];
+        }),
+    ]);
+}
+```
+
+**Bénéfice** : Scalabilité améliorée, rétrocompatibilité préservée.
+
+---
+
+### 14.2. Rate limiting pour l'API
+**Problème** : API publique sans protection contre l'abus. Déjà mentionné mais à améliorer.
+
+**Solution** : Ajouter du rate limiting configurable avec différents niveaux.
+
+```php
+// config/page-content-manager.php
+'api' => [
+    'rate_limit' => [
+        'enabled' => true,
+        'max_attempts' => 60,
+        'decay_minutes' => 1,
+        'by_ip' => true, // Limiter par IP
+        'by_user' => false, // Limiter par utilisateur (si authentifié)
+    ],
+],
+
+// routes/api.php
+$middleware = config('page-content-manager.route_middleware', ['api']);
+
+if (config('page-content-manager.api.rate_limit.enabled', true)) {
+    $maxAttempts = config('page-content-manager.api.rate_limit.max_attempts', 60);
+    $decayMinutes = config('page-content-manager.api.rate_limit.decay_minutes', 1);
+    $middleware[] = "throttle:{$maxAttempts},{$decayMinutes}";
+}
+
+Route::group([
+    'prefix' => config('page-content-manager.route_prefix', 'api'),
+    'middleware' => $middleware,
+], function () {
+    // Routes
+});
+```
+
+**Bénéfice** : Protection contre l'abus, configuration flexible.
 
 ---
 
@@ -494,23 +866,117 @@ Route::middleware(['throttle:60,1'])->group(function () {
 
 ---
 
+### 15.1. Optimisation de la normalisation du contenu
+**Problème** : La méthode `normalizeContent()` est appelée à chaque `saving()`, même si le contenu est déjà normalisé. Peut être coûteux avec beaucoup de pages.
+
+**Solution** : Vérifier si le contenu a changé avant de normaliser.
+
+```php
+// Dans HasContentBlocks trait
+protected function normalizeContent(): void
+{
+    $content = $this->content;
+    
+    // Vérifier si le contenu a déjà la structure attendue
+    if (is_array($content) 
+        && isset($content['sections']) 
+        && is_array($content['sections'])
+        && isset($content['metadata']) 
+        && is_array($content['metadata'])
+        && isset($content['metadata']['schema_version'])
+        && is_int($content['metadata']['schema_version'])
+        && $content['metadata']['schema_version'] >= 1
+    ) {
+        // Contenu déjà normalisé, pas besoin de le refaire
+        return;
+    }
+    
+    // Normalisation nécessaire
+    // ... logique existante
+}
+```
+
+**Bénéfice** : Performance améliorée, moins de traitements inutiles.
+
+---
+
+### 15.2. Amélioration du ServiceProvider
+**Problème** : L'enregistrement automatique de la ressource Filament ne fonctionne pas bien. C'est documenté mais pourrait être amélioré.
+
+**Solution** : Améliorer le système d'enregistrement avec meilleure détection et fallback.
+
+```php
+// Dans ServiceProvider
+public function boot(): void
+{
+    // ...
+    
+    // Enregistrement amélioré de la ressource Filament
+    if (config('page-content-manager.register_filament_resource', false)) {
+        // Essayer plusieurs méthodes selon la version de Filament
+        $this->registerFilamentResource();
+    }
+}
+
+protected function registerFilamentResource(): void
+{
+    // Méthode 1 : Via Filament::serving() (Filament 3.x)
+    if (method_exists(Filament::class, 'serving')) {
+        Filament::serving(function () {
+            foreach (Filament::getPanels() as $panel) {
+                $panel->resources([
+                    \Xavcha\PageContentManager\Filament\Resources\Pages\PageResource::class,
+                ]);
+            }
+        });
+        return;
+    }
+    
+    // Méthode 2 : Via PanelProvider directement (Filament 4.x)
+    // Cette méthode nécessite que l'utilisateur enregistre manuellement
+    // mais on peut fournir un helper
+    if ($this->app->bound('filament')) {
+        // Log pour informer l'utilisateur
+        Log::info('Enregistrement automatique non disponible. Veuillez enregistrer manuellement PageResource dans votre PanelProvider.');
+    }
+}
+```
+
+**Bénéfice** : Meilleure compatibilité avec différentes versions de Filament, messages plus clairs.
+
+---
+
 ## 🎯 Recommandations Immédiates
 
 Pour une version 2.1, je recommande d'implémenter :
 
-1. ✅ **Cache pour BlockRegistry** (Performance)
+1. ✅ **Cache pour BlockRegistry** (Performance) - Impact élevé, effort faible
 2. ✅ **CLI Interactif pour la gestion des blocs** (DX) ⭐ **NOUVEAU**
    - Commande `make-block` pour créer un bloc
    - Commande `blocks` avec menu interactif
    - Commandes `disable/enable` pour gérer les blocs
    - Commande `inspect` pour voir les détails
    - Commande `stats` pour les statistiques
-3. ✅ **Ordre des blocs** (UX)
-4. ✅ **Facade** (DX)
-5. ✅ **Groupes de blocs** (UX)
-6. ✅ **Configuration disabled_blocks** (Flexibilité)
+3. ✅ **Ordre des blocs** (UX) - Impact moyen, effort faible
+4. ✅ **Facade** (DX) - Impact moyen, effort faible
+5. ✅ **Groupes de blocs** (UX) - Impact moyen, effort moyen
+6. ✅ **Configuration disabled_blocks** (Flexibilité) - Impact moyen, effort moyen
+7. ✅ **Optimisation normalisation contenu** (Performance) - Impact moyen, effort faible
+8. ✅ **Gestion d'erreurs SectionTransformer** (Robustesse) - Impact moyen, effort moyen
 
-Ces améliorations apportent le plus de valeur avec un effort raisonnable.
+Ces améliorations apportent le plus de valeur avec un effort raisonnable et **ne cassent pas la compatibilité**.
+
+## 📋 Améliorations Complémentaires (Version 2.2+)
+
+Pour une version future, considérer :
+
+1. **Pagination API** (Scalabilité) - Impact élevé, effort moyen
+2. **Rate limiting API** (Sécurité) - Impact élevé, effort faible
+3. **Tests unitaires blocs core** (Fiabilité) - Impact élevé, effort élevé
+4. **Type safety amélioré** (Qualité code) - Impact moyen, effort moyen
+5. **Documentation avec exemples** (DX) - Impact élevé, effort moyen
+6. **Validation blocs au démarrage** (Robustesse) - Impact moyen, effort moyen
+7. **API versioning** (Compatibilité future) - Impact moyen, effort moyen
 
 ## 🛠️ Détails d'Implémentation du CLI
 
