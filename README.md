@@ -1,11 +1,11 @@
 # Xavcha Page Content Manager
 
-[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/xavcha03/page-content-manager)
+[![Version](https://img.shields.io/badge/version-0.2.3-blue.svg)](https://github.com/xavcha03/page-content-manager)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Package Laravel Filament professionnel pour gérer les pages avec un système de blocs de contenu flexible et réutilisable.
 
-> **Note** : Ce package est actuellement en version **0.2.2** (pré-v1.0). L'API peut encore évoluer avant la version stable.
+> **Note** : Ce package est actuellement en version **0.2.3** (pré-v1.0). L'API peut encore évoluer avant la version stable.
 
 ## ✨ Fonctionnalités
 
@@ -312,6 +312,60 @@ La validation vérifie :
 
 Les erreurs sont loggées par défaut. Si `validate_blocks_on_boot_throw` est activé, une exception sera lancée en cas d'erreur.
 
+### Groupes de blocs et ordre personnalisé
+
+Pour organiser les blocs et définir leur ordre d'affichage dans le Builder Filament, vous pouvez utiliser le système de groupes de blocs.
+
+**1. Publier la configuration** (si ce n'est pas déjà fait) :
+```bash
+php artisan vendor:publish --tag=page-content-manager-config
+```
+
+**2. Configurer les groupes dans `config/page-content-manager.php`** :
+```php
+'block_groups' => [
+    // Groupe par défaut pour les Pages
+    'pages' => [
+        'blocks' => [
+            \Xavcha\PageContentManager\Blocks\Core\HeroBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
+            // ... autres blocs dans l'ordre souhaité
+            \App\Blocks\Custom\VideoBlock::class, // Blocs personnalisés
+        ],
+    ],
+    
+    // Créer un groupe pour une autre ressource
+    'articles' => [
+        'blocks' => [
+            \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
+            \App\Blocks\Custom\AuthorBlock::class,
+        ],
+    ],
+],
+```
+
+**3. Utiliser le groupe dans vos ressources Filament** :
+```php
+use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
+
+// Pour les Pages (groupe par défaut)
+ContentTab::make() // Utilise le groupe 'pages'
+
+// Pour une autre ressource avec un groupe spécifique
+ContentTab::make('articles') // Utilise uniquement les blocs du groupe 'articles'
+```
+
+**Avantages** :
+- ✅ **Ordre personnalisé** : Définissez l'ordre d'affichage des blocs
+- ✅ **Groupes contextuels** : Chaque ressource peut avoir ses propres blocs
+- ✅ **Configuration centralisée** : Tout dans un seul fichier de config
+- ✅ **Sélectivité** : Chaque groupe peut n'inclure que les blocs pertinents
+- ✅ **Pas de modification du code** : Tout se fait via la configuration
+
+**Rétrocompatibilité** : Si aucun groupe n'est spécifié ou si le groupe n'existe pas, tous les blocs disponibles seront affichés dans l'ordre de découverte.
+
 ## 🔄 Système réutilisable pour autres ressources
 
 Vous pouvez ajouter les onglets SEO et Content à n'importe quelle ressource Filament.
@@ -594,7 +648,8 @@ Voir [CHANGELOG.md](CHANGELOG.md) pour la liste complète des changements.
 
 ## 🔖 Versions
 
-- **0.2.2** (actuelle) - CLI interactif pour la gestion des blocs, validation des blocs au démarrage
+- **0.2.3** (actuelle) - Groupes de blocs avec ordre personnalisé, configuration flexible
+- **0.2.2** - CLI interactif pour la gestion des blocs, validation des blocs au démarrage
 - **0.2.1** - Système de cache pour BlockRegistry, amélioration des performances
 - **0.2.0** - Suite complète de tests, améliorations de l'architecture
 - **0.1.0** - Version initiale avec fonctionnalités de base

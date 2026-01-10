@@ -5,6 +5,28 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [0.2.3] - 2025-01-XX
+
+### Ajouté
+- **Système de groupes de blocs avec ordre personnalisé** 🎯
+  - Configuration `block_groups` pour organiser les blocs par contexte (Pages, Articles, etc.)
+  - Méthode `ContentTab::make($group)` pour utiliser un groupe spécifique
+  - Ordre d'affichage personnalisable via la configuration
+  - Support de plusieurs groupes pour différentes ressources
+  - Exclusion automatique des blocs désactivés
+  - Rétrocompatibilité : fallback vers tous les blocs si le groupe n'existe pas
+- Tests unitaires pour `ContentTab` avec groupes (11 tests)
+
+### Modifié
+- `ContentTab` accepte maintenant un paramètre `$group` pour spécifier le groupe de blocs
+- `PageForm` utilise maintenant `ContentTab::make('pages')` pour une meilleure cohérence
+- Configuration par défaut inclut un groupe `pages` avec tous les blocs core dans un ordre logique
+
+### Documentation
+- Ajout de la section "Groupes de blocs et ordre personnalisé" dans le README
+- Documentation complète dans `docs/blocks-architecture.md`
+- Exemples d'utilisation dans `docs/usage.md`
+
 ## [0.2.2] - 2025-01-XX
 
 ### Ajouté
@@ -95,6 +117,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Migration initiale avec création automatique de la page Home
 - Configuration flexible via fichier de config
 
+[0.2.3]: https://github.com/xavcha03/page-content-manager/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/xavcha03/page-content-manager/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/xavcha03/page-content-manager/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/xavcha03/page-content-manager/compare/0.1.0...0.2.0

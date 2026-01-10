@@ -73,6 +73,37 @@ php artisan page-content-manager:blocks:validate
 
 Voir [README.md](../README.md#cli-interactif-pour-la-gestion-des-blocs) pour la documentation complète.
 
+### Organiser les blocs en groupes
+
+Pour définir l'ordre d'affichage des blocs et créer des groupes pour différentes ressources :
+
+1. **Publier la configuration** :
+```bash
+php artisan vendor:publish --tag=page-content-manager-config
+```
+
+2. **Configurer les groupes dans `config/page-content-manager.php`** :
+```php
+'block_groups' => [
+    'pages' => [
+        'blocks' => [
+            \Xavcha\PageContentManager\Blocks\Core\HeroBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
+            // ... dans l'ordre souhaité
+        ],
+    ],
+],
+```
+
+3. **Utiliser dans vos ressources** :
+```php
+use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
+
+ContentTab::make('pages') // Utilise le groupe 'pages'
+```
+
+Voir [Architecture des blocs](blocks-architecture.md#groupes-de-blocs-et-ordre-personnalisé) pour plus de détails.
+
 ### Validation des blocs au démarrage
 
 Pour détecter les erreurs dans vos blocs dès le démarrage de l'application, activez la validation automatique dans votre `.env` :

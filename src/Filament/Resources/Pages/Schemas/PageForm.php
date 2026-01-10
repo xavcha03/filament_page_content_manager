@@ -6,15 +6,13 @@ use Filament\Forms;
 use Filament\Schemas\Components;
 use Filament\Schemas\Schema;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
+use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
 use Illuminate\Support\Str;
 
 class PageForm
 {
     public static function configure(Schema $schema): Schema
     {
-        // Récupérer les blocs depuis le registry
-        $blocks = self::getBlocks();
-
         return $schema
             ->components([
                 Components\Tabs::make('page_tabs')
@@ -85,64 +83,11 @@ class PageForm
                                     ->rows(3)
                                     ->helperText('Description pour les moteurs de recherche (optionnel)'),
                             ]),
-                        Components\Tabs\Tab::make('content')
-                            ->label('Contenu')
-                            ->schema([
-                                Forms\Components\Builder::make('content.sections')
-                                    ->label('Sections')
-                                    ->blocks($blocks)
-                                    ->collapsible()
-                                    ->columnSpanFull(),
-                            ]),
+                        ContentTab::make('pages'), // Utilise le groupe 'pages' par défaut
                     ])
                     ->columnSpanFull(),
             ]);
     }
 
-    /**
-     * Récupère les blocs depuis le registry ou la configuration (rétrocompatibilité).
-     *
-     * @return array
-     */
-    protected static function getBlocks(): array
-    {
-        $registry = app(BlockRegistry::class);
-        $allBlocks = $registry->all();
-        $blocks = [];
-
-        // Utiliser le registry pour charger les blocs
-        foreach ($allBlocks as $type => $blockClass) {
-            if (method_exists($blockClass, 'make')) {
-                $blocks[] = $blockClass::make();
-            }
-        }
-
-        // Rétrocompatibilité : si aucun bloc trouvé dans le registry, utiliser la config
-        if (empty($blocks)) {
-            $config = config('page-content-manager.blocks', []);
-
-            // Ajouter les blocs core
-            if (isset($config['core']) && is_array($config['core'])) {
-                foreach ($config['core'] as $key => $blockClass) {
-                    $className = is_string($key) ? $blockClass : $blockClass;
-                    if (is_string($className) && class_exists($className) && method_exists($className, 'make')) {
-                        $blocks[] = $className::make();
-                    }
-                }
-            }
-
-            // Ajouter les blocs custom
-            if (isset($config['custom']) && is_array($config['custom'])) {
-                foreach ($config['custom'] as $key => $blockClass) {
-                    $className = is_string($key) ? $blockClass : $blockClass;
-                    if (is_string($className) && class_exists($className) && method_exists($className, 'make')) {
-                        $blocks[] = $className::make();
-                    }
-                }
-            }
-        }
-
-        return $blocks;
-    }
 }
 

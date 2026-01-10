@@ -238,6 +238,75 @@ php artisan page-content-manager:blocks:clear-cache
 
 **Note** : En environnement `local`, le cache est automatiquement désactivé, donc vous n'avez pas besoin de l'invalider manuellement.
 
+## Groupes de Blocs et Ordre Personnalisé
+
+Depuis la version 0.2.3, vous pouvez organiser les blocs en groupes et définir leur ordre d'affichage dans le Builder Filament.
+
+### Configuration des Groupes
+
+**1. Publier la configuration** :
+```bash
+php artisan vendor:publish --tag=page-content-manager-config
+```
+
+**2. Modifier `config/page-content-manager.php`** dans votre projet :
+
+```php
+'block_groups' => [
+    // Groupe par défaut pour les Pages
+    'pages' => [
+        'blocks' => [
+            \Xavcha\PageContentManager\Blocks\Core\HeroBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\GalleryBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\CTABlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\FAQBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\ContactFormBlock::class,
+            // Vos blocs personnalisés
+            \App\Blocks\Custom\VideoBlock::class,
+            \App\Blocks\Custom\TestimonialBlock::class,
+        ],
+    ],
+    
+    // Groupe pour une autre ressource (ex: Articles)
+    'articles' => [
+        'blocks' => [
+            \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
+            \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
+            \App\Blocks\Custom\AuthorBlock::class,
+            \App\Blocks\Custom\RelatedArticlesBlock::class,
+        ],
+    ],
+],
+```
+
+### Utilisation dans les Ressources Filament
+
+```php
+use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
+
+// Pour les Pages (groupe par défaut)
+ContentTab::make() // Utilise le groupe 'pages'
+
+// Pour une autre ressource avec un groupe spécifique
+ContentTab::make('articles') // Utilise uniquement les blocs du groupe 'articles'
+```
+
+### Avantages
+
+- ✅ **Ordre personnalisé** : Les blocs apparaissent dans l'ordre défini dans la configuration
+- ✅ **Groupes contextuels** : Chaque ressource peut avoir ses propres blocs et ordre
+- ✅ **Configuration centralisée** : Tout est dans un seul fichier facilement modifiable
+- ✅ **Sélectivité** : Chaque groupe peut n'inclure que les blocs pertinents
+- ✅ **Pas de modification du code** : Toute la personnalisation se fait via la configuration
+
+### Rétrocompatibilité
+
+- Si aucun groupe n'est spécifié, le groupe `pages` est utilisé par défaut
+- Si le groupe n'existe pas, tous les blocs disponibles sont affichés dans l'ordre de découverte
+- Les blocs désactivés globalement sont automatiquement exclus de tous les groupes
+
 ## Validation des Blocs
 
 ### Validation au démarrage

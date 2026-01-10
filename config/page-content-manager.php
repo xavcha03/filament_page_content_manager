@@ -160,4 +160,51 @@ return [
 
     'validate_blocks_on_boot' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT', false),
     'validate_blocks_on_boot_throw' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT_THROW', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Groupes de blocs
+    |--------------------------------------------------------------------------
+    |
+    | Définit les groupes de blocs avec leur ordre d'affichage pour chaque
+    | contexte d'utilisation (Pages, Articles, etc.).
+    |
+    | Chaque groupe contient une liste de classes de blocs dans l'ordre
+    | souhaité. Les blocs apparaîtront dans le Builder Filament dans cet ordre.
+    |
+    | Exemple :
+    | 'block_groups' => [
+    |     'pages' => [
+    |         'blocks' => [
+    |             \Xavcha\PageContentManager\Blocks\Core\HeroBlock::class,
+    |             \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
+    |             // ... autres blocs dans l'ordre souhaité
+    |         ],
+    |     ],
+    |     'articles' => [
+    |         'blocks' => [
+    |             \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
+    |             \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
+    |         ],
+    |     ],
+    | ],
+    |
+    | Si aucun groupe n'est spécifié ou si le groupe n'existe pas, tous les
+    | blocs disponibles seront affichés dans l'ordre de découverte.
+    |
+    */
+
+    'block_groups' => [
+        'pages' => [
+            'blocks' => [
+                \Xavcha\PageContentManager\Blocks\Core\HeroBlock::class,
+                \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
+                \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
+                \Xavcha\PageContentManager\Blocks\Core\GalleryBlock::class,
+                \Xavcha\PageContentManager\Blocks\Core\CTABlock::class,
+                \Xavcha\PageContentManager\Blocks\Core\FAQBlock::class,
+                \Xavcha\PageContentManager\Blocks\Core\ContactFormBlock::class,
+            ],
+        ],
+    ],
 ];
