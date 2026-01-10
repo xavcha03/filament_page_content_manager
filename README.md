@@ -1,11 +1,11 @@
 # Xavcha Page Content Manager
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/xavcha03/page-content-manager)
+[![Version](https://img.shields.io/badge/version-0.2.1-blue.svg)](https://github.com/xavcha03/page-content-manager)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Package Laravel Filament professionnel pour gérer les pages avec un système de blocs de contenu flexible et réutilisable.
 
-> **Note** : Ce package est actuellement en version **0.2.0** (pré-v1.0). L'API peut encore évoluer avant la version stable.
+> **Note** : Ce package est actuellement en version **0.2.1** (pré-v1.0). L'API peut encore évoluer avant la version stable.
 
 ## ✨ Fonctionnalités
 
@@ -294,13 +294,180 @@ Components\Tabs::make('tabs')
 
 Le package inclut un environnement de test avec Workbench. Voir [docs/testing.md](docs/testing.md) pour plus de détails.
 
+## 👨‍💻 Bonnes pratiques de développement
+
+### Tests unitaires et fonctionnels
+
+**⚠️ Obligatoire** : Toute nouvelle fonctionnalité ou modification doit être accompagnée de tests.
+
+- **Tests unitaires** : Pour tester les classes isolément (blocs, transformers, traits, etc.)
+- **Tests fonctionnels** : Pour tester les intégrations (API, modèles, service provider, etc.)
+
+#### Exécuter les tests
+
+```bash
+# Avec ddev
+ddev exec vendor/bin/phpunit
+
+# Ou directement
+composer test
+```
+
+#### Structure des tests
+
+- `tests/Unit/` : Tests unitaires pour les classes isolées
+- `tests/Feature/` : Tests fonctionnels pour les intégrations
+- `tests/Helpers/` : Helpers réutilisables pour les tests
+
+#### Exemple de test
+
+```php
+<?php
+
+namespace Xavcha\PageContentManager\Tests\Unit;
+
+use Xavcha\PageContentManager\Tests\TestCase;
+
+class MonNouveauBlocTest extends TestCase
+{
+    public function test_get_type_returns_correct_type(): void
+    {
+        $this->assertEquals('mon_bloc', MonNouveauBloc::getType());
+    }
+
+    public function test_transform_returns_correct_structure(): void
+    {
+        $data = ['titre' => 'Test'];
+        $result = MonNouveauBloc::transform($data);
+        
+        $this->assertArrayHasKey('type', $result);
+        $this->assertEquals('mon_bloc', $result['type']);
+    }
+}
+```
+
+### Versionnement
+
+**⚠️ Obligatoire** : Toute version publiée doit être taguée dans Git.
+
+#### Convention de versionnement
+
+Le package suit [Semantic Versioning](https://semver.org/lang/fr/) :
+
+- **0.x.0** : Versions majeures (ajouts de fonctionnalités, changements d'API)
+- **0.0.x** : Versions mineures (nouvelles fonctionnalités rétrocompatibles)
+- **0.0.0.x** : Versions patch (corrections de bugs)
+
+#### Processus de versionnement
+
+1. **Mettre à jour le CHANGELOG.md** :
+   - Ajouter une nouvelle section `[X.Y.Z] - YYYY-MM-DD`
+   - Documenter tous les changements (Ajouté, Modifié, Supprimé, Sécurité)
+
+2. **Mettre à jour la version dans `composer.json`** :
+   ```json
+   {
+     "version": "0.2.1"
+   }
+   ```
+
+3. **Mettre à jour le README.md** :
+   - Badge de version
+   - Section "Versions" avec la nouvelle version
+
+4. **Créer un commit** :
+   ```bash
+   git add CHANGELOG.md composer.json README.md
+   git commit -m "Version 0.2.1 - Description des changements"
+   ```
+
+5. **Créer un tag Git annoté** :
+   ```bash
+   git tag -a v0.2.1 -m "Version 0.2.1 - Description des changements"
+   ```
+
+6. **Pousser le commit et le tag** :
+   ```bash
+   git push origin main
+   git push origin v0.2.1
+   ```
+
+### Standards de code
+
+- **PSR-12** : Respecter les standards de codage PHP
+- **Type hints** : Utiliser les types stricts (`declare(strict_types=1);`)
+- **Documentation** : Documenter les méthodes publiques avec PHPDoc
+- **Nommage** : Utiliser des noms explicites et cohérents
+
+### Workflow de développement
+
+1. **Créer une branche** pour la fonctionnalité/correction :
+   ```bash
+   git checkout -b feature/nouvelle-fonctionnalite
+   # ou
+   git checkout -b fix/correction-bug
+   ```
+
+2. **Développer et tester** :
+   - Écrire le code
+   - Écrire les tests
+   - Vérifier que tous les tests passent
+
+3. **Mettre à jour la documentation** si nécessaire :
+   - README.md
+   - Documentation dans `docs/`
+   - Exemples d'utilisation
+
+4. **Commit** avec un message clair :
+   ```bash
+   git commit -m "feat: Ajout de la fonctionnalité X"
+   # ou
+   git commit -m "fix: Correction du bug Y"
+   ```
+
+5. **Merge** dans `main` après validation
+
+### Ajout de nouvelles fonctionnalités
+
+Avant d'ajouter une nouvelle fonctionnalité :
+
+1. ✅ Vérifier qu'elle n'existe pas déjà dans [docs/improvements.md](docs/improvements.md)
+2. ✅ S'assurer qu'elle est compatible avec l'architecture actuelle
+3. ✅ Écrire les tests **avant** ou **pendant** le développement (TDD recommandé)
+4. ✅ Mettre à jour la documentation
+5. ✅ Mettre à jour le CHANGELOG lors de la version
+
+### Modification de l'API
+
+Si une modification casse la rétrocompatibilité :
+
+1. ⚠️ **Augmenter le numéro de version majeure** (ex: 0.2.0 → 0.3.0)
+2. ⚠️ **Documenter clairement** les breaking changes dans le CHANGELOG
+3. ⚠️ **Fournir un guide de migration** si nécessaire
+
+### Environnement de développement
+
+Le package utilise **DDEV** pour l'environnement PHP :
+
+```bash
+# Exécuter les tests
+ddev exec vendor/bin/phpunit
+
+# Installer les dépendances
+ddev composer install
+
+# Exécuter les commandes Artisan
+ddev artisan migrate
+```
+
 ## 📋 Changelog
 
 Voir [CHANGELOG.md](CHANGELOG.md) pour la liste complète des changements.
 
 ## 🔖 Versions
 
-- **0.2.0** (actuelle) - Suite complète de tests, améliorations de l'architecture
+- **0.2.1** (actuelle) - Système de cache pour BlockRegistry, amélioration des performances
+- **0.2.0** - Suite complète de tests, améliorations de l'architecture
 - **0.1.0** - Version initiale avec fonctionnalités de base
 
 ## 📄 Licence

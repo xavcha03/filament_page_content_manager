@@ -5,6 +5,23 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [0.2.1] - 2025-01-11
+
+### Ajouté
+- Système de cache pour BlockRegistry pour améliorer les performances
+- Configuration du cache dans `config/page-content-manager.php` avec options :
+  - `cache.enabled` : Active/désactive le cache (défaut: `true`)
+  - `cache.key` : Clé de cache personnalisable (défaut: `'page-content-manager.blocks.registry'`)
+  - `cache.ttl` : Durée de vie du cache en secondes (défaut: `3600`)
+- Commande Artisan `page-content-manager:blocks:clear-cache` pour invalider le cache manuellement
+- Support de la configuration `disabled_blocks` pour filtrer les blocs désactivés
+- Cache automatiquement désactivé en environnement `local` pour détecter immédiatement les nouveaux blocs
+- Tests unitaires complets pour le système de cache (9 tests pour BlockRegistry, 5 tests pour la commande)
+
+### Modifié
+- `BlockRegistry` utilise maintenant le cache Laravel pour stocker la liste des blocs découverts
+- Amélioration des performances : la découverte des blocs n'est effectuée qu'une fois par période de cache
+
 ## [0.2.0] - 2025-01-10
 
 ### Ajouté
@@ -47,6 +64,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Migration initiale avec création automatique de la page Home
 - Configuration flexible via fichier de config
 
+[0.2.1]: https://github.com/xavcha03/page-content-manager/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/xavcha03/page-content-manager/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/xavcha03/page-content-manager/releases/tag/0.1.0
 

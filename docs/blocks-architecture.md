@@ -165,6 +165,48 @@ Pour désactiver un bloc core, vous pouvez :
 
 1. **Option 1** : Le retirer de la configuration dans `config/page-content-manager.php`
 2. **Option 2** : Créer votre propre bloc avec le même type dans `app/Blocks/Custom/` (il remplacera le bloc core)
+3. **Option 3** : Ajouter le type du bloc dans `disabled_blocks` dans `config/page-content-manager.php` :
+
+```php
+'disabled_blocks' => ['faq', 'contact_form'],
+```
+
+## Système de Cache
+
+Depuis la version 0.2.1, le `BlockRegistry` utilise un système de cache pour améliorer les performances. La liste des blocs découverts est mise en cache pour éviter de scanner les fichiers à chaque requête.
+
+### Configuration
+
+Le cache est configurable dans `config/page-content-manager.php` :
+
+```php
+'cache' => [
+    'enabled' => env('PAGE_CONTENT_MANAGER_CACHE_ENABLED', true),
+    'key' => 'page-content-manager.blocks.registry',
+    'ttl' => env('PAGE_CONTENT_MANAGER_CACHE_TTL', 3600), // 1 heure par défaut
+],
+```
+
+### Comportement
+
+- **En production** : Le cache est activé par défaut pour améliorer les performances
+- **En développement local** : Le cache est automatiquement désactivé pour détecter immédiatement les nouveaux blocs
+- **TTL** : Par défaut, le cache expire après 1 heure (3600 secondes)
+
+### Invalider le Cache
+
+Pour invalider manuellement le cache des blocs :
+
+```bash
+php artisan page-content-manager:blocks:clear-cache
+```
+
+**Quand invalider le cache ?**
+- Après avoir créé un nouveau bloc personnalisé en production
+- Après avoir modifié un bloc existant
+- Si un bloc n'apparaît pas dans le Builder Filament
+
+**Note** : En environnement `local`, le cache est automatiquement désactivé, donc vous n'avez pas besoin de l'invalider manuellement.
 
 
 
