@@ -69,6 +69,19 @@ class BlockRegistry
     }
 
     /**
+     * Vérifie si un bloc est enregistré.
+     *
+     * @param string $type Le type du bloc
+     * @return bool True si le bloc existe, false sinon
+     */
+    public function has(string $type): bool
+    {
+        $this->autoDiscoverBlocks();
+
+        return isset($this->blocks[$type]) && class_exists($this->blocks[$type]);
+    }
+
+    /**
      * Auto-découvre les blocs dans les dossiers Core et Custom.
      *
      * @return void

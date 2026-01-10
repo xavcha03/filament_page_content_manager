@@ -2,240 +2,26 @@
 
 ## 🚀 Priorité Haute
 
-### 1. Validation des blocs au démarrage ✅ **IMPLÉMENTÉ**
-**Problème** : Les erreurs dans les blocs ne sont découvertes qu'à l'utilisation. Pas de validation que les blocs respectent `BlockInterface` au démarrage.
-
-**Solution** : Valider les blocs au boot du service provider avec option de configuration.
-
-**Statut** : ✅ Implémenté. Voir la configuration dans `config/page-content-manager.php` pour activer la validation.
-
-**Configuration** :
-```php
-// config/page-content-manager.php
-'validate_blocks_on_boot' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT', false),
-'validate_blocks_on_boot_throw' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT_THROW', false),
-```
-
-**Utilisation** :
-- Désactivée par défaut pour ne pas impacter les performances en production
-- Activez avec `PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT=true` en développement
-- Les erreurs sont loggées par défaut
-- Activez `validate_blocks_on_boot_throw=true` pour lancer une exception en cas d'erreur
-
-**Bénéfice** : Détection précoce des erreurs, validation optionnelle pour ne pas impacter les performances en production.
-
----
-
-### 3. Ordre et groupes des blocs dans le Builder ✅ **IMPLÉMENTÉ**
-**Problème** : Les blocs apparaissent dans un ordre aléatoire dans le Builder Filament, ce qui rend difficile la navigation et la sélection des blocs. De plus, tous les blocs sont mélangés sans organisation logique. Quand on utilise le système pour plusieurs ressources (Pages, Articles, etc.), on a besoin de groupes différents avec des blocs et des ordres spécifiques à chaque contexte.
-
-**Solution** : Créer un système de configuration par groupes qui permet de définir l'ordre et la sélection des blocs pour chaque contexte d'utilisation.
-
-**Statut** : ✅ Implémenté dans la version 0.2.3. Voir la documentation dans `README.md` et `docs/blocks-architecture.md`.
-
-**Approche implémentée** : Fichier de configuration centralisé avec groupes nommés, où chaque groupe définit la liste des blocs dans l'ordre souhaité.
-
-**Implémentation** :
-
-1. **Publier la configuration** (une seule fois) :
-```bash
-php artisan vendor:publish --tag=page-content-manager-config
-```
-
-Cela crée le fichier `config/page-content-manager.php` dans votre projet avec la configuration par défaut.
-
-2. **Structure de configuration dans `config/page-content-manager.php`** :
-
-Le fichier de configuration est facilement accessible et modifiable dans votre projet :
-
-```php
-'block_groups' => [
-    // Groupe par défaut pour les Pages
-    'pages' => [
-        'blocks' => [
-            \Xavcha\PageContentManager\Blocks\Core\HeroBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\GalleryBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\CtaBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\FaqBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\ContactFormBlock::class,
-            // Blocs personnalisés
-            \App\Blocks\Custom\VideoBlock::class,
-            \App\Blocks\Custom\TestimonialBlock::class,
-        ],
-    ],
-    
-    // Groupe pour une autre ressource (ex: Articles)
-    'articles' => [
-        'blocks' => [
-            \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
-            \App\Blocks\Custom\AuthorBlock::class,
-            \App\Blocks\Custom\RelatedArticlesBlock::class,
-        ],
-    ],
-    
-    // Groupe minimal pour les landing pages
-    'landing' => [
-        'blocks' => [
-            \Xavcha\PageContentManager\Blocks\Core\HeroBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\CtaBlock::class,
-            \App\Blocks\Custom\VideoBlock::class,
-        ],
-    ],
-],
-```
-
-**Note** : La configuration par défaut dans le package inclura un groupe `pages` avec tous les blocs core dans un ordre logique. Vous pouvez ensuite personnaliser cette configuration dans votre projet sans modifier le package.
-
-3. **Modifier `ContentTab` pour accepter un groupe** :
-```php
-class ContentTab
-{
-    /**
-     * Crée un onglet Content avec les blocs d'un groupe spécifique.
-     *
-     * @param string $group Nom du groupe (défaut: 'pages')
-     * @return Components\Tabs\Tab
-     */
-    public static function make(string $group = 'pages'): Components\Tabs\Tab
-    {
-        $blocks = self::getBlocksForGroup($group);
-
-        return Components\Tabs\Tab::make('content')
-            ->label('Contenu')
-            ->schema([
-                Forms\Components\Builder::make('content.sections')
-                    ->label('Sections')
-                    ->blocks($blocks)
-                    ->collapsible()
-                    ->columnSpanFull(),
-            ]);
-    }
-
-    /**
-     * Récupère les blocs pour un groupe spécifique.
-     *
-     * @param string $group
-     * @return array
-     */
-    protected static function getBlocksForGroup(string $group): array
-    {
-        $config = config('page-content-manager.block_groups', []);
-        
-        // Si le groupe existe dans la config, utiliser l'ordre défini
-        if (isset($config[$group]['blocks']) && is_array($config[$group]['blocks'])) {
-            $blocks = [];
-            foreach ($config[$group]['blocks'] as $blockClass) {
-                if (class_exists($blockClass) && method_exists($blockClass, 'make')) {
-                    // Vérifier que le bloc n'est pas désactivé
-                    $type = $blockClass::getType();
-                    $disabledBlocks = config('page-content-manager.disabled_blocks', []);
-                    
-                    if (!in_array($type, $disabledBlocks, true)) {
-                        $blocks[] = $blockClass::make();
-                    }
-                }
-            }
-            return $blocks;
-        }
-        
-        // Fallback : utiliser tous les blocs disponibles (comportement actuel)
-        return self::getAllBlocks();
-    }
-}
-```
-
-4. **Utilisation dans les ressources Filament** :
-```php
-// Pour les Pages (groupe par défaut)
-use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
-
-ContentTab::make() // Utilise le groupe 'pages' par défaut
-
-// Pour une autre ressource avec un groupe spécifique
-ContentTab::make('articles') // Utilise uniquement les blocs du groupe 'articles'
-
-// Pour une landing page
-ContentTab::make('landing') // Utilise uniquement les blocs du groupe 'landing'
-```
-
-5. **Gestion automatique des blocs non listés** :
-- Si un bloc n'est pas dans la liste du groupe, il n'apparaît pas
-- Permet de créer des groupes très spécifiques avec seulement les blocs nécessaires
-- Les blocs désactivés globalement sont automatiquement exclus
-
-**Avantages de cette approche** :
-- ✅ **Flexibilité maximale** : Même bloc peut avoir des ordres différents selon le contexte
-- ✅ **Simplicité** : Pas besoin de modifier chaque classe de bloc
-- ✅ **Configuration centralisée** : Tout est dans un seul fichier de config
-- ✅ **Réutilisabilité** : Créer facilement de nouveaux groupes pour de nouvelles ressources
-- ✅ **Sélectivité** : Chaque groupe peut n'inclure que les blocs pertinents
-- ✅ **Maintenabilité** : Facile de réorganiser l'ordre sans toucher au code
-- ✅ **Contextuel** : Chaque ressource peut avoir son propre ensemble de blocs optimisé
-
-**Exemple de cas d'usage** :
-- **Pages** : Tous les blocs dans un ordre logique (Hero → Text → Image → CTA → Form)
-- **Articles** : Seulement Text, Image, Author, Related (pas de Hero ni Form)
-- **Landing Pages** : Seulement Hero, CTA, Video (focus sur la conversion)
-- **Produits** : Seulement Image, Gallery, CTA, FAQ (focus sur la présentation produit)
-
-**Gestion de la configuration dans un package** :
-
-- **Configuration par défaut** : Le package fournit une configuration par défaut dans `config/page-content-manager.php` avec un groupe `pages` contenant tous les blocs core dans un ordre logique
-- **Publication facile** : La commande `vendor:publish` copie la config dans votre projet où vous pouvez la modifier librement
-- **Personnalisation sans modifier le package** : Toute la personnalisation se fait dans `config/page-content-manager.php` de votre projet, le package reste intact
-- **Versioning** : Vous pouvez versionner votre configuration personnalisée dans Git
-- **Accès direct** : Le fichier est dans `config/` de votre projet, facilement accessible et modifiable
-
-**Exemple de personnalisation dans votre projet** :
-
-```php
-// config/page-content-manager.php (dans votre projet Laravel)
-'block_groups' => [
-    'pages' => [
-        'blocks' => [
-            // Réorganiser l'ordre selon vos besoins
-            \Xavcha\PageContentManager\Blocks\Core\HeroBlock::class,
-            \App\Blocks\Custom\VideoBlock::class, // Bloc custom en deuxième position
-            \Xavcha\PageContentManager\Blocks\Core\TextBlock::class,
-            // ... autres blocs dans l'ordre souhaité
-        ],
-    ],
-    
-    // Ajouter un nouveau groupe pour votre ressource
-    'products' => [
-        'blocks' => [
-            \Xavcha\PageContentManager\Blocks\Core\ImageBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\GalleryBlock::class,
-            \App\Blocks\Custom\ProductSpecsBlock::class,
-            \Xavcha\PageContentManager\Blocks\Core\FaqBlock::class,
-        ],
-    ],
-],
-```
-
-**Rétrocompatibilité** : 
-- Si aucun groupe n'est spécifié ou si le groupe n'existe pas, utiliser le comportement actuel (tous les blocs disponibles)
-- Si la configuration `block_groups` n'existe pas dans votre projet, tous les blocs sont affichés dans l'ordre de découverte
-- La configuration est optionnelle : si vous ne la publiez pas, le système fonctionne comme actuellement
-
 ---
 
 ## 📊 Priorité Moyenne
 
-### 4. Facade pour faciliter l'utilisation
+### 4. Facade pour faciliter l'utilisation ✅ **IMPLÉMENTÉ**
 **Problème** : Accès au registry nécessite `app(BlockRegistry::class)`.
 
 **Solution** : Créer une Facade.
 
+**Statut** : ✅ Implémenté dans la version 0.2.4. Voir la documentation dans `README.md` et `docs/blocks-architecture.md`.
+
+**Utilisation** :
 ```php
 use Xavcha\PageContentManager\Facades\Blocks;
 
 Blocks::get('hero');
 Blocks::all();
 Blocks::has('text');
+Blocks::register('custom_block', \App\Blocks\Custom\MyBlock::class);
+Blocks::clearCache();
 ```
 
 **Bénéfice** : API plus propre et intuitive.
@@ -756,10 +542,9 @@ protected function registerFilamentResource(): void
 
 Pour une version future, je recommande d'implémenter :
 
-1. ✅ **Ordre et groupes des blocs** (UX) - **IMPLÉMENTÉ (v0.2.3)**
-2. **Facade** (DX) - Impact moyen, effort faible
-3. **Optimisation normalisation contenu** (Performance) - Impact moyen, effort faible
-4. **Gestion d'erreurs SectionTransformer** (Robustesse) - Impact moyen, effort moyen
+1. **Facade** (DX) - Impact moyen, effort faible
+2. **Optimisation normalisation contenu** (Performance) - Impact moyen, effort faible
+3. **Gestion d'erreurs SectionTransformer** (Robustesse) - Impact moyen, effort moyen
 
 Ces améliorations apportent le plus de valeur avec un effort raisonnable et **ne cassent pas la compatibilité**.
 

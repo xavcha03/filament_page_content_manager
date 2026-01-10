@@ -5,6 +5,24 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [0.2.4] - 2025-01-XX
+
+### Ajouté
+- **Facade Blocks pour faciliter l'accès au BlockRegistry** 🎯
+  - Facade `Blocks` pour un accès simplifié au `BlockRegistry`
+  - Méthode `has(string $type): bool` dans `BlockRegistry` pour vérifier l'existence d'un bloc
+  - API plus propre et intuitive : `Blocks::get()`, `Blocks::all()`, `Blocks::has()`, etc.
+  - Enregistrement de `BlockRegistry` comme singleton dans le ServiceProvider
+- Tests unitaires pour la Facade (9 tests)
+
+### Modifié
+- `BlockRegistry` : Ajout de la méthode `has()` pour vérifier l'existence d'un bloc
+- `PageContentManagerServiceProvider` : Enregistrement de `BlockRegistry` comme singleton
+
+### Documentation
+- Ajout de la section "Utiliser la Facade Blocks" dans le README
+- Documentation complète dans `docs/blocks-architecture.md`
+
 ## [0.2.3] - 2025-01-XX
 
 ### Ajouté
@@ -117,6 +135,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Migration initiale avec création automatique de la page Home
 - Configuration flexible via fichier de config
 
+[0.2.4]: https://github.com/xavcha03/page-content-manager/compare/0.2.3...0.2.4
 [0.2.3]: https://github.com/xavcha03/page-content-manager/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/xavcha03/page-content-manager/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/xavcha03/page-content-manager/compare/0.2.0...0.2.1

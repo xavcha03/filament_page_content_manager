@@ -1,11 +1,11 @@
 # Xavcha Page Content Manager
 
-[![Version](https://img.shields.io/badge/version-0.2.3-blue.svg)](https://github.com/xavcha03/page-content-manager)
+[![Version](https://img.shields.io/badge/version-0.2.4-blue.svg)](https://github.com/xavcha03/page-content-manager)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Package Laravel Filament professionnel pour gérer les pages avec un système de blocs de contenu flexible et réutilisable.
 
-> **Note** : Ce package est actuellement en version **0.2.3** (pré-v1.0). L'API peut encore évoluer avant la version stable.
+> **Note** : Ce package est actuellement en version **0.2.4** (pré-v1.0). L'API peut encore évoluer avant la version stable.
 
 ## ✨ Fonctionnalités
 
@@ -366,6 +366,46 @@ ContentTab::make('articles') // Utilise uniquement les blocs du groupe 'articles
 
 **Rétrocompatibilité** : Si aucun groupe n'est spécifié ou si le groupe n'existe pas, tous les blocs disponibles seront affichés dans l'ordre de découverte.
 
+### Utiliser la Facade Blocks
+
+Pour accéder facilement au `BlockRegistry` sans passer par `app(BlockRegistry::class)`, vous pouvez utiliser la Facade `Blocks` :
+
+```php
+use Xavcha\PageContentManager\Facades\Blocks;
+
+// Récupérer un bloc par son type
+$heroBlockClass = Blocks::get('hero');
+
+// Récupérer tous les blocs
+$allBlocks = Blocks::all();
+
+// Vérifier si un bloc existe
+if (Blocks::has('text')) {
+    // Le bloc 'text' est disponible
+}
+
+// Enregistrer un bloc manuellement (rarement nécessaire)
+Blocks::register('custom_block', \App\Blocks\Custom\MyBlock::class);
+
+// Nettoyer le cache des blocs
+Blocks::clearCache();
+```
+
+**Avantages** :
+- ✅ API plus propre et intuitive
+- ✅ Pas besoin d'injecter le service
+- ✅ Accès direct depuis n'importe où dans votre code
+
+**Alternative** : Si vous préférez l'injection de dépendances, vous pouvez toujours utiliser :
+```php
+use Xavcha\PageContentManager\Blocks\BlockRegistry;
+
+public function __construct(BlockRegistry $registry)
+{
+    $this->registry = $registry;
+}
+```
+
 ## 🔄 Système réutilisable pour autres ressources
 
 Vous pouvez ajouter les onglets SEO et Content à n'importe quelle ressource Filament.
@@ -648,7 +688,8 @@ Voir [CHANGELOG.md](CHANGELOG.md) pour la liste complète des changements.
 
 ## 🔖 Versions
 
-- **0.2.3** (actuelle) - Groupes de blocs avec ordre personnalisé, configuration flexible
+- **0.2.4** (actuelle) - Facade Blocks pour faciliter l'accès au BlockRegistry
+- **0.2.3** - Groupes de blocs avec ordre personnalisé, configuration flexible
 - **0.2.2** - CLI interactif pour la gestion des blocs, validation des blocs au démarrage
 - **0.2.1** - Système de cache pour BlockRegistry, amélioration des performances
 - **0.2.0** - Suite complète de tests, améliorations de l'architecture

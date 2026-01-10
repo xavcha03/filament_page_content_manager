@@ -1,0 +1,293 @@
+---
+alwaysApply: true
+---
+
+# Règles de développement - Xavcha Page Content Manager
+
+## 📋 Contexte du projet
+
+Ce projet est un **package Laravel Filament** pour gérer les pages avec un système de blocs de contenu flexible et réutilisable.
+
+- **Namespace** : `Xavcha\PageContentManager`
+- **Type** : Package Laravel (composer package)
+- **Framework** : Laravel avec Filament
+- **Environnement de développement** : DDEV
+- **Version actuelle** : Voir `composer.json` et `README.md` pour la version actuelle
+
+## 🧪 Tests - OBLIGATOIRE
+
+**⚠️ RÈGLE CRITIQUE** : Toute nouvelle fonctionnalité ou modification DOIT être accompagnée de tests.
+
+### Structure des tests
+
+- `tests/Unit/` : Tests unitaires pour les classes isolées (blocs, transformers, traits, etc.)
+- `tests/Feature/` : Tests fonctionnels pour les intégrations (API, modèles, service provider, etc.)
+- `tests/Helpers/` : Helpers réutilisables pour les tests
+
+### Exécution des tests
+
+```bash
+# Avec ddev (recommandé)
+ddev exec vendor/bin/phpunit
+
+# Ou directement
+composer test
+```
+
+### Règles de test
+
+1. **Toujours créer des tests** pour toute nouvelle fonctionnalité
+2. **Tous les tests doivent passer** avant de commiter
+3. **Utiliser `TestCase`** de `Xavcha\PageContentManager\Tests\TestCase` comme classe de base
+4. **Nommer les tests** avec `test_` suivi d'une description claire : `test_can_get_block_by_type()`
+5. **Tests unitaires** : Tester les classes isolément, mocker les dépendances
+6. **Tests fonctionnels** : Tester les intégrations complètes (API, modèles, etc.)
+
+### Exemple de test
+
+```php
+<?php
+
+namespace Xavcha\PageContentManager\Tests\Unit;
+
+use Xavcha\PageContentManager\Tests\TestCase;
+
+class MonNouveauBlocTest extends TestCase
+{
+    public function test_get_type_returns_correct_type(): void
+    {
+        $this->assertEquals('mon_bloc', MonNouveauBloc::getType());
+    }
+
+    public function test_transform_returns_correct_structure(): void
+    {
+        $data = ['titre' => 'Test'];
+        $result = MonNouveauBloc::transform($data);
+        
+        $this->assertArrayHasKey('type', $result);
+        $this->assertEquals('mon_bloc', $result['type']);
+    }
+}
+```
+
+## 📦 Versionnement - OBLIGATOIRE
+
+**⚠️ RÈGLE CRITIQUE** : Toute version publiée DOIT être taguée dans Git.
+
+### Convention de versionnement
+
+Le package suit **Semantic Versioning** :
+- **0.x.0** : Versions majeures (ajouts de fonctionnalités, changements d'API)
+- **0.0.x** : Versions mineures (nouvelles fonctionnalités rétrocompatibles)
+- **0.0.0.x** : Versions patch (corrections de bugs)
+
+### Processus de versionnement (OBLIGATOIRE)
+
+1. **Mettre à jour le CHANGELOG.md** :
+   - Ajouter une nouvelle section `[X.Y.Z] - YYYY-MM-DD`
+   - Documenter tous les changements (Ajouté, Modifié, Supprimé, Sécurité)
+   - Suivre le format [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
+
+2. **Mettre à jour la version dans `composer.json`** :
+   ```json
+   {
+     "version": "0.2.4"
+   }
+   ```
+
+3. **Mettre à jour le README.md** :
+   - Badge de version en haut du fichier
+   - Section "Versions" avec la nouvelle version marquée comme actuelle
+
+4. **Créer un commit** :
+   ```bash
+   git add CHANGELOG.md composer.json README.md
+   git commit -m "Version 0.2.4 - Description des changements"
+   ```
+
+5. **Créer un tag Git annoté** :
+   ```bash
+   git tag -a v0.2.4 -m "Version 0.2.4 - Description des changements"
+   ```
+
+6. **Pousser le commit et le tag** :
+   ```bash
+   git push origin main
+   git push origin v0.2.4
+   ```
+
+## 📝 Standards de code
+
+### PHP
+
+- **PSR-12** : Respecter les standards de codage PHP
+- **Type hints** : Utiliser les types stricts (`declare(strict_types=1);`)
+- **Return types** : Toujours spécifier les types de retour
+- **Documentation** : Documenter les méthodes publiques avec PHPDoc
+- **Nommage** : Utiliser des noms explicites et cohérents
+
+### Structure des fichiers
+
+- **Namespaces** : Respecter la structure `Xavcha\PageContentManager\{Component}`
+- **Classes** : Un fichier = une classe
+- **Tests** : Même structure que `src/` mais dans `tests/`
+
+### Conventions de nommage
+
+- **Classes** : PascalCase (`BlockRegistry`, `ContentTab`)
+- **Méthodes** : camelCase (`getBlocks()`, `transform()`)
+- **Variables** : camelCase (`$blockClass`, `$allBlocks`)
+- **Constantes** : UPPER_SNAKE_CASE (`EXIT_CODE_SUCCESS`)
+- **Tests** : `test_` suivi d'une description (`test_can_get_block()`)
+
+## 🔄 Workflow de développement
+
+### Processus standard
+
+1. **Créer une branche** pour la fonctionnalité/correction :
+   ```bash
+   git checkout -b feature/nouvelle-fonctionnalite
+   # ou
+   git checkout -b fix/correction-bug
+   ```
+
+2. **Développer et tester** :
+   - Écrire le code
+   - **Écrire les tests** (TDD recommandé)
+   - Vérifier que tous les tests passent : `ddev exec vendor/bin/phpunit`
+
+3. **Mettre à jour la documentation** si nécessaire :
+   - README.md (si fonctionnalité importante)
+   - Documentation dans `docs/` (toujours)
+   - Exemples d'utilisation
+
+4. **Commit** avec un message clair :
+   ```bash
+   git commit -m "feat: Ajout de la fonctionnalité X"
+   # ou
+   git commit -m "fix: Correction du bug Y"
+   ```
+
+5. **Merge** dans `main` après validation
+
+### Ajout de nouvelles fonctionnalités
+
+Avant d'ajouter une nouvelle fonctionnalité :
+
+1. ✅ Vérifier qu'elle n'existe pas déjà dans `docs/improvements.md`
+2. ✅ S'assurer qu'elle est compatible avec l'architecture actuelle
+3. ✅ **Écrire les tests** avant ou pendant le développement (TDD recommandé)
+4. ✅ Mettre à jour la documentation (`docs/` et `README.md` si nécessaire)
+5. ✅ Mettre à jour le CHANGELOG lors de la version
+
+### Modification de l'API
+
+Si une modification casse la rétrocompatibilité :
+
+1. ⚠️ **Augmenter le numéro de version majeure** (ex: 0.2.0 → 0.3.0)
+2. ⚠️ **Documenter clairement** les breaking changes dans le CHANGELOG
+3. ⚠️ **Fournir un guide de migration** si nécessaire (dans `docs/`)
+
+## 🏗️ Architecture du projet
+
+### Structure des dossiers
+
+```
+src/
+├── Blocks/              # Système de blocs
+│   ├── Core/           # Blocs core du package
+│   ├── Contracts/      # Interfaces (BlockInterface)
+│   ├── Concerns/       # Traits réutilisables
+│   ├── BlockRegistry.php
+│   └── SectionTransformer.php
+├── Console/            # Commandes Artisan
+├── Facades/            # Facades (Blocks)
+├── Filament/           # Composants Filament
+│   ├── Forms/Components/
+│   └── Resources/
+├── Http/               # Contrôleurs API
+├── Models/             # Modèles Eloquent
+└── PageContentManagerServiceProvider.php
+```
+
+### Système de blocs
+
+- **BlockInterface** : Tous les blocs doivent implémenter cette interface
+- **BlockRegistry** : Auto-découverte des blocs dans `src/Blocks/Core/` et `app/Blocks/Custom/`
+- **SectionTransformer** : Transformation des sections pour l'API
+- **ContentTab** : Composant Filament réutilisable pour les blocs
+
+Voir `docs/blocks-architecture.md` pour plus de détails.
+
+## 📚 Documentation
+
+### Règles de documentation
+
+1. **Toujours documenter** les nouvelles fonctionnalités
+2. **Mettre à jour** `docs/improvements.md` quand une fonctionnalité est implémentée
+3. **Mettre à jour** `CHANGELOG.md` lors d'une nouvelle version
+4. **README.md** : Pour les fonctionnalités importantes et l'utilisation générale
+5. **docs/** : Pour la documentation détaillée
+
+### Fichiers de documentation
+
+- `README.md` : Vue d'ensemble, installation, utilisation de base
+- `CHANGELOG.md` : Historique des versions (format Keep a Changelog)
+- `docs/improvements.md` : Roadmap et fonctionnalités proposées
+- `docs/blocks-architecture.md` : Architecture du système de blocs
+- `docs/usage.md` : Guide d'utilisation détaillé
+- `docs/testing.md` : Guide des tests
+
+**⚠️ IMPORTANT** : Pour les commandes CLI, les configurations, et autres détails qui changent souvent, **référencer la documentation** plutôt que de les dupliquer ici.
+
+## 🛠️ Environnement de développement
+
+### DDEV
+
+Le package utilise **DDEV** pour l'environnement PHP :
+
+```bash
+# Exécuter les tests
+ddev exec vendor/bin/phpunit
+
+# Installer les dépendances
+ddev composer install
+
+# Exécuter les commandes Artisan (dans workbench/)
+ddev exec "cd workbench && php artisan migrate"
+```
+
+### Workbench
+
+Le package inclut un environnement de test complet dans `workbench/` :
+- Application Laravel complète pour tester visuellement
+- Filament installé pour tester l'interface
+- Voir `docs/testing.md` pour plus de détails
+
+## ⚠️ Règles critiques à respecter
+
+1. **Tests obligatoires** : Toute fonctionnalité doit avoir des tests
+2. **Versionnement obligatoire** : Toute version doit suivre le processus complet
+3. **Documentation obligatoire** : Toute fonctionnalité doit être documentée
+4. **Tous les tests doivent passer** avant de commiter
+5. **Respecter PSR-12** et les conventions de nommage
+6. **Rétrocompatibilité** : Éviter les breaking changes, ou augmenter la version majeure
+
+## 📖 Références rapides
+
+Pour les détails qui changent souvent, consulter :
+
+- **Commandes CLI** : `README.md` section "CLI interactif pour la gestion des blocs"
+- **Configuration** : `config/page-content-manager.php` et `README.md`
+- **Architecture des blocs** : `docs/blocks-architecture.md`
+- **Guide d'utilisation** : `docs/usage.md`
+- **Tests** : `docs/testing.md`
+- **Améliorations proposées** : `docs/improvements.md`
+
+## 🎯 Checklist avant commit
+
+- [ ] Tous les tests passent (`ddev exec vendor/bin/phpunit`)
+- [ ] Code respecte PSR-12
+- [ ] Documentation mise à jour si nécessaire
+- [ ] Pas de breaking changes (ou version majeure si nécessaire)
+- [ ] Message de commit clair et descriptif

@@ -15,6 +15,11 @@ class PageContentManagerServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/page-content-manager.php', 'page-content-manager');
+
+        // Enregistrer BlockRegistry comme singleton pour la Facade
+        $this->app->singleton(BlockRegistry::class, function ($app) {
+            return new BlockRegistry();
+        });
     }
 
     /**

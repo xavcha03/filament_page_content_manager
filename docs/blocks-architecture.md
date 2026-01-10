@@ -307,6 +307,48 @@ ContentTab::make('articles') // Utilise uniquement les blocs du groupe 'articles
 - Si le groupe n'existe pas, tous les blocs disponibles sont affichés dans l'ordre de découverte
 - Les blocs désactivés globalement sont automatiquement exclus de tous les groupes
 
+## Facade Blocks
+
+Pour faciliter l'accès au `BlockRegistry`, une Facade `Blocks` est disponible :
+
+```php
+use Xavcha\PageContentManager\Facades\Blocks;
+
+// Récupérer un bloc par son type
+$blockClass = Blocks::get('hero');
+
+// Récupérer tous les blocs
+$allBlocks = Blocks::all();
+
+// Vérifier si un bloc existe
+if (Blocks::has('text')) {
+    // ...
+}
+
+// Enregistrer un bloc manuellement
+Blocks::register('custom_block', \App\Blocks\Custom\MyBlock::class);
+
+// Nettoyer le cache
+Blocks::clearCache();
+```
+
+**Méthodes disponibles** :
+- `get(string $type): ?string` - Récupère la classe d'un bloc par son type
+- `all(): array` - Récupère tous les blocs enregistrés
+- `has(string $type): bool` - Vérifie si un bloc est enregistré
+- `register(string $type, string $blockClass): void` - Enregistre un bloc manuellement
+- `clearCache(): void` - Invalide le cache des blocs
+
+**Alternative** : Si vous préférez l'injection de dépendances, vous pouvez toujours utiliser :
+```php
+use Xavcha\PageContentManager\Blocks\BlockRegistry;
+
+public function __construct(BlockRegistry $registry)
+{
+    $this->registry = $registry;
+}
+```
+
 ## Validation des Blocs
 
 ### Validation au démarrage
