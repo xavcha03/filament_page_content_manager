@@ -38,6 +38,14 @@ class PageContentManagerServiceProvider extends ServiceProvider
             $this->commands([
                 \Xavcha\PageContentManager\Console\Commands\AddPageDetailColumnsCommand::class,
                 \Xavcha\PageContentManager\Console\Commands\ClearBlocksCacheCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\MakeBlockCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\BlocksCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\BlockListCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\BlockInspectCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\BlockDisableCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\BlockEnableCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\BlocksStatsCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\BlocksValidateCommand::class,
             ]);
         }
 

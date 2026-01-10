@@ -1,0 +1,53 @@
+<?php
+
+namespace {{ namespace }};
+
+use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
+{{ hasMediaUse }}
+
+class {{ blockName }}Block implements BlockInterface
+{
+{{ hasMediaTrait }}
+
+    public static function getType(): string
+    {
+        return '{{ type }}';
+    }
+
+    public static function getOrder(): int
+    {
+        return {{ order }};
+    }
+
+    public static function getGroup(): ?string
+    {
+        return '{{ group }}';
+    }
+
+    public static function make(): Block
+    {
+        return Block::make('{{ type }}')
+            ->label('{{ label }}')
+            ->icon('heroicon-o-{{ icon }}')
+            ->schema([
+                TextInput::make('titre')
+                    ->label('Titre')
+                    ->required()
+                    ->maxLength(200)
+                    ->columnSpanFull(),
+                // Ajoutez vos champs ici
+            ]);
+    }
+
+    public static function transform(array $data): array
+    {
+        return [
+            'type' => '{{ type }}',
+            'titre' => $data['titre'] ?? '',
+            // Ajoutez votre logique de transformation ici
+        ];
+    }
+}
+
