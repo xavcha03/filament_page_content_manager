@@ -2,10 +2,12 @@
 
 ## 🚀 Priorité Haute
 
-### 1. Cache pour BlockRegistry
+### 1. Cache pour BlockRegistry ✅ **IMPLÉMENTÉ (v0.2.1)**
 **Problème** : La découverte automatique des blocs se fait à chaque requête, ce qui peut être coûteux. Même avec le flag `$autoDiscovered`, le scan de fichiers peut être coûteux en production.
 
 **Solution** : Mettre en cache la liste des blocs découverts avec invalidation automatique.
+
+**Statut** : ✅ Implémenté dans la version 0.2.1. Voir la documentation dans `docs/blocks-architecture.md` pour plus de détails.
 
 ```php
 // Dans BlockRegistry
@@ -950,7 +952,7 @@ protected function registerFilamentResource(): void
 
 Pour une version 2.1, je recommande d'implémenter :
 
-1. ✅ **Cache pour BlockRegistry** (Performance) - Impact élevé, effort faible
+1. ✅ **Cache pour BlockRegistry** (Performance) - Impact élevé, effort faible - **IMPLÉMENTÉ (v0.2.1)**
 2. ✅ **CLI Interactif pour la gestion des blocs** (DX) ⭐ **NOUVEAU**
    - Commande `make-block` pour créer un bloc
    - Commande `blocks` avec menu interactif
