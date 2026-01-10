@@ -12,6 +12,7 @@ Package Laravel Filament professionnel pour gérer les pages avec un système de
 - 📄 **Ressource Filament complète** pour gérer les pages
 - 🧩 **Système de blocs modulaire** (Hero, Text, Image, Gallery, CTA, FAQ, Contact Form)
 - 🔌 **Routes API** pour récupérer les pages et leur contenu transformé
+- 🎨 **CLI interactif** pour la gestion des blocs (création, inspection, validation, etc.)
 - 🔄 **Système réutilisable** pour ajouter SEO et Content à d'autres ressources Filament
 - 🎨 **Transformers personnalisables** pour chaque bloc
 - ⚙️ **Configuration flexible** et extensible
@@ -129,16 +130,17 @@ Exemple de réponse :
 
 ### Désactiver un bloc Core
 
-Dans `config/page-content-manager.php`, retirez simplement le bloc de la liste :
+**Méthode 1 : Via CLI (recommandé)**
+```bash
+php artisan page-content-manager:block:disable hero --force
+```
+
+**Méthode 2 : Via configuration**
+
+Dans `config/page-content-manager.php`, ajoutez le bloc à la liste `disabled_blocks` :
 
 ```php
-'blocks' => [
-    'core' => [
-        // 'hero' => ..., // Bloc désactivé
-        'text' => ...,
-        // ...
-    ],
-],
+'disabled_blocks' => ['hero'],
 ```
 
 ### Créer un bloc personnalisé
@@ -184,6 +186,99 @@ class MonBloc implements BlockInterface
 ```
 
 **C'est tout !** Le bloc est automatiquement découvert et disponible. Aucune configuration nécessaire.
+
+### CLI Interactif pour la gestion des blocs
+
+Le package inclut un système de commandes CLI complet pour gérer vos blocs :
+
+#### Menu interactif principal
+
+```bash
+php artisan page-content-manager:blocks
+```
+
+Affiche un menu interactif avec toutes les options disponibles.
+
+#### Créer un nouveau bloc
+
+**Mode interactif** :
+```bash
+php artisan page-content-manager:make-block
+```
+
+**Mode non-interactif** (pour les agents IA) :
+```bash
+php artisan page-content-manager:make-block video \
+  --group=media \
+  --with-media \
+  --order=50 \
+  --force
+```
+
+#### Lister les blocs
+
+```bash
+# Liste tous les blocs
+php artisan page-content-manager:block:list
+
+# Filtrer par type
+php artisan page-content-manager:block:list --core
+php artisan page-content-manager:block:list --custom
+php artisan page-content-manager:block:list --disabled
+php artisan page-content-manager:block:list --group=media
+
+# Sortie JSON (pour les agents IA)
+php artisan page-content-manager:block:list --json
+```
+
+#### Inspecter un bloc
+
+```bash
+php artisan page-content-manager:block:inspect hero
+
+# Avec plus de détails
+php artisan page-content-manager:block:inspect hero --verbose --show-schema
+
+# Sortie JSON
+php artisan page-content-manager:block:inspect hero --json
+```
+
+#### Activer/Désactiver un bloc
+
+```bash
+# Désactiver un bloc
+php artisan page-content-manager:block:disable faq --force
+
+# Activer un bloc
+php artisan page-content-manager:block:enable faq --force
+```
+
+#### Statistiques
+
+```bash
+php artisan page-content-manager:blocks:stats
+
+# Sortie JSON
+php artisan page-content-manager:blocks:stats --json
+```
+
+#### Valider tous les blocs
+
+```bash
+php artisan page-content-manager:blocks:validate
+
+# Sortie JSON
+php artisan page-content-manager:blocks:validate --json
+```
+
+#### Autres commandes
+
+```bash
+# Invalider le cache des blocs
+php artisan page-content-manager:blocks:clear-cache
+```
+
+Toutes les commandes supportent le mode non-interactif avec sortie JSON pour une utilisation automatisée (agents IA, scripts, CI/CD).
 
 ## 🔄 Système réutilisable pour autres ressources
 
