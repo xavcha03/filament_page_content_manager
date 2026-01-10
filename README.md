@@ -1,6 +1,11 @@
 # Xavcha Page Content Manager
 
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/xavcha03/page-content-manager)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Package Laravel Filament professionnel pour gérer les pages avec un système de blocs de contenu flexible et réutilisable.
+
+> **Note** : Ce package est actuellement en version **0.2.0** (pré-v1.0). L'API peut encore évoluer avant la version stable.
 
 ## ✨ Fonctionnalités
 
@@ -288,6 +293,15 @@ Components\Tabs::make('tabs')
 ## 🧪 Tests
 
 Le package inclut un environnement de test avec Workbench. Voir [docs/testing.md](docs/testing.md) pour plus de détails.
+
+## 📋 Changelog
+
+Voir [CHANGELOG.md](CHANGELOG.md) pour la liste complète des changements.
+
+## 🔖 Versions
+
+- **0.2.0** (actuelle) - Suite complète de tests, améliorations de l'architecture
+- **0.1.0** - Version initiale avec fonctionnalités de base
 
 ## 📄 Licence
 
