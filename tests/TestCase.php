@@ -40,6 +40,12 @@ class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
+        // S'assurer que le répertoire database/migrations existe pour les tests de commande
+        $migrationsPath = database_path('migrations');
+        if (!\Illuminate\Support\Facades\File::exists($migrationsPath)) {
+            \Illuminate\Support\Facades\File::makeDirectory($migrationsPath, 0755, true);
+        }
+
         // Configuration Filament
         $app['config']->set('filament', [
             'default' => 'admin',
