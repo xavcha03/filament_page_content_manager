@@ -4,6 +4,8 @@ namespace Xavcha\PageContentManager;
 
 use Filament\Facades\Filament;
 use Illuminate\Support\ServiceProvider;
+use Xavcha\PageContentManager\Blocks\BlockRegistry;
+use Xavcha\PageContentManager\Blocks\BlockValidator;
 
 class PageContentManagerServiceProvider extends ServiceProvider
 {
@@ -49,6 +51,12 @@ class PageContentManagerServiceProvider extends ServiceProvider
             ]);
         }
 
+        // Validation optionnelle des blocs au démarrage
+        // Désactivée par défaut pour ne pas impacter les performances en production
+        if (config('page-content-manager.validate_blocks_on_boot', false)) {
+            $this->validateBlocks();
+        }
+
         // Enregistrement de la ressource Filament
         // IMPORTANT: L'enregistrement automatique via Filament::serving() peut ne pas fonctionner
         // correctement car les routes ne sont pas créées à temps. Il est FORTEMENT RECOMMANDÉ
@@ -70,6 +78,20 @@ class PageContentManagerServiceProvider extends ServiceProvider
                 }
             });
         }
+    }
+
+    /**
+     * Valide tous les blocs enregistrés.
+     *
+     * @return void
+     * @throws \RuntimeException Si un bloc a des erreurs et que la configuration le demande
+     */
+    protected function validateBlocks(): void
+    {
+        $registry = $this->app->make(BlockRegistry::class);
+        $throwOnError = config('page-content-manager.validate_blocks_on_boot_throw', false);
+
+        BlockValidator::validateAll($registry, $throwOnError);
     }
 }
 

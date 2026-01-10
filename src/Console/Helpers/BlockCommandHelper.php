@@ -262,69 +262,7 @@ class BlockCommandHelper
      */
     public static function validateBlock(string $type, string $blockClass): array
     {
-        $errors = [];
-        $warnings = [];
-
-        if (!class_exists($blockClass)) {
-            $errors[] = "La classe {$blockClass} n'existe pas";
-            return ['errors' => $errors, 'warnings' => $warnings, 'valid' => false];
-        }
-
-        $reflection = new \ReflectionClass($blockClass);
-
-        // Vérifier que c'est une classe concrète
-        if ($reflection->isAbstract() || $reflection->isInterface()) {
-            $errors[] = "La classe {$blockClass} est abstraite ou une interface";
-            return ['errors' => $errors, 'warnings' => $warnings, 'valid' => false];
-        }
-
-        // Vérifier l'implémentation de BlockInterface
-        if (!$reflection->implementsInterface(BlockInterface::class)) {
-            $errors[] = "La classe {$blockClass} n'implémente pas BlockInterface";
-            return ['errors' => $errors, 'warnings' => $warnings, 'valid' => false];
-        }
-
-        // Vérifier les méthodes requises
-        $requiredMethods = ['getType', 'make', 'transform'];
-
-        foreach ($requiredMethods as $method) {
-            if (!method_exists($blockClass, $method)) {
-                $errors[] = "La méthode {$method}() est manquante";
-            } elseif (!$reflection->getMethod($method)->isStatic()) {
-                $warnings[] = "La méthode {$method}() devrait être statique";
-            }
-        }
-
-        // Vérifier que getType() retourne le bon type
-        try {
-            $returnedType = $blockClass::getType();
-            if ($returnedType !== $type) {
-                $warnings[] = "Type mismatch : attendu '{$type}', obtenu '{$returnedType}'";
-            }
-        } catch (\Throwable $e) {
-            $errors[] = "Erreur lors de l'appel à getType() : " . $e->getMessage();
-        }
-
-        // Vérifier que transform() retourne un array avec 'type'
-        try {
-            $testData = ['test' => 'data'];
-            $transformed = $blockClass::transform($testData);
-            if (!is_array($transformed)) {
-                $errors[] = "La méthode transform() doit retourner un array";
-            } elseif (!isset($transformed['type'])) {
-                $errors[] = "La méthode transform() doit retourner un array avec la clé 'type'";
-            } elseif ($transformed['type'] !== $type) {
-                $warnings[] = "Le type retourné par transform() ('{$transformed['type']}') ne correspond pas au type du bloc ('{$type}')";
-            }
-        } catch (\Throwable $e) {
-            $warnings[] = "Impossible de tester transform() : " . $e->getMessage();
-        }
-
-        return [
-            'errors' => $errors,
-            'warnings' => $warnings,
-            'valid' => empty($errors),
-        ];
+        return \Xavcha\PageContentManager\Blocks\BlockValidator::validate($type, $blockClass);
     }
 
     /**

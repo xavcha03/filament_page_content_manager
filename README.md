@@ -1,11 +1,11 @@
 # Xavcha Page Content Manager
 
-[![Version](https://img.shields.io/badge/version-0.2.1-blue.svg)](https://github.com/xavcha03/page-content-manager)
+[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/xavcha03/page-content-manager)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Package Laravel Filament professionnel pour gérer les pages avec un système de blocs de contenu flexible et réutilisable.
 
-> **Note** : Ce package est actuellement en version **0.2.1** (pré-v1.0). L'API peut encore évoluer avant la version stable.
+> **Note** : Ce package est actuellement en version **0.2.2** (pré-v1.0). L'API peut encore évoluer avant la version stable.
 
 ## ✨ Fonctionnalités
 
@@ -13,6 +13,7 @@ Package Laravel Filament professionnel pour gérer les pages avec un système de
 - 🧩 **Système de blocs modulaire** (Hero, Text, Image, Gallery, CTA, FAQ, Contact Form)
 - 🔌 **Routes API** pour récupérer les pages et leur contenu transformé
 - 🎨 **CLI interactif** pour la gestion des blocs (création, inspection, validation, etc.)
+- 🔍 **Validation des blocs au démarrage** pour détecter les erreurs tôt
 - 🔄 **Système réutilisable** pour ajouter SEO et Content à d'autres ressources Filament
 - 🎨 **Transformers personnalisables** pour chaque bloc
 - ⚙️ **Configuration flexible** et extensible
@@ -280,6 +281,37 @@ php artisan page-content-manager:blocks:clear-cache
 
 Toutes les commandes supportent le mode non-interactif avec sortie JSON pour une utilisation automatisée (agents IA, scripts, CI/CD).
 
+### Validation des blocs au démarrage
+
+Pour détecter les erreurs dans vos blocs dès le démarrage de l'application, vous pouvez activer la validation automatique :
+
+**Dans votre `.env`** :
+```env
+PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT=true
+```
+
+**Pour lancer une exception en cas d'erreur** :
+```env
+PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT_THROW=true
+```
+
+**Configuration dans `config/page-content-manager.php`** :
+```php
+'validate_blocks_on_boot' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT', false),
+'validate_blocks_on_boot_throw' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT_THROW', false),
+```
+
+**Note** : La validation est désactivée par défaut pour ne pas impacter les performances en production. Activez-la en développement pour détecter les erreurs tôt.
+
+La validation vérifie :
+- ✅ Que toutes les méthodes requises existent (`getType`, `make`, `transform`)
+- ✅ Que les méthodes sont statiques
+- ✅ Que `getType()` retourne le bon type
+- ✅ Que `make()` retourne une instance valide de Block
+- ✅ Que `transform()` retourne un array avec la clé 'type'
+
+Les erreurs sont loggées par défaut. Si `validate_blocks_on_boot_throw` est activé, une exception sera lancée en cas d'erreur.
+
 ## 🔄 Système réutilisable pour autres ressources
 
 Vous pouvez ajouter les onglets SEO et Content à n'importe quelle ressource Filament.
@@ -463,7 +495,7 @@ Le package suit [Semantic Versioning](https://semver.org/lang/fr/) :
 2. **Mettre à jour la version dans `composer.json`** :
    ```json
    {
-     "version": "0.2.1"
+     "version": "0.2.2"
    }
    ```
 
@@ -562,7 +594,8 @@ Voir [CHANGELOG.md](CHANGELOG.md) pour la liste complète des changements.
 
 ## 🔖 Versions
 
-- **0.2.1** (actuelle) - Système de cache pour BlockRegistry, amélioration des performances
+- **0.2.2** (actuelle) - CLI interactif pour la gestion des blocs, validation des blocs au démarrage
+- **0.2.1** - Système de cache pour BlockRegistry, amélioration des performances
 - **0.2.0** - Suite complète de tests, améliorations de l'architecture
 - **0.1.0** - Version initiale avec fonctionnalités de base
 

@@ -66,9 +66,22 @@ php artisan page-content-manager:block:inspect hero
 
 # Voir les statistiques
 php artisan page-content-manager:blocks:stats
+
+# Valider tous les blocs
+php artisan page-content-manager:blocks:validate
 ```
 
 Voir [README.md](../README.md#cli-interactif-pour-la-gestion-des-blocs) pour la documentation complète.
+
+### Validation des blocs au démarrage
+
+Pour détecter les erreurs dans vos blocs dès le démarrage de l'application, activez la validation automatique dans votre `.env` :
+
+```env
+PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT=true
+```
+
+Voir [Architecture des blocs](blocks-architecture.md#validation-des-blocs) pour plus de détails.
 
 ## Utiliser l'API
 

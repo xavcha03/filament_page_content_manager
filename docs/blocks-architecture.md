@@ -238,5 +238,54 @@ php artisan page-content-manager:blocks:clear-cache
 
 **Note** : En environnement `local`, le cache est automatiquement désactivé, donc vous n'avez pas besoin de l'invalider manuellement.
 
+## Validation des Blocs
+
+### Validation au démarrage
+
+Pour détecter les erreurs dans vos blocs dès le démarrage de l'application, vous pouvez activer la validation automatique.
+
+**Configuration** :
+
+Dans votre fichier `.env` :
+```env
+PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT=true
+PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT_THROW=false
+```
+
+Ou dans `config/page-content-manager.php` :
+```php
+'validate_blocks_on_boot' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT', false),
+'validate_blocks_on_boot_throw' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT_THROW', false),
+```
+
+**Comportement** :
+- **Désactivée par défaut** : Pour ne pas impacter les performances en production
+- **Recommandée en développement** : Pour détecter les erreurs tôt
+- **Logging** : Les erreurs et avertissements sont loggés par défaut
+- **Exception optionnelle** : Activez `validate_blocks_on_boot_throw` pour lancer une exception en cas d'erreur
+
+**Ce qui est validé** :
+- ✅ Existence de la classe
+- ✅ Implémentation de `BlockInterface`
+- ✅ Présence des méthodes requises (`getType`, `make`, `transform`)
+- ✅ Les méthodes sont statiques
+- ✅ `getType()` retourne le bon type
+- ✅ `make()` retourne une instance valide de Block
+- ✅ `transform()` retourne un array avec la clé 'type'
+
+### Validation manuelle via CLI
+
+Vous pouvez aussi valider vos blocs manuellement à tout moment :
+
+```bash
+# Validation interactive
+php artisan page-content-manager:blocks:validate
+
+# Validation avec sortie JSON
+php artisan page-content-manager:blocks:validate --json
+```
+
+Voir [README.md](../README.md#cli-interactif-pour-la-gestion-des-blocs) pour plus de détails sur les commandes CLI.
+
 
 

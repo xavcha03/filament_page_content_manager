@@ -21,9 +21,15 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
   - Barre de progression pour les opérations longues (validation)
   - Gestion d'erreurs améliorée avec messages détaillés
   - Validation renforcée des noms de blocs avec messages clairs
+- **Validation des blocs au démarrage** 🔍
+  - Classe `BlockValidator` pour valider les blocs de manière centralisée
+  - Option de configuration `validate_blocks_on_boot` pour activer la validation au démarrage
+  - Option `validate_blocks_on_boot_throw` pour lancer une exception en cas d'erreur
+  - Validation automatique des méthodes requises, types, et structure des blocs
+  - Logging des erreurs et avertissements
 - Helper `BlockCommandHelper` avec méthodes utilitaires partagées
 - Classe `ExitCodes` pour les codes de sortie standardisés
-- Tests unitaires pour toutes les nouvelles commandes
+- Tests unitaires pour toutes les nouvelles commandes et la validation
 
 ### Modifié
 - Amélioration des messages de feedback dans toutes les commandes

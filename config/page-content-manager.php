@@ -140,4 +140,24 @@ return [
     'api' => [
         'filter_missing_blocks' => env('PAGE_CONTENT_MANAGER_FILTER_MISSING_BLOCKS', true),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validation des blocs au démarrage
+    |--------------------------------------------------------------------------
+    |
+    | Active la validation de tous les blocs au démarrage de l'application.
+    | Cette validation vérifie que tous les blocs respectent BlockInterface
+    | et ont toutes les méthodes requises.
+    |
+    | - false (défaut) : Désactivée pour ne pas impacter les performances
+    | - true : Active la validation (recommandé en développement)
+    |
+    | Si activée, les erreurs sont loggées. Pour lancer une exception en cas
+    | d'erreur, définissez 'validate_blocks_on_boot_throw' à true.
+    |
+    */
+
+    'validate_blocks_on_boot' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT', false),
+    'validate_blocks_on_boot_throw' => env('PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT_THROW', false),
 ];

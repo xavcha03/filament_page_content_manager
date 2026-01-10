@@ -4,6 +4,7 @@ namespace Xavcha\PageContentManager\Console\Commands;
 
 use Illuminate\Console\Command;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
+use Xavcha\PageContentManager\Blocks\BlockValidator;
 use Xavcha\PageContentManager\Console\ExitCodes;
 use Xavcha\PageContentManager\Console\Helpers\BlockCommandHelper;
 
@@ -76,7 +77,7 @@ class BlocksValidateCommand extends Command
                 $progressBar->setMessage("Validation de {$type}...");
             }
 
-            $validation = BlockCommandHelper::validateBlock($type, $blockClass);
+            $validation = BlockValidator::validate($type, $blockClass);
 
             $status = 'valid';
             if (!empty($validation['errors'])) {
