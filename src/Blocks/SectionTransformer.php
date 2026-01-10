@@ -44,7 +44,28 @@ class SectionTransformer
             try {
                 $blockClass = $this->registry->get($type);
                 
-                if ($blockClass && method_exists($blockClass, 'transform')) {
+                // Si le bloc n'existe plus, filtrer la section selon la configuration
+                if ($blockClass === null) {
+                    $filterMissingBlocks = config('page-content-manager.api.filter_missing_blocks', true);
+                    
+                    if ($filterMissingBlocks) {
+                        // Filtrer la section (bloc supprimé ou inexistant)
+                        Log::warning('Section avec bloc inexistant filtrée', [
+                            'type' => $type,
+                            'section' => $section,
+                        ]);
+                        continue;
+                    } else {
+                        // Mode rétrocompatibilité : retourner les données brutes
+                        $transformed[] = [
+                            'type' => $type,
+                            'data' => $data,
+                        ];
+                        continue;
+                    }
+                }
+                
+                if (method_exists($blockClass, 'transform')) {
                     $transformedData = $blockClass::transform($data);
                 } else {
                     // Fallback : retourner les données brutes
@@ -62,11 +83,19 @@ class SectionTransformer
                     'trace' => $e->getTraceAsString(),
                 ]);
 
-                // En cas d'erreur, on retourne les données brutes
-                $transformed[] = [
-                    'type' => $type,
-                    'data' => $data,
-                ];
+                // En cas d'erreur, filtrer ou retourner selon la configuration
+                $filterMissingBlocks = config('page-content-manager.api.filter_missing_blocks', true);
+                
+                if ($filterMissingBlocks) {
+                    // Filtrer la section en cas d'erreur
+                    continue;
+                } else {
+                    // Mode rétrocompatibilité : retourner les données brutes
+                    $transformed[] = [
+                        'type' => $type,
+                        'data' => $data,
+                    ];
+                }
             }
         }
 

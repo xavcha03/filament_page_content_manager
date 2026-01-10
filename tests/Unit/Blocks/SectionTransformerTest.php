@@ -113,8 +113,15 @@ class SectionTransformerTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function test_handles_missing_block_class(): void
+    public function test_handles_missing_block_class_filters_by_default(): void
     {
+        // Par défaut, les blocs manquants sont filtrés
+        config(['page-content-manager.api.filter_missing_blocks' => true]);
+
+        Log::shouldReceive('warning')
+            ->once()
+            ->with('Section avec bloc inexistant filtrée', \Mockery::type('array'));
+
         $sections = [
             [
                 'type' => 'non_existent_block',
@@ -124,14 +131,35 @@ class SectionTransformerTest extends TestCase
 
         $result = $this->transformer->transform($sections);
 
+        // La section devrait être filtrée (non retournée)
+        $this->assertCount(0, $result);
+    }
+
+    public function test_handles_missing_block_class_returns_raw_data_when_filter_disabled(): void
+    {
+        // Mode rétrocompatibilité : retourner les données brutes
+        config(['page-content-manager.api.filter_missing_blocks' => false]);
+
+        $sections = [
+            [
+                'type' => 'non_existent_block',
+                'data' => ['test' => 'data'],
+            ],
+        ];
+
+        $result = $this->transformer->transform($sections);
+
+        // Devrait retourner les données brutes en fallback
         $this->assertCount(1, $result);
         $this->assertEquals('non_existent_block', $result[0]['type']);
-        // Devrait retourner les données brutes en fallback
         $this->assertEquals(['test' => 'data'], $result[0]['data']);
     }
 
-    public function test_handles_block_transform_exception(): void
+    public function test_handles_block_transform_exception_filters_by_default(): void
     {
+        // Par défaut, les erreurs filtrent la section
+        config(['page-content-manager.api.filter_missing_blocks' => true]);
+
         Log::shouldReceive('error')
             ->once()
             ->with(
@@ -151,9 +179,37 @@ class SectionTransformerTest extends TestCase
 
         $result = $this->transformer->transform($sections);
 
+        // La section devrait être filtrée en cas d'erreur
+        $this->assertCount(0, $result);
+    }
+
+    public function test_handles_block_transform_exception_returns_raw_data_when_filter_disabled(): void
+    {
+        // Mode rétrocompatibilité : retourner les données brutes en cas d'erreur
+        config(['page-content-manager.api.filter_missing_blocks' => false]);
+
+        Log::shouldReceive('error')
+            ->once()
+            ->with(
+                'Erreur lors de la transformation d\'une section',
+                \Mockery::type('array')
+            );
+
+        // Créer un mock de bloc qui lance une exception
+        $this->registry->register('error_block', ErrorBlock::class);
+
+        $sections = [
+            [
+                'type' => 'error_block',
+                'data' => ['test' => 'data'],
+            ],
+        ];
+
+        $result = $this->transformer->transform($sections);
+
+        // Devrait retourner les données brutes en fallback
         $this->assertCount(1, $result);
         $this->assertEquals('error_block', $result[0]['type']);
-        // Devrait retourner les données brutes en fallback
         $this->assertEquals(['test' => 'data'], $result[0]['data']);
     }
 

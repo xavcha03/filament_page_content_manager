@@ -120,4 +120,24 @@ return [
         'key' => 'page-content-manager.blocks.registry',
         'ttl' => env('PAGE_CONTENT_MANAGER_CACHE_TTL', 3600), // 1 heure par défaut
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | API - Filtrage des blocs manquants
+    |--------------------------------------------------------------------------
+    |
+    | Lorsqu'un bloc a été supprimé mais qu'il est encore référencé dans le
+    | contenu d'une page, cette option contrôle le comportement de l'API :
+    |
+    | - true (défaut) : Les sections avec des blocs inexistants sont filtrées
+    |   et ne sont pas retournées par l'API. C'est le comportement recommandé.
+    |
+    | - false : Les sections avec des blocs inexistants sont retournées avec
+    |   leurs données brutes (mode rétrocompatibilité).
+    |
+    */
+
+    'api' => [
+        'filter_missing_blocks' => env('PAGE_CONTENT_MANAGER_FILTER_MISSING_BLOCKS', true),
+    ],
 ];

@@ -52,6 +52,34 @@ class BlockRegistryTest extends TestCase
         $this->assertNull($blockClass);
     }
 
+    public function test_returns_null_when_class_no_longer_exists(): void
+    {
+        // Simuler un bloc enregistré mais dont la classe n'existe plus
+        // (comme si le fichier avait été supprimé)
+        $nonExistentClass = 'App\\Blocks\\Custom\\DeletedBlock';
+        
+        // Enregistrer directement dans le tableau interne (bypass de la validation)
+        $reflection = new \ReflectionClass($this->registry);
+        $blocksProperty = $reflection->getProperty('blocks');
+        $blocksProperty->setAccessible(true);
+        $blocks = $blocksProperty->getValue($this->registry);
+        $blocks['deleted_block'] = $nonExistentClass;
+        $blocksProperty->setValue($this->registry, $blocks);
+        
+        // Réinitialiser autoDiscovered pour forcer la vérification
+        $autoDiscoveredProperty = $reflection->getProperty('autoDiscovered');
+        $autoDiscoveredProperty->setAccessible(true);
+        $autoDiscoveredProperty->setValue($this->registry, true);
+
+        // get() devrait retourner null car la classe n'existe pas
+        $blockClass = $this->registry->get('deleted_block');
+        $this->assertNull($blockClass);
+        
+        // Le bloc devrait être retiré de la liste
+        $allBlocks = $this->registry->all();
+        $this->assertArrayNotHasKey('deleted_block', $allBlocks);
+    }
+
     public function test_auto_discovers_core_blocks(): void
     {
         $blocks = $this->registry->all();

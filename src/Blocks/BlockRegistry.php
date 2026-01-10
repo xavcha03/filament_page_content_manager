@@ -44,7 +44,16 @@ class BlockRegistry
     {
         $this->autoDiscoverBlocks();
 
-        return $this->blocks[$type] ?? null;
+        $blockClass = $this->blocks[$type] ?? null;
+
+        // Vérifier que la classe existe vraiment (au cas où le fichier aurait été supprimé)
+        if ($blockClass !== null && !class_exists($blockClass)) {
+            // Retirer le bloc de la liste car il n'existe plus
+            unset($this->blocks[$type]);
+            return null;
+        }
+
+        return $blockClass;
     }
 
     /**
