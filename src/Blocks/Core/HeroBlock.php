@@ -105,16 +105,22 @@ class HeroBlock implements BlockInterface
         // Gestion selon la variante
         if ($variant === 'projects') {
             // Variante projects : utiliser le tableau images_ids (IDs de MediaFile)
+            // transformMediaFileIds() retourne maintenant des objets complets
             $transformed['images'] = static::transformMediaFileIds($data['images_ids'] ?? []);
         } else {
             // Variante hero standard : utiliser image_fond_id (ID de MediaFile)
             if (!empty($data['image_fond_id'])) {
-                $imageUrl = static::getMediaFileUrl($data['image_fond_id']);
-                if ($imageUrl) {
-                    $transformed['image_fond'] = $imageUrl;
+                $imageData = static::getMediaFileData($data['image_fond_id']);
+                if ($imageData) {
+                    $transformed['image_fond'] = $imageData['url'];
+                    $transformed['image_fond_width'] = $imageData['width'];
+                    $transformed['image_fond_height'] = $imageData['height'];
                     
+                    // Utiliser alt_text du MediaFile si pas d'alt personnalisé
                     if (!empty($data['image_fond_alt'])) {
                         $transformed['image_fond_alt'] = $data['image_fond_alt'];
+                    } elseif (!empty($imageData['alt_text'])) {
+                        $transformed['image_fond_alt'] = $imageData['alt_text'];
                     }
                 }
             }

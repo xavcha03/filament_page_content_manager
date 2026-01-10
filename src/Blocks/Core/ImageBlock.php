@@ -54,9 +54,15 @@ class ImageBlock implements BlockInterface
         ];
 
         if (!empty($data['image_id'])) {
-            $imageUrl = static::getMediaFileUrl($data['image_id']);
-            if ($imageUrl) {
-                $transformed['image_url'] = $imageUrl;
+            $imageData = static::getMediaFileData($data['image_id']);
+            if ($imageData) {
+                $transformed['image_url'] = $imageData['url'];
+                $transformed['width'] = $imageData['width'];
+                $transformed['height'] = $imageData['height'];
+                // Utiliser alt_text du MediaFile si pas d'alt personnalisé
+                if (empty($transformed['alt']) && !empty($imageData['alt_text'])) {
+                    $transformed['alt'] = $imageData['alt_text'];
+                }
             }
         }
 
