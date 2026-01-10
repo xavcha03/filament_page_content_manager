@@ -144,3 +144,5 @@ class HeroBlock implements BlockInterface
     }
 }
 
+
+

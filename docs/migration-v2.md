@@ -81,3 +81,5 @@ L'ancien système reste fonctionnel pour assurer une migration en douceur. Vous 
 
 Les blocs core du package ont été migrés vers la nouvelle architecture dans `src/Blocks/Core/`. Ils fonctionnent automatiquement sans configuration.
 
+
+

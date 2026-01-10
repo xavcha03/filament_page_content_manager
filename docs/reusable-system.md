@@ -94,7 +94,7 @@ class DanceStyleResource extends Resource
                                 
                                 // Vos autres champs ici
                             ]),
-                        ...PageDetailTabs::make()->toArray(),
+                        ...PageDetailTabs::tabs(),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -134,6 +134,38 @@ class DanceStyleResource extends JsonResource
 
 ## Personnalisation
 
+### Utiliser PageDetailTabs
+
+**Méthode recommandée** : Utiliser `PageDetailTabs::tabs()` :
+
+```php
+use Xavcha\PageContentManager\Filament\Forms\Components\PageDetailTabs;
+
+Components\Tabs::make('tabs')
+    ->tabs([
+        Components\Tabs\Tab::make('general')
+            ->label('Général')
+            ->schema([...]),
+        ...PageDetailTabs::tabs(),
+    ]),
+```
+
+**Alternative** : Utiliser les onglets individuellement :
+
+```php
+use Xavcha\PageContentManager\Filament\Forms\Components\SeoTab;
+use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
+
+Components\Tabs::make('tabs')
+    ->tabs([
+        Components\Tabs\Tab::make('general')
+            ->label('Général')
+            ->schema([...]),
+        SeoTab::make(),
+        ContentTab::make(),
+    ]),
+```
+
 ### Utiliser uniquement l'onglet SEO
 
 Si vous ne voulez que l'onglet SEO :
@@ -141,9 +173,12 @@ Si vous ne voulez que l'onglet SEO :
 ```php
 use Xavcha\PageContentManager\Filament\Forms\Components\SeoTab;
 
-Components\Tabs\Tab::make('seo')
-    ->schema([
-        ...SeoTab::make()->schema->getComponents(),
+Components\Tabs::make('tabs')
+    ->tabs([
+        Components\Tabs\Tab::make('general')
+            ->label('Général')
+            ->schema([...]),
+        SeoTab::make(),
     ]),
 ```
 

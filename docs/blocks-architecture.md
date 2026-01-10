@@ -166,3 +166,5 @@ Pour désactiver un bloc core, vous pouvez :
 1. **Option 1** : Le retirer de la configuration dans `config/page-content-manager.php`
 2. **Option 2** : Créer votre propre bloc avec le même type dans `app/Blocks/Custom/` (il remplacera le bloc core)
 
+
+

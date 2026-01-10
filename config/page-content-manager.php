@@ -19,19 +19,29 @@ return [
     | Enregistrement de la ressource Filament
     |--------------------------------------------------------------------------
     |
-    | Par défaut, le package enregistre automatiquement la ressource Filament
-    | pour tous les panels. Si vous préférez l'enregistrer manuellement,
-    | définissez cette option à false et ajoutez-la dans votre PanelProvider :
+    | IMPORTANT: L'enregistrement automatique peut ne pas fonctionner correctement
+    | car les routes ne sont pas créées à temps. Il est FORTEMENT RECOMMANDÉ
+    | d'enregistrer manuellement la ressource dans votre PanelProvider.
+    |
+    | Pour enregistrer manuellement, ajoutez dans votre PanelProvider :
     |
     | use Xavcha\PageContentManager\Filament\Resources\Pages\PageResource;
     |
-    | $panel->resources([
-    |     PageResource::class,
-    | ]);
+    | public function panel(Panel $panel): Panel
+    | {
+    |     return $panel
+    |         ->resources([
+    |             PageResource::class,
+    |             // ... autres ressources
+    |         ]);
+    | }
+    |
+    | Si vous souhaitez quand même essayer l'enregistrement automatique
+    | (non recommandé), définissez cette option à true.
     |
     */
 
-    'register_filament_resource' => true,
+    'register_filament_resource' => false,
 
     /*
     |--------------------------------------------------------------------------

@@ -31,3 +31,5 @@ echo "1. Créer un utilisateur: ddev exec 'php artisan make:filament-user'"
 echo "2. Accéder à l'admin: https://xavcha-pages.ddev.site/admin"
 echo "3. Tester les routes API: https://xavcha-pages.ddev.site/api/pages"
 
+
+

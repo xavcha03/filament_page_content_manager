@@ -70,28 +70,11 @@ php artisan migrate
 
 Cela créera la table `pages` avec une page Home par défaut.
 
-### 4. Vérifier l'installation
+### 4. Enregistrer la ressource Filament
 
-Une fois installé, vous devriez voir la ressource **Pages** dans votre panel Filament.
+**IMPORTANT** : Vous devez enregistrer manuellement la ressource Filament dans votre `PanelProvider`.
 
-## Configuration
-
-La configuration se trouve dans `config/page-content-manager.php`. Les principales options sont :
-
-- `routes` : Active/désactive les routes API (défaut: `true`)
-- `route_prefix` : Préfixe des routes API (défaut: `api`)
-- `register_filament_resource` : Enregistre automatiquement la ressource Filament (défaut: `true`)
-- `blocks` : Configuration des blocs disponibles
-
-## Désactiver l'enregistrement automatique
-
-Si vous préférez enregistrer manuellement la ressource Filament, dans `config/page-content-manager.php` :
-
-```php
-'register_filament_resource' => false,
-```
-
-Puis dans votre `PanelProvider` :
+Ouvrez votre fichier `app/Providers/Filament/AdminPanelProvider.php` (ou le PanelProvider de votre panel) et ajoutez :
 
 ```php
 use Xavcha\PageContentManager\Filament\Resources\Pages\PageResource;
@@ -99,10 +82,31 @@ use Xavcha\PageContentManager\Filament\Resources\Pages\PageResource;
 public function panel(Panel $panel): Panel
 {
     return $panel
+        ->default()
+        ->id('admin')
+        ->path('admin')
+        // ... autres configurations ...
         ->resources([
             PageResource::class,
             // ... autres ressources
         ]);
 }
 ```
+
+### 5. Vérifier l'installation
+
+Une fois la ressource enregistrée, vous devriez voir la ressource **Pages** dans votre panel Filament.
+
+## Configuration
+
+La configuration se trouve dans `config/page-content-manager.php`. Les principales options sont :
+
+- `routes` : Active/désactive les routes API (défaut: `true`)
+- `route_prefix` : Préfixe des routes API (défaut: `api`)
+- `register_filament_resource` : Tente d'enregistrer automatiquement la ressource Filament (défaut: `false`, **non recommandé**)
+- `blocks` : Configuration des blocs disponibles
+
+## Note sur l'enregistrement automatique
+
+L'enregistrement automatique via `register_filament_resource` peut ne pas fonctionner correctement car les routes ne sont pas créées à temps. Il est **fortement recommandé** d'enregistrer manuellement la ressource dans votre `PanelProvider` comme indiqué ci-dessus.
 

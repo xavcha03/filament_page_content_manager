@@ -181,3 +181,5 @@ Le `TestCase` configure automatiquement :
 - Vérifier que la ressource est dans la liste des resources du panel
 - Vérifier les logs : `php artisan config:clear`
 
+
+

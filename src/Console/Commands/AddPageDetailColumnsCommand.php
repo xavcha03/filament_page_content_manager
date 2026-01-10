@@ -58,3 +58,5 @@ class AddPageDetailColumnsCommand extends Command
     }
 }
 
+
+

@@ -70,7 +70,21 @@ php artisan migrate
 
 ### Ressource Page
 
-Une fois installé, la ressource **Pages** est automatiquement disponible dans votre panel Filament.
+**IMPORTANT** : Après l'installation, vous devez enregistrer manuellement la ressource dans votre `PanelProvider` :
+
+```php
+use Xavcha\PageContentManager\Filament\Resources\Pages\PageResource;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->resources([
+            PageResource::class,
+        ]);
+}
+```
+
+Voir [Guide d'installation](docs/installation.md) pour plus de détails.
 
 ### API
 
@@ -236,11 +250,27 @@ class DanceStyleResource extends Resource
                                     ->label('Nom de la danse')
                                     ->required(),
                             ]),
-                        ...PageDetailTabs::make()->toArray(),
+                        ...PageDetailTabs::tabs(),
                     ]),
             ]);
     }
 }
+```
+
+**Alternative** : Utiliser les onglets individuellement :
+
+```php
+use Xavcha\PageContentManager\Filament\Forms\Components\SeoTab;
+use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
+
+Components\Tabs::make('tabs')
+    ->tabs([
+        Components\Tabs\Tab::make('general')
+            ->label('Général')
+            ->schema([...]),
+        SeoTab::make(),
+        ContentTab::make(),
+    ]),
 ```
 
 ## 📚 Documentation

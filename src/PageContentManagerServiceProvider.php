@@ -40,8 +40,19 @@ class PageContentManagerServiceProvider extends ServiceProvider
             ]);
         }
 
-        // Enregistrer automatiquement la ressource Filament pour tous les panels
-        if (config('page-content-manager.register_filament_resource', true)) {
+        // Enregistrement de la ressource Filament
+        // IMPORTANT: L'enregistrement automatique via Filament::serving() peut ne pas fonctionner
+        // correctement car les routes ne sont pas créées à temps. Il est FORTEMENT RECOMMANDÉ
+        // d'enregistrer manuellement la ressource dans votre PanelProvider.
+        //
+        // Pour enregistrer manuellement, ajoutez dans votre PanelProvider :
+        // use Xavcha\PageContentManager\Filament\Resources\Pages\PageResource;
+        // ->resources([PageResource::class])
+        //
+        // Si vous souhaitez quand même essayer l'enregistrement automatique (non recommandé),
+        // définissez 'register_filament_resource' => true dans la config.
+        if (config('page-content-manager.register_filament_resource', false)) {
+            // Essayer d'enregistrer via Filament::serving() (peut ne pas fonctionner)
             Filament::serving(function () {
                 foreach (Filament::getPanels() as $panel) {
                     $panel->resources([

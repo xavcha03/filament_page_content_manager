@@ -7,33 +7,61 @@ use Filament\Schemas\Components;
 class PageDetailTabs
 {
     /**
-     * Crée les onglets SEO et Content pour une ressource Filament.
+     * Retourne directement les onglets SEO et Content pour une ressource Filament.
      * 
-     * Utilisation dans une ressource Filament :
+     * Utilisation recommandée dans une ressource Filament :
      * 
      * ```php
      * public static function form(Schema $schema): Schema
      * {
      *     return $schema
      *         ->components([
-     *             // Vos champs principaux ici
-     *             Forms\Components\TextInput::make('name'),
-     *             
-     *             // Ajouter les onglets SEO et Content
      *             Components\Tabs::make('tabs')
      *                 ->tabs([
      *                     Components\Tabs\Tab::make('general')
      *                         ->label('Général')
      *                         ->schema([
-     *                             // Vos champs principaux
+     *                             Forms\Components\TextInput::make('name')
+     *                                 ->label('Nom')
+     *                                 ->required(),
      *                         ]),
-     *                     ...PageDetailTabs::make()->toArray(),
+     *                     ...PageDetailTabs::tabs(),
      *                 ]),
      *         ]);
      * }
      * ```
+     * 
+     * Alternative : Utiliser les onglets individuellement
+     * 
+     * ```php
+     * use Xavcha\PageContentManager\Filament\Forms\Components\SeoTab;
+     * use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
+     * 
+     * Components\Tabs::make('tabs')
+     *     ->tabs([
+     *         Components\Tabs\Tab::make('general')
+     *             ->label('Général')
+     *             ->schema([...]),
+     *         SeoTab::make(),
+     *         ContentTab::make(),
+     *     ]),
+     * ```
      *
-     * @return array
+     * @return array<int, Components\Tabs\Tab>
+     */
+    public static function tabs(): array
+    {
+        return [
+            SeoTab::make(),
+            ContentTab::make(),
+        ];
+    }
+
+    /**
+     * Crée une instance pour utilisation fluide (déprécié, utilisez tabs()).
+     *
+     * @deprecated Utilisez PageDetailTabs::tabs() à la place
+     * @return self
      */
     public static function make(): self
     {
@@ -43,14 +71,12 @@ class PageDetailTabs
     /**
      * Convertit en tableau d'onglets pour utilisation dans un formulaire Filament.
      *
-     * @return array
+     * @deprecated Utilisez PageDetailTabs::tabs() à la place
+     * @return array<int, Components\Tabs\Tab>
      */
     public function toArray(): array
     {
-        return [
-            SeoTab::make(),
-            ContentTab::make(),
-        ];
+        return self::tabs();
     }
 }
 
