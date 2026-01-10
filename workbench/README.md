@@ -35,6 +35,39 @@ ddev exec "cd workbench && php artisan filament:assets"
 - Onglets SEO et Content
 - Routes API
 - Ressource de test avec page détail
+- **CLI interactif pour la gestion des blocs**
+
+## 🎨 Commandes CLI disponibles
+
+Toutes les commandes doivent être exécutées depuis le répertoire `workbench` :
+
+```bash
+# Menu interactif principal
+ddev exec "cd workbench && php artisan page-content-manager:blocks"
+
+# Créer un nouveau bloc
+ddev exec "cd workbench && php artisan page-content-manager:make-block"
+
+# Lister les blocs
+ddev exec "cd workbench && php artisan page-content-manager:block:list"
+
+# Inspecter un bloc
+ddev exec "cd workbench && php artisan page-content-manager:block:inspect hero"
+
+# Statistiques
+ddev exec "cd workbench && php artisan page-content-manager:blocks:stats"
+
+# Valider tous les blocs
+ddev exec "cd workbench && php artisan page-content-manager:blocks:validate"
+```
+
+**Note** : Pour une utilisation plus fluide, vous pouvez vous connecter au conteneur DDEV :
+
+```bash
+ddev ssh
+cd workbench
+php artisan page-content-manager:blocks
+```
 
 ## 📝 Notes
 

@@ -55,7 +55,27 @@ class BlocksValidateCommand extends Command
         $this->info('🔍 Validation des blocs en cours...');
         $this->newLine();
 
+        $total = count($allBlocks);
+        $current = 0;
+
+        // Barre de progression si mode interactif et plus de 3 blocs
+        $useProgressBar = !$this->option('json') && $total > 3;
+        $progressBar = null;
+        
+        if ($useProgressBar && method_exists($this, 'withProgressBar')) {
+            $progressBar = $this->output->createProgressBar($total);
+            $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% - %message%');
+            $progressBar->setMessage('Démarrage...');
+            $progressBar->start();
+        }
+
         foreach ($allBlocks as $type => $blockClass) {
+            $current++;
+            
+            if ($progressBar) {
+                $progressBar->setMessage("Validation de {$type}...");
+            }
+
             $validation = BlockCommandHelper::validateBlock($type, $blockClass);
 
             $status = 'valid';
@@ -76,8 +96,8 @@ class BlocksValidateCommand extends Command
                 'warnings' => $validation['warnings'],
             ];
 
-            // Afficher le résultat en temps réel (mode interactif uniquement)
-            if (!$this->option('json')) {
+            // Afficher le résultat en temps réel (mode interactif uniquement, sans barre de progression)
+            if (!$this->option('json') && !$progressBar) {
                 $icon = match ($status) {
                     'error' => '❌',
                     'warning' => '⚠️ ',
@@ -89,6 +109,16 @@ class BlocksValidateCommand extends Command
                     $this->comment("   Avertissement: " . implode(', ', $validation['warnings']));
                 }
             }
+
+            if ($progressBar) {
+                $progressBar->advance();
+            }
+        }
+
+        if ($progressBar) {
+            $progressBar->setMessage('Terminé !');
+            $progressBar->finish();
+            $this->newLine(2);
         }
 
         // Résumé

@@ -24,6 +24,27 @@ src/Blocks/
 
 ## Créer un Bloc Personnalisé
 
+### Méthode 1 : Utiliser la commande CLI (Recommandé)
+
+La méthode la plus simple est d'utiliser la commande `make-block` :
+
+```bash
+# Mode interactif
+php artisan page-content-manager:make-block
+
+# Mode non-interactif
+php artisan page-content-manager:make-block mon-bloc \
+  --group=content \
+  --order=50 \
+  --force
+```
+
+La commande génère automatiquement le fichier avec toute la structure nécessaire.
+
+Voir [README.md](../README.md#cli-interactif-pour-la-gestion-des-blocs) pour plus de détails.
+
+### Méthode 2 : Créer manuellement
+
 ### 1. Créer le fichier du bloc
 
 Créez votre bloc dans `app/Blocks/Custom/MonBloc.php` :
@@ -163,12 +184,21 @@ Copiez simplement le code du formulaire dans `make()` et le code du transformer 
 
 Pour désactiver un bloc core, vous pouvez :
 
-1. **Option 1** : Le retirer de la configuration dans `config/page-content-manager.php`
-2. **Option 2** : Créer votre propre bloc avec le même type dans `app/Blocks/Custom/` (il remplacera le bloc core)
-3. **Option 3** : Ajouter le type du bloc dans `disabled_blocks` dans `config/page-content-manager.php` :
+1. **Option 1 (Recommandé)** : Utiliser la commande CLI
+   ```bash
+   php artisan page-content-manager:block:disable faq --force
+   ```
 
-```php
-'disabled_blocks' => ['faq', 'contact_form'],
+2. **Option 2** : Ajouter manuellement dans `config/page-content-manager.php` :
+   ```php
+   'disabled_blocks' => ['faq', 'contact_form'],
+   ```
+
+3. **Option 3** : Créer votre propre bloc avec le même type dans `app/Blocks/Custom/` (il remplacera le bloc core)
+
+Pour réactiver un bloc :
+```bash
+php artisan page-content-manager:block:enable faq --force
 ```
 
 ## Système de Cache

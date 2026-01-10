@@ -16,9 +16,30 @@ class BlockCommandHelper
      */
     public static function isNonInteractive(Command $command): bool
     {
-        return $command->option('no-interaction')
-            || $command->option('json')
-            || $command->option('force');
+        // Vérifier --no-interaction (option standard Laravel)
+        if ($command->option('no-interaction')) {
+            return true;
+        }
+
+        // Vérifier --force si l'option existe
+        try {
+            if ($command->option('force')) {
+                return true;
+            }
+        } catch (\InvalidArgumentException $e) {
+            // L'option n'existe pas, continuer
+        }
+
+        // Vérifier --json si l'option existe
+        try {
+            if ($command->option('json')) {
+                return true;
+            }
+        } catch (\InvalidArgumentException $e) {
+            // L'option n'existe pas, continuer
+        }
+
+        return false;
     }
 
     /**
@@ -360,6 +381,52 @@ class BlockCommandHelper
     {
         $path = app_path("Blocks/Custom/{$blockName}Block.php");
         return file_exists($path);
+    }
+
+    /**
+     * Trouve des blocs similaires à un type donné (pour suggestions).
+     *
+     * @param BlockRegistry $registry
+     * @param string $type
+     * @param int $limit
+     * @return array
+     */
+    public static function findSimilarBlocks(BlockRegistry $registry, string $type, int $limit = 3): array
+    {
+        $allBlocks = $registry->all();
+        $similar = [];
+
+        foreach ($allBlocks as $blockType => $blockClass) {
+            $similarity = 0;
+
+            // Calcul de similarité simple (Levenshtein)
+            $distance = levenshtein(strtolower($type), strtolower($blockType));
+            $maxLength = max(strlen($type), strlen($blockType));
+            
+            if ($maxLength > 0) {
+                $similarity = 1 - ($distance / $maxLength);
+            }
+
+            // Vérifier si le type contient ou est contenu dans le type recherché
+            if (stripos($blockType, $type) !== false || stripos($type, $blockType) !== false) {
+                $similarity += 0.3;
+            }
+
+            if ($similarity > 0.3) {
+                $similar[] = [
+                    'type' => $blockType,
+                    'similarity' => $similarity,
+                ];
+            }
+        }
+
+        // Trier par similarité décroissante
+        usort($similar, function ($a, $b) {
+            return $b['similarity'] <=> $a['similarity'];
+        });
+
+        // Retourner les N premiers
+        return array_slice($similar, 0, $limit);
     }
 }
 

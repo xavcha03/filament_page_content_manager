@@ -46,6 +46,7 @@ class BlocksStatsCommand extends Command
     protected function outputTable(array $stats): int
     {
         $this->info('📊 Statistiques des Blocs');
+        $this->comment('Données mises à jour en temps réel');
         $this->newLine();
 
         $table = new Table($this->output);
@@ -82,7 +83,7 @@ class BlocksStatsCommand extends Command
         // Utilisation dans les pages
         if (!empty($stats['usage'])) {
             $this->newLine();
-            $this->comment('Utilisation dans les pages:');
+            $this->comment('📄 Utilisation dans les pages:');
 
             $usageTable = new Table($this->output);
             $usageTable->setHeaders(['Bloc', 'Pages']);

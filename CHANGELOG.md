@@ -5,6 +5,31 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [0.2.2] - 2025-01-XX
+
+### Ajouté
+- **CLI Interactif complet pour la gestion des blocs** 🎨
+  - Commande `page-content-manager:make-block` pour créer des blocs personnalisés (mode interactif et non-interactif)
+  - Commande `page-content-manager:blocks` avec menu interactif principal
+  - Commande `page-content-manager:block:list` pour lister les blocs avec filtres (--core, --custom, --disabled, --group)
+  - Commande `page-content-manager:block:inspect` pour inspecter un bloc en détail
+  - Commandes `page-content-manager:block:disable/enable` pour activer/désactiver des blocs
+  - Commande `page-content-manager:blocks:stats` pour afficher les statistiques
+  - Commande `page-content-manager:blocks:validate` pour valider tous les blocs
+  - Support mode non-interactif avec sortie JSON pour les agents IA
+  - Suggestions de blocs similaires en cas d'erreur de frappe
+  - Barre de progression pour les opérations longues (validation)
+  - Gestion d'erreurs améliorée avec messages détaillés
+  - Validation renforcée des noms de blocs avec messages clairs
+- Helper `BlockCommandHelper` avec méthodes utilitaires partagées
+- Classe `ExitCodes` pour les codes de sortie standardisés
+- Tests unitaires pour toutes les nouvelles commandes
+
+### Modifié
+- Amélioration des messages de feedback dans toutes les commandes
+- Gestion d'erreurs avec try-catch pour les opérations de fichiers
+- Messages d'erreur plus informatifs avec instructions de résolution
+
 ## [0.2.1] - 2025-01-11
 
 ### Ajouté
@@ -64,6 +89,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Migration initiale avec création automatique de la page Home
 - Configuration flexible via fichier de config
 
+[0.2.2]: https://github.com/xavcha03/page-content-manager/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/xavcha03/page-content-manager/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/xavcha03/page-content-manager/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/xavcha03/page-content-manager/releases/tag/0.1.0

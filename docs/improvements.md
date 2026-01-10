@@ -54,10 +54,12 @@ php artisan page-content-manager:blocks:clear-cache
 
 ---
 
-### 2. CLI Interactif pour la gestion des blocs 🎨
+### 2. CLI Interactif pour la gestion des blocs ✅ **IMPLÉMENTÉ**
 **Problème** : Gestion des blocs dispersée, pas d'outil unifié.
 
 **Solution** : Créer un CLI interactif et beau avec plusieurs commandes :
+
+**Statut** : ✅ Implémenté. Voir le README.md pour la documentation complète des commandes.
 
 #### 2.1 Lister les blocs
 ```bash
@@ -953,12 +955,16 @@ protected function registerFilamentResource(): void
 Pour une version 2.1, je recommande d'implémenter :
 
 1. ✅ **Cache pour BlockRegistry** (Performance) - Impact élevé, effort faible - **IMPLÉMENTÉ (v0.2.1)**
-2. ✅ **CLI Interactif pour la gestion des blocs** (DX) ⭐ **NOUVEAU**
+2. ✅ **CLI Interactif pour la gestion des blocs** (DX) - **IMPLÉMENTÉ**
    - Commande `make-block` pour créer un bloc
    - Commande `blocks` avec menu interactif
    - Commandes `disable/enable` pour gérer les blocs
    - Commande `inspect` pour voir les détails
    - Commande `stats` pour les statistiques
+   - Commande `validate` pour valider tous les blocs
+   - Support mode interactif et non-interactif (JSON)
+   - Suggestions de blocs similaires en cas d'erreur
+   - Barre de progression pour les opérations longues
 3. ✅ **Ordre des blocs** (UX) - Impact moyen, effort faible
 4. ✅ **Facade** (DX) - Impact moyen, effort faible
 5. ✅ **Groupes de blocs** (UX) - Impact moyen, effort moyen

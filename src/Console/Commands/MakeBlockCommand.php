@@ -136,11 +136,24 @@ class MakeBlockCommand extends Command
         }
 
         // Générer le fichier
-        $this->generateBlockFile($blockName, $type, $namespace, $group, $withMedia, $order, $filePath);
+        try {
+            $this->generateBlockFile($blockName, $type, $namespace, $group, $withMedia, $order, $filePath);
+        } catch (\Throwable $e) {
+            $this->error("❌ Erreur lors de la création du bloc : {$e->getMessage()}");
+            $this->comment("Vérifiez les permissions du répertoire : " . dirname($filePath));
+            return Command::FAILURE;
+        }
 
         $this->info("✅ Bloc créé avec succès !");
         $this->line("📁 {$filePath}");
-        $this->comment("📝 N'oubliez pas d'implémenter la méthode transform() !");
+        $this->newLine();
+        $this->comment("📝 Prochaines étapes :");
+        $this->line("   1. Implémentez la méthode transform() avec votre logique");
+        $this->line("   2. Ajoutez vos champs dans la méthode make()");
+        if ($withMedia) {
+            $this->line("   3. Utilisez les méthodes du trait HasMediaTransformation pour les médias");
+        }
+        $this->newLine();
 
         return Command::SUCCESS;
     }
@@ -154,19 +167,56 @@ class MakeBlockCommand extends Command
      */
     protected function validateBlockName(string $name, BlockRegistry $registry): ?string
     {
-        if (empty($name)) {
+        if (empty(trim($name))) {
             return 'Le nom du bloc ne peut pas être vide.';
+        }
+
+        // Vérifier la longueur minimale
+        if (strlen(trim($name)) < 2) {
+            return 'Le nom du bloc doit contenir au moins 2 caractères.';
+        }
+
+        // Vérifier la longueur maximale
+        if (strlen($name) > 50) {
+            return 'Le nom du bloc ne peut pas dépasser 50 caractères.';
         }
 
         $type = BlockCommandHelper::toKebabCase($name);
 
-        if (BlockCommandHelper::blockExists($registry, $type)) {
-            return "Un bloc avec le type '{$type}' existe déjà.";
+        // Vérifier que la conversion a produit quelque chose
+        if (empty($type)) {
+            return 'Le nom du bloc ne peut contenir que des lettres, des chiffres, des espaces et des tirets.';
         }
 
-        // Vérifier les caractères valides
+        // Vérifier les caractères valides après conversion
         if (!preg_match('/^[a-z0-9-]+$/', $type)) {
-            return 'Le nom du bloc ne peut contenir que des lettres minuscules, des chiffres et des tirets.';
+            return 'Le nom du bloc ne peut contenir que des lettres, des chiffres et des tirets. Exemple : "mon-bloc" ou "video_player".';
+        }
+
+        // Vérifier qu'il ne commence/termine pas par un tiret
+        if (str_starts_with($type, '-') || str_ends_with($type, '-')) {
+            return 'Le nom du bloc ne peut pas commencer ou terminer par un tiret.';
+        }
+
+        // Vérifier qu'il n'y a pas de tirets consécutifs
+        if (str_contains($type, '--')) {
+            return 'Le nom du bloc ne peut pas contenir de tirets consécutifs.';
+        }
+
+        // Vérifier si le bloc existe déjà
+        if (BlockCommandHelper::blockExists($registry, $type)) {
+            $suggestion = BlockCommandHelper::findSimilarBlocks($registry, $type, 1);
+            $message = "Un bloc avec le type '{$type}' existe déjà.";
+            if (!empty($suggestion) && $suggestion[0]['type'] !== $type) {
+                $message .= " Peut-être vouliez-vous dire '{$suggestion[0]['type']}' ?";
+            }
+            return $message;
+        }
+
+        // Vérifier si le fichier existe déjà
+        $blockName = BlockCommandHelper::toPascalCase($name);
+        if (BlockCommandHelper::blockFileExists($blockName)) {
+            return "Un fichier pour le bloc '{$blockName}' existe déjà. Utilisez --force pour l'écraser.";
         }
 
         return null;
@@ -223,11 +273,24 @@ class MakeBlockCommand extends Command
         // Créer le dossier si nécessaire
         $directory = dirname($filePath);
         if (!File::exists($directory)) {
-            File::makeDirectory($directory, 0755, true);
+            try {
+                File::makeDirectory($directory, 0755, true);
+            } catch (\Throwable $e) {
+                throw new \RuntimeException("Impossible de créer le répertoire {$directory} : {$e->getMessage()}");
+            }
+        }
+
+        // Vérifier les permissions d'écriture
+        if (!is_writable($directory)) {
+            throw new \RuntimeException("Le répertoire {$directory} n'est pas accessible en écriture");
         }
 
         // Écrire le fichier
-        File::put($filePath, $stub);
+        try {
+            File::put($filePath, $stub);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException("Impossible d'écrire le fichier {$filePath} : {$e->getMessage()}");
+        }
     }
 
     /**

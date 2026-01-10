@@ -36,7 +36,21 @@ class BlockDisableCommand extends Command
         $blockClass = $registry->get($type);
 
         if (!$blockClass) {
+            // Chercher des blocs similaires pour suggestions
+            $similar = BlockCommandHelper::findSimilarBlocks($registry, $type, 3);
+            
             $this->error("Le bloc '{$type}' n'existe pas.");
+            
+            // Afficher des suggestions si disponibles
+            if (!empty($similar)) {
+                $this->newLine();
+                $this->comment('💡 Blocs similaires disponibles :');
+                foreach ($similar as $suggestion) {
+                    $this->line("  - {$suggestion['type']}");
+                }
+                $this->newLine();
+            }
+            
             return ExitCodes::BLOCK_NOT_FOUND;
         }
 
@@ -72,14 +86,21 @@ class BlockDisableCommand extends Command
         $disabledBlocks = array_unique($disabledBlocks);
         sort($disabledBlocks);
 
-        if ($this->updateConfig($disabledBlocks)) {
-            $this->info("✅ Bloc '{$type}' désactivé avec succès !");
-            $this->comment("📝 Ajouté à la liste des blocs désactivés dans config.");
-            return Command::SUCCESS;
-        }
+        try {
+            if ($this->updateConfig($disabledBlocks)) {
+                $this->info("✅ Bloc '{$type}' désactivé avec succès !");
+                $this->comment("📝 Ajouté à la liste des blocs désactivés dans config.");
+                $this->comment("💡 Le bloc ne sera plus disponible dans le Builder Filament.");
+                return Command::SUCCESS;
+            }
 
-        $this->error("Erreur lors de la mise à jour de la configuration.");
-        return Command::FAILURE;
+            $this->error("❌ Erreur lors de la mise à jour de la configuration.");
+            return Command::FAILURE;
+        } catch (\Throwable $e) {
+            $this->error("❌ Erreur lors de la désactivation du bloc : {$e->getMessage()}");
+            $this->comment("Vérifiez les permissions du fichier de configuration.");
+            return Command::FAILURE;
+        }
     }
 
     /**

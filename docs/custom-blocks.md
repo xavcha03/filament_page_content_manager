@@ -4,6 +4,34 @@
 
 Depuis la version 2.0, les blocs sont simplifiés : **un seul fichier** contient le formulaire ET la transformation.
 
+## Créer un bloc avec la commande CLI (Recommandé)
+
+La méthode la plus simple pour créer un nouveau bloc est d'utiliser la commande CLI :
+
+```bash
+# Mode interactif
+php artisan page-content-manager:make-block
+
+# Mode non-interactif (pour les agents IA)
+php artisan page-content-manager:make-block video \
+  --group=media \
+  --with-media \
+  --order=50 \
+  --force
+```
+
+La commande génère automatiquement :
+- Le fichier du bloc avec la structure complète
+- Les méthodes `getType()`, `make()`, `transform()`
+- Le trait `HasMediaTransformation` si demandé
+- Les méthodes `getOrder()` et `getGroup()` pour l'organisation
+
+Voir [README.md](../README.md#cli-interactif-pour-la-gestion-des-blocs) pour plus de détails sur toutes les commandes disponibles.
+
+## Créer un bloc manuellement
+
+Si vous préférez créer le bloc manuellement, voici la structure :
+
 ## Structure d'un bloc
 
 Un bloc doit implémenter `BlockInterface` avec trois méthodes :

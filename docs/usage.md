@@ -27,6 +27,8 @@
 
 ### Blocs disponibles
 
+Le package inclut 7 blocs core par défaut :
+
 #### Hero
 Section hero avec image de fond ou galerie d'images.
 
@@ -47,6 +49,26 @@ Section de questions fréquentes avec titre et liste de Q/A.
 
 #### Contact Form
 Formulaire de contact avec titre, description et message de confirmation.
+
+### Gérer les blocs avec le CLI
+
+Vous pouvez gérer vos blocs via les commandes CLI :
+
+```bash
+# Lister tous les blocs
+php artisan page-content-manager:block:list
+
+# Créer un nouveau bloc
+php artisan page-content-manager:make-block
+
+# Inspecter un bloc
+php artisan page-content-manager:block:inspect hero
+
+# Voir les statistiques
+php artisan page-content-manager:blocks:stats
+```
+
+Voir [README.md](../README.md#cli-interactif-pour-la-gestion-des-blocs) pour la documentation complète.
 
 ## Utiliser l'API
 

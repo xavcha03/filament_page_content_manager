@@ -237,7 +237,7 @@ php artisan page-content-manager:block:list --json
 php artisan page-content-manager:block:inspect hero
 
 # Avec plus de détails
-php artisan page-content-manager:block:inspect hero --verbose --show-schema
+php artisan page-content-manager:block:inspect hero --detailed --show-schema
 
 # Sortie JSON
 php artisan page-content-manager:block:inspect hero --json
@@ -379,11 +379,12 @@ Components\Tabs::make('tabs')
 - [Gestion des dépendances](docs/dependencies.md) ⚠️ Important
 - [Guide d'utilisation](docs/usage.md)
 - [Architecture des blocs](docs/blocks-architecture.md) ⭐ Nouveau
-- [Créer des blocs personnalisés](docs/custom-blocks.md)
+- [Créer des blocs personnalisés](docs/custom-blocks.md) - Inclut la commande `make-block`
 - [Système réutilisable](docs/reusable-system.md)
 - [Documentation API](docs/api.md)
 - [Tests](docs/testing.md)
 - [Migration v2.0](docs/migration-v2.md)
+- [Améliorations proposées](docs/improvements.md) - Roadmap et fonctionnalités
 
 ## 🧪 Tests
 

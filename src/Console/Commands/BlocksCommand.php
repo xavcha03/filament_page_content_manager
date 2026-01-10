@@ -3,7 +3,6 @@
 namespace Xavcha\PageContentManager\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan as ArtisanFacade;
 
 class BlocksCommand extends Command
 {
@@ -25,7 +24,7 @@ class BlocksCommand extends Command
                             {--custom : Filtrer les blocs Custom (pour list)}
                             {--disabled : Filtrer les blocs désactivés (pour list)}
                             {--group-filter= : Filtrer par groupe (pour list)}
-                            {--verbose : Plus de détails (pour inspect)}
+                            {--detailed : Plus de détails (pour inspect)}
                             {--show-schema : Afficher le schéma complet (pour inspect)}
                             {--show-transform : Afficher la méthode transform() (pour inspect)}';
 
@@ -102,7 +101,8 @@ class BlocksCommand extends Command
         }
 
         if ($action === 'clear-cache') {
-            return ArtisanFacade::call('page-content-manager:blocks:clear-cache');
+            // $this->call() retourne directement le code de sortie
+            return $this->call('page-content-manager:blocks:clear-cache');
         }
 
         return $this->delegateToCommand($action);
@@ -226,8 +226,8 @@ class BlocksCommand extends Command
         if ($this->option('group-filter')) {
             $options['--group'] = $this->option('group-filter');
         }
-        if ($this->option('verbose')) {
-            $options['--verbose'] = true;
+        if ($this->option('detailed')) {
+            $options['--detailed'] = true;
         }
         if ($this->option('show-schema')) {
             $options['--show-schema'] = true;
@@ -245,7 +245,10 @@ class BlocksCommand extends Command
             $options['--order'] = $this->option('order');
         }
 
-        return ArtisanFacade::call($command, array_merge($arguments, $options));
+        $exitCode = $this->call($command, array_merge($arguments, $options));
+        // $this->call() retourne déjà le code de sortie (0 pour succès, autre pour échec)
+        // On le retourne tel quel car les commandes Laravel utilisent Command::SUCCESS (0) et Command::FAILURE (1)
+        return $exitCode;
     }
 }
 

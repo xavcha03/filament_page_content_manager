@@ -130,7 +130,19 @@ class BlockListCommand extends Command
     protected function outputTable(array $blocks, array $disabledBlocks): int
     {
         if (empty($blocks)) {
-            $this->warn('Aucun bloc trouvé.');
+            $this->warn('⚠️  Aucun bloc trouvé.');
+            
+            // Afficher des suggestions selon les filtres
+            $filters = [];
+            if ($this->option('core')) $filters[] = 'Core';
+            if ($this->option('custom')) $filters[] = 'Custom';
+            if ($this->option('disabled')) $filters[] = 'désactivés';
+            if ($this->option('group')) $filters[] = "groupe '{$this->option('group')}'";
+            
+            if (!empty($filters)) {
+                $this->comment('💡 Essayez sans les filtres : ' . implode(', ', $filters));
+            }
+            
             return Command::SUCCESS;
         }
 
