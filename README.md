@@ -557,6 +557,8 @@ Components\Tabs::make('tabs')
 - [Tests](docs/testing.md)
 - [Migration v2.0](docs/migration-v2.md)
 - [Améliorations proposées](docs/improvements.md) - Roadmap et fonctionnalités
+- [Fonctionnalités futures](docs/future-features.md) 🚀 - Vision IA & SEO avancé
+- [Améliorations UX](docs/ux-improvements.md) 🎨 - Interface d'administration améliorée
 
 ## 🧪 Tests
 

@@ -19,3 +19,4 @@ class BlocksStatsCommandTest extends TestCase
     }
 }
 
+

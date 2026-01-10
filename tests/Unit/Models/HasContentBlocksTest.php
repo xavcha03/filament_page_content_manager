@@ -208,3 +208,4 @@ class HasContentBlocksTest extends TestCase
     }
 }
 
+

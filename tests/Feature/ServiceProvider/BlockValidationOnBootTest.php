@@ -78,3 +78,4 @@ class BlockValidationOnBootTest extends TestCase
     }
 }
 
+

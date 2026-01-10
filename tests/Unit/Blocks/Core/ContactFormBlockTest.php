@@ -37,3 +37,4 @@ class ContactFormBlockTest extends TestCase
     }
 }
 
+
