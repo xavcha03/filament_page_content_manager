@@ -89,4 +89,35 @@ return [
             // Vous pouvez aussi les enregistrer manuellement ici si besoin
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Blocs désactivés
+    |--------------------------------------------------------------------------
+    |
+    | Liste des types de blocs à désactiver. Les blocs listés ici ne seront
+    | pas disponibles dans le Builder Filament.
+    |
+    | Exemple: ['faq', 'contact_form']
+    |
+    */
+
+    'disabled_blocks' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache des blocs
+    |--------------------------------------------------------------------------
+    |
+    | Configuration du cache pour améliorer les performances de découverte
+    | des blocs. Le cache est automatiquement désactivé en environnement local
+    | pour permettre la détection immédiate des nouveaux blocs.
+    |
+    */
+
+    'cache' => [
+        'enabled' => env('PAGE_CONTENT_MANAGER_CACHE_ENABLED', true),
+        'key' => 'page-content-manager.blocks.registry',
+        'ttl' => env('PAGE_CONTENT_MANAGER_CACHE_TTL', 3600), // 1 heure par défaut
+    ],
 ];

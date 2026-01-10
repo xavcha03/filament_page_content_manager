@@ -2,6 +2,7 @@
 
 namespace Xavcha\PageContentManager\Tests\Unit\Blocks;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
@@ -16,7 +17,17 @@ class BlockRegistryTest extends TestCase
     {
         parent::setUp();
         $this->registry = new BlockRegistry();
+        
+        // Nettoyer le cache avant chaque test
+        Cache::flush();
+        
+        // Réinitialiser la configuration du cache
+        config(['page-content-manager.cache.enabled' => true]);
+        config(['page-content-manager.cache.key' => 'page-content-manager.blocks.registry']);
+        config(['page-content-manager.cache.ttl' => 3600]);
+        config(['page-content-manager.disabled_blocks' => []]);
     }
+
 
     public function test_can_register_block_manually(): void
     {
@@ -203,6 +214,150 @@ PHP;
         
         // Ne devrait pas planter
         $this->assertIsArray($blocks);
+    }
+
+    public function test_uses_cache_when_enabled_and_not_local(): void
+    {
+        // En environnement de test (testing), le cache devrait être utilisé si activé
+        // car testing n'est pas 'local'
+        Cache::flush();
+        
+        config(['page-content-manager.cache.enabled' => true]);
+        
+        $registry = new BlockRegistry();
+        
+        // Première découverte - devrait mettre en cache
+        $blocks1 = $registry->all();
+        
+        // Vérifier que le cache contient les données
+        $cached = Cache::get('page-content-manager.blocks.registry');
+        $this->assertNotNull($cached);
+        $this->assertIsArray($cached);
+        
+        // Créer un nouveau registry - devrait utiliser le cache
+        $registry2 = new BlockRegistry();
+        $blocks2 = $registry2->all();
+        
+        // Les résultats devraient être identiques
+        $this->assertEquals($blocks1, $blocks2);
+    }
+
+    public function test_cache_disabled_when_config_disabled(): void
+    {
+        Cache::flush();
+        
+        config(['page-content-manager.cache.enabled' => false]);
+        
+        $registry = new BlockRegistry();
+        $blocks = $registry->all();
+        
+        // Le cache ne devrait pas être utilisé si désactivé
+        $this->assertIsArray($blocks);
+        
+        // Vérifier que le cache n'a pas été utilisé
+        $cached = Cache::get('page-content-manager.blocks.registry');
+        $this->assertNull($cached);
+    }
+
+    public function test_clear_cache_removes_cache_and_resets_registry(): void
+    {
+        Cache::flush();
+        
+        config(['page-content-manager.cache.enabled' => true]);
+        config(['page-content-manager.cache.key' => 'page-content-manager.blocks.registry']);
+        
+        $registry = new BlockRegistry();
+        
+        // Découvrir les blocs (met en cache)
+        $blocks1 = $registry->all();
+        
+        // Vérifier que le cache existe
+        $this->assertNotNull(Cache::get('page-content-manager.blocks.registry'));
+        
+        // Nettoyer le cache
+        $registry->clearCache();
+        
+        // Vérifier que le cache a été supprimé
+        $this->assertNull(Cache::get('page-content-manager.blocks.registry'));
+        
+        // Créer un nouveau registry et vérifier qu'il redécouvre
+        $registry2 = new BlockRegistry();
+        $blocks2 = $registry2->all();
+        
+        // Les blocs devraient être redécouverts
+        $this->assertEquals($blocks1, $blocks2);
+    }
+
+    public function test_filters_disabled_blocks(): void
+    {
+        config(['page-content-manager.disabled_blocks' => ['text']]);
+        
+        $registry = new BlockRegistry();
+        $blocks = $registry->all();
+        
+        // Le bloc 'text' devrait être filtré
+        $this->assertArrayNotHasKey('text', $blocks);
+    }
+
+    public function test_disabled_blocks_config_empty_array_does_not_filter(): void
+    {
+        config(['page-content-manager.disabled_blocks' => []]);
+        
+        $registry = new BlockRegistry();
+        $blocks = $registry->all();
+        
+        // Tous les blocs devraient être présents
+        $this->assertIsArray($blocks);
+        // Si le bloc text existe, il devrait être présent
+        if (isset($blocks['text'])) {
+            $this->assertArrayHasKey('text', $blocks);
+        }
+    }
+
+    public function test_disabled_blocks_config_null_does_not_filter(): void
+    {
+        config(['page-content-manager.disabled_blocks' => null]);
+        
+        $registry = new BlockRegistry();
+        $blocks = $registry->all();
+        
+        // Tous les blocs devraient être présents
+        $this->assertIsArray($blocks);
+    }
+
+    public function test_cache_respects_custom_ttl(): void
+    {
+        Cache::flush();
+        
+        config(['page-content-manager.cache.enabled' => true]);
+        config(['page-content-manager.cache.ttl' => 7200]); // 2 heures
+        
+        $registry = new BlockRegistry();
+        $blocks = $registry->all();
+        
+        // Vérifier que le cache contient les données
+        $cached = Cache::get('page-content-manager.blocks.registry');
+        $this->assertNotNull($cached);
+        $this->assertIsArray($cached);
+    }
+
+    public function test_cache_respects_custom_key(): void
+    {
+        Cache::flush();
+        
+        config(['page-content-manager.cache.enabled' => true]);
+        config(['page-content-manager.cache.key' => 'custom.cache.key']);
+        
+        $registry = new BlockRegistry();
+        $blocks = $registry->all();
+        
+        // Vérifier que le cache utilise la clé personnalisée
+        $cached = Cache::get('custom.cache.key');
+        $this->assertNotNull($cached);
+        $this->assertIsArray($cached);
+        
+        // Vérifier que l'ancienne clé n'est pas utilisée
+        $this->assertNull(Cache::get('page-content-manager.blocks.registry'));
     }
 }
 

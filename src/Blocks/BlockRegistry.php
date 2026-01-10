@@ -4,6 +4,7 @@ namespace Xavcha\PageContentManager\Blocks;
 
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
 
 class BlockRegistry
 {
@@ -69,13 +70,49 @@ class BlockRegistry
             return;
         }
 
+        // Vérifier si le cache est activé et si on n'est pas en environnement local
+        $cacheEnabled = config('page-content-manager.cache.enabled', true);
+        $cacheKey = config('page-content-manager.cache.key', 'page-content-manager.blocks.registry');
+        $cacheTtl = config('page-content-manager.cache.ttl', 3600);
+        $isLocal = app()->environment('local');
+
+        // En développement local, on peut désactiver le cache pour détecter les nouveaux blocs
+        if ($cacheEnabled && !$isLocal) {
+            $cached = Cache::remember($cacheKey, $cacheTtl, function () {
+                return $this->discoverBlocks();
+            });
+
+            // Charger les blocs depuis le cache
+            foreach ($cached as $type => $class) {
+                $this->blocks[$type] = $class;
+            }
+        } else {
+            // Mode sans cache (développement local ou cache désactivé)
+            $this->discoverBlocks();
+        }
+
+        $this->autoDiscovered = true;
+    }
+
+    /**
+     * Découvre les blocs dans les dossiers Core et Custom.
+     *
+     * @return array<string, class-string<BlockInterface>>
+     */
+    protected function discoverBlocks(): array
+    {
+        $blocks = [];
+
         // Chercher dans Core (package)
         $packageBlocksPath = __DIR__ . '/Core';
         if (File::exists($packageBlocksPath)) {
             $files = File::files($packageBlocksPath);
             foreach ($files as $file) {
                 $className = 'Xavcha\\PageContentManager\\Blocks\\Core\\' . $file->getFilenameWithoutExtension();
-                $this->registerBlockIfValid($className);
+                $type = $this->getBlockTypeIfValid($className);
+                if ($type !== null) {
+                    $blocks[$type] = $className;
+                }
             }
         }
 
@@ -85,11 +122,56 @@ class BlockRegistry
             $files = File::files($customBlocksPath);
             foreach ($files as $file) {
                 $className = 'App\\Blocks\\Custom\\' . $file->getFilenameWithoutExtension();
-                $this->registerBlockIfValid($className);
+                $type = $this->getBlockTypeIfValid($className);
+                if ($type !== null) {
+                    $blocks[$type] = $className;
+                }
             }
         }
 
-        $this->autoDiscovered = true;
+        // Filtrer les blocs désactivés si la configuration existe
+        $disabledBlocks = config('page-content-manager.disabled_blocks', []);
+        if (!empty($disabledBlocks) && is_array($disabledBlocks)) {
+            $blocks = array_filter($blocks, function ($type) use ($disabledBlocks) {
+                return !in_array($type, $disabledBlocks, true);
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
+        // Enregistrer les blocs découverts
+        foreach ($blocks as $type => $className) {
+            $this->blocks[$type] = $className;
+        }
+
+        return $blocks;
+    }
+
+    /**
+     * Récupère le type d'un bloc si la classe est valide.
+     *
+     * @param string $className
+     * @return string|null Le type du bloc ou null si invalide
+     */
+    protected function getBlockTypeIfValid(string $className): ?string
+    {
+        if (!class_exists($className)) {
+            return null;
+        }
+
+        $reflection = new \ReflectionClass($className);
+        
+        // Ignorer les classes abstraites et interfaces
+        if ($reflection->isAbstract() || 
+            $reflection->isInterface() ||
+            !$reflection->implementsInterface(\Xavcha\PageContentManager\Blocks\Contracts\BlockInterface::class)) {
+            return null;
+        }
+
+        try {
+            return $className::getType();
+        } catch (\Throwable $e) {
+            // Ignorer les erreurs
+            return null;
+        }
     }
 
     /**
@@ -100,26 +182,25 @@ class BlockRegistry
      */
     protected function registerBlockIfValid(string $className): void
     {
-        if (!class_exists($className)) {
-            return;
-        }
-
-        $reflection = new \ReflectionClass($className);
-        
-        // Ignorer les classes abstraites et interfaces
-        if ($reflection->isAbstract() || 
-            $reflection->isInterface() ||
-            !$reflection->implementsInterface(\Xavcha\PageContentManager\Blocks\Contracts\BlockInterface::class)) {
-            return;
-        }
-
-        try {
-            $type = $className::getType();
+        $type = $this->getBlockTypeIfValid($className);
+        if ($type !== null) {
             $this->register($type, $className);
-        } catch (\Throwable $e) {
-            // Ignorer les erreurs
-            return;
         }
+    }
+
+    /**
+     * Invalide le cache des blocs.
+     *
+     * @return void
+     */
+    public function clearCache(): void
+    {
+        $cacheKey = config('page-content-manager.cache.key', 'page-content-manager.blocks.registry');
+        Cache::forget($cacheKey);
+        
+        // Réinitialiser l'état de découverte pour forcer une nouvelle découverte
+        $this->autoDiscovered = false;
+        $this->blocks = [];
     }
 }
 

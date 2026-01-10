@@ -37,6 +37,7 @@ class PageContentManagerServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Xavcha\PageContentManager\Console\Commands\AddPageDetailColumnsCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\ClearBlocksCacheCommand::class,
             ]);
         }
 
