@@ -239,3 +239,26 @@ Les blocs sont auto-découverts dans :
 
 Si un bloc n'a pas de méthode `transform()`, les données brutes sont retournées.
 
+### Événements de transformation
+
+Le package expose deux événements Laravel pour personnaliser la transformation :
+
+- **`BlockTransforming`** : Déclenché avant la transformation, permet de modifier les données brutes
+- **`BlockTransformed`** : Déclenché après la transformation, permet de modifier les données transformées
+
+**Exemple** :
+
+```php
+use Xavcha\PageContentManager\Events\BlockTransformed;
+use Illuminate\Support\Facades\Event;
+
+Event::listen(BlockTransformed::class, function (BlockTransformed $event) {
+    // Enrichir les données transformées
+    $transformedData = $event->getTransformedData();
+    $transformedData['metadata'] = ['transformed_at' => now()];
+    $event->setTransformedData($transformedData);
+});
+```
+
+Voir [README.md](../README.md#événements-pour-personnaliser-la-transformation) pour plus de détails et d'exemples.
+

@@ -14,6 +14,12 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
   - API plus propre et intuitive : `Blocks::get()`, `Blocks::all()`, `Blocks::has()`, etc.
   - Enregistrement de `BlockRegistry` comme singleton dans le ServiceProvider
 - Tests unitaires pour la Facade (9 tests)
+- **Événements pour personnaliser la transformation des blocs** 🔌
+  - Événement `BlockTransforming` déclenché avant la transformation d'un bloc
+  - Événement `BlockTransformed` déclenché après la transformation d'un bloc
+  - Permet de modifier les données avant et après transformation via des listeners
+  - Support complet pour l'enrichissement de données, logging, validation personnalisée
+  - Tests unitaires complets (6 nouveaux tests)
 
 ### Modifié
 - `BlockRegistry` : Ajout de la méthode `has()` pour vérifier l'existence d'un bloc

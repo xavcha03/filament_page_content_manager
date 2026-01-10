@@ -28,20 +28,78 @@ Blocks::clearCache();
 
 ---
 
-### 5. Events/Hooks pour personnalisation
+### 5. Events/Hooks pour personnalisation ✅ **IMPLÉMENTÉ**
 **Problème** : Pas de moyen de personnaliser le comportement.
 
 **Solution** : Ajouter des événements.
 
-```php
-// Avant transformation
-event(new BlockTransforming($blockType, $data));
+**Statut** : ✅ Implémenté. Les événements `BlockTransforming` et `BlockTransformed` sont maintenant disponibles.
 
-// Après transformation
-event(new BlockTransformed($blockType, $transformedData));
+**Utilisation** :
+
+```php
+use Xavcha\PageContentManager\Events\BlockTransforming;
+use Xavcha\PageContentManager\Events\BlockTransformed;
+use Illuminate\Support\Facades\Event;
+
+// Dans AppServiceProvider ou EventServiceProvider
+public function boot(): void
+{
+    // Modifier les données avant transformation
+    Event::listen(BlockTransforming::class, function (BlockTransforming $event) {
+        if ($event->blockType === 'hero') {
+            $data = $event->getData();
+            $data['custom_field'] = 'valeur personnalisée';
+            $event->setData($data);
+        }
+    });
+    
+    // Modifier les données après transformation
+    Event::listen(BlockTransformed::class, function (BlockTransformed $event) {
+        $transformedData = $event->getTransformedData();
+        $transformedData['metadata'] = [
+            'transformed_at' => now()->toIso8601String(),
+            'user_id' => auth()->id(),
+        ];
+        $event->setTransformedData($transformedData);
+    });
+}
 ```
 
-**Bénéfice** : Extensibilité accrue.
+**Exemples d'utilisation** :
+
+1. **Enrichissement de données** :
+```php
+Event::listen(BlockTransformed::class, function (BlockTransformed $event) {
+    if ($event->blockType === 'product') {
+        $product = Product::find($event->transformedData['product_id']);
+        $event->transformedData['product_details'] = $product->toArray();
+    }
+});
+```
+
+2. **Logging et analytics** :
+```php
+Event::listen(BlockTransformed::class, function (BlockTransformed $event) {
+    Log::info('Bloc transformé', [
+        'type' => $event->blockType,
+        'timestamp' => now(),
+    ]);
+});
+```
+
+3. **Validation personnalisée** :
+```php
+Event::listen(BlockTransforming::class, function (BlockTransforming $event) {
+    if ($event->blockType === 'contact_form') {
+        if (empty($event->getData()['email'])) {
+            throw new ValidationException('Email requis');
+        }
+    }
+});
+```
+
+**Bénéfice** : Extensibilité accrue, possibilité de personnaliser le comportement sans modifier le code du package.
 
 ---
 

@@ -197,6 +197,56 @@ Pour désactiver un bloc core, vous pouvez :
 3. **Option 3** : Créer votre propre bloc avec le même type dans `app/Blocks/Custom/` (il remplacera le bloc core)
 
 Pour réactiver un bloc :
+
+## Événements de transformation
+
+Le package expose deux événements Laravel pour personnaliser le processus de transformation des blocs :
+
+### BlockTransforming
+
+Déclenché **avant** la transformation d'un bloc. Permet de modifier les données brutes avant qu'elles ne soient transformées.
+
+```php
+use Xavcha\PageContentManager\Events\BlockTransforming;
+use Illuminate\Support\Facades\Event;
+
+Event::listen(BlockTransforming::class, function (BlockTransforming $event) {
+    if ($event->blockType === 'hero') {
+        $data = $event->getData();
+        $data['custom_field'] = 'valeur personnalisée';
+        $event->setData($data);
+    }
+});
+```
+
+### BlockTransformed
+
+Déclenché **après** la transformation d'un bloc. Permet de modifier les données transformées avant qu'elles ne soient retournées.
+
+```php
+use Xavcha\PageContentManager\Events\BlockTransformed;
+use Illuminate\Support\Facades\Event;
+
+Event::listen(BlockTransformed::class, function (BlockTransformed $event) {
+    $transformedData = $event->getTransformedData();
+    $transformedData['metadata'] = [
+        'transformed_at' => now()->toIso8601String(),
+    ];
+    $event->setTransformedData($transformedData);
+});
+```
+
+### Cas d'usage
+
+- **Enrichissement de données** : Ajouter des informations depuis une API externe ou la base de données
+- **Logging et analytics** : Tracker l'utilisation des blocs
+- **Validation personnalisée** : Valider les données avant transformation
+- **A/B testing** : Modifier le contenu selon des règles métier
+- **Multi-tenant** : Adapter les données selon le tenant
+
+Voir [README.md](../README.md#événements-pour-personnaliser-la-transformation) et [docs/improvements.md](improvements.md#5-eventshooks-pour-personnalisation) pour plus d'exemples.
+
+Pour réactiver un bloc :
 ```bash
 php artisan page-content-manager:block:enable faq --force
 ```

@@ -2,10 +2,13 @@
 
 namespace Xavcha\PageContentManager\Tests\Unit\Blocks;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Blocks\Core\TextBlock;
 use Xavcha\PageContentManager\Blocks\SectionTransformer;
+use Xavcha\PageContentManager\Events\BlockTransformed;
+use Xavcha\PageContentManager\Events\BlockTransforming;
 use Xavcha\PageContentManager\Tests\TestCase;
 
 class SectionTransformerTest extends TestCase
@@ -264,6 +267,151 @@ class SectionTransformerTest extends TestCase
 
         $this->assertCount(1, $result);
         $this->assertEquals('custom', $result[0]['type']);
+    }
+
+    public function test_dispatches_block_transforming_event(): void
+    {
+        Event::fake();
+
+        $sections = [
+            [
+                'type' => 'text',
+                'data' => ['titre' => 'Test Title'],
+            ],
+        ];
+
+        $this->transformer->transform($sections);
+
+        Event::assertDispatched(BlockTransforming::class, function ($event) {
+            return $event->blockType === 'text'
+                && $event->getData()['titre'] === 'Test Title';
+        });
+    }
+
+    public function test_dispatches_block_transformed_event(): void
+    {
+        Event::fake();
+
+        $sections = [
+            [
+                'type' => 'text',
+                'data' => ['titre' => 'Test Title', 'content' => 'Test Content'],
+            ],
+        ];
+
+        $this->transformer->transform($sections);
+
+        Event::assertDispatched(BlockTransformed::class, function ($event) {
+            return $event->blockType === 'text'
+                && isset($event->getTransformedData()['type'])
+                && $event->getTransformedData()['type'] === 'text';
+        });
+    }
+
+    public function test_block_transforming_event_allows_data_modification(): void
+    {
+        Event::listen(BlockTransforming::class, function (BlockTransforming $event) {
+            if ($event->blockType === 'text') {
+                $data = $event->getData();
+                $data['titre'] = 'Modified Title';
+                $data['content'] = 'Modified Content';
+                $event->setData($data);
+            }
+        });
+
+        $sections = [
+            [
+                'type' => 'text',
+                'data' => ['titre' => 'Original Title', 'content' => 'Original Content'],
+            ],
+        ];
+
+        $result = $this->transformer->transform($sections);
+
+        // Vérifier que les données modifiées sont utilisées dans la transformation
+        $this->assertCount(1, $result);
+        $this->assertEquals('text', $result[0]['type']);
+        // La transformation devrait utiliser le titre modifié
+        $this->assertEquals('Modified Title', $result[0]['data']['titre']);
+        // Le contenu devrait également être modifié
+        $this->assertEquals('Modified Content', $result[0]['data']['content']);
+    }
+
+    public function test_block_transformed_event_allows_data_modification(): void
+    {
+        Event::listen(BlockTransformed::class, function (BlockTransformed $event) {
+            if ($event->blockType === 'text') {
+                $transformedData = $event->getTransformedData();
+                $transformedData['metadata'] = [
+                    'transformed_at' => '2024-01-01T00:00:00Z',
+                    'custom' => true,
+                ];
+                $event->setTransformedData($transformedData);
+            }
+        });
+
+        $sections = [
+            [
+                'type' => 'text',
+                'data' => ['titre' => 'Test Title', 'content' => 'Test Content'],
+            ],
+        ];
+
+        $result = $this->transformer->transform($sections);
+
+        // Vérifier que les données transformées modifiées sont retournées
+        $this->assertCount(1, $result);
+        $this->assertEquals('text', $result[0]['type']);
+        $this->assertArrayHasKey('metadata', $result[0]['data']);
+        $this->assertArrayHasKey('transformed_at', $result[0]['data']['metadata']);
+        $this->assertArrayHasKey('custom', $result[0]['data']['metadata']);
+        $this->assertTrue($result[0]['data']['metadata']['custom']);
+    }
+
+    public function test_events_dispatched_for_missing_block_when_filter_disabled(): void
+    {
+        Event::fake();
+        config(['page-content-manager.api.filter_missing_blocks' => false]);
+
+        $sections = [
+            [
+                'type' => 'non_existent_block',
+                'data' => ['test' => 'data'],
+            ],
+        ];
+
+        $this->transformer->transform($sections);
+
+        // Les événements devraient être déclenchés même pour les blocs manquants
+        Event::assertDispatched(BlockTransforming::class, function ($event) {
+            return $event->blockType === 'non_existent_block';
+        });
+
+        Event::assertDispatched(BlockTransformed::class, function ($event) {
+            return $event->blockType === 'non_existent_block';
+        });
+    }
+
+    public function test_events_work_with_multiple_sections(): void
+    {
+        Event::fake();
+
+        $sections = [
+            [
+                'type' => 'text',
+                'data' => ['titre' => 'Title 1'],
+            ],
+            [
+                'type' => 'text',
+                'data' => ['titre' => 'Title 2'],
+            ],
+        ];
+
+        $this->transformer->transform($sections);
+
+        // Vérifier que les événements sont déclenchés pour chaque section
+        Event::assertDispatchedTimes(BlockTransforming::class, 2);
+        Event::assertDispatchedTimes(BlockTransformed::class, 2);
     }
 }
 

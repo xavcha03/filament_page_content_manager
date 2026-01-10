@@ -4,6 +4,8 @@ namespace Xavcha\PageContentManager\Blocks;
 
 use Illuminate\Support\Facades\Log;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
+use Xavcha\PageContentManager\Events\BlockTransformed;
+use Xavcha\PageContentManager\Events\BlockTransforming;
 
 class SectionTransformer
 {
@@ -56,14 +58,28 @@ class SectionTransformer
                         ]);
                         continue;
                     } else {
-                        // Mode rétrocompatibilité : retourner les données brutes
+                        // Mode rétrocompatibilité : déclencher l'événement avant transformation
+                        $transformingEvent = new BlockTransforming($type, $data);
+                        event($transformingEvent);
+                        $data = $transformingEvent->getData();
+                        
+                        // Déclencher l'événement après transformation (données brutes)
+                        $transformedEvent = new BlockTransformed($type, $data);
+                        event($transformedEvent);
+                        $transformedData = $transformedEvent->getTransformedData();
+                        
                         $transformed[] = [
                             'type' => $type,
-                            'data' => $data,
+                            'data' => $transformedData,
                         ];
                         continue;
                     }
                 }
+                
+                // Déclencher l'événement avant transformation
+                $transformingEvent = new BlockTransforming($type, $data);
+                event($transformingEvent);
+                $data = $transformingEvent->getData();
                 
                 if (method_exists($blockClass, 'transform')) {
                     $transformedData = $blockClass::transform($data);
@@ -71,6 +87,11 @@ class SectionTransformer
                     // Fallback : retourner les données brutes
                     $transformedData = $data;
                 }
+
+                // Déclencher l'événement après transformation
+                $transformedEvent = new BlockTransformed($type, $transformedData);
+                event($transformedEvent);
+                $transformedData = $transformedEvent->getTransformedData();
 
                 $transformed[] = [
                     'type' => $type,

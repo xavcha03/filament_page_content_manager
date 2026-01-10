@@ -188,6 +188,52 @@ class MonBloc implements BlockInterface
 
 **C'est tout !** Le bloc est automatiquement découvert et disponible. Aucune configuration nécessaire.
 
+### Événements pour personnaliser la transformation
+
+Le package expose deux événements Laravel pour personnaliser le comportement de transformation des blocs :
+
+- **`BlockTransforming`** : Déclenché **avant** la transformation d'un bloc
+- **`BlockTransformed`** : Déclenché **après** la transformation d'un bloc
+
+**Exemple d'utilisation** :
+
+```php
+use Xavcha\PageContentManager\Events\BlockTransforming;
+use Xavcha\PageContentManager\Events\BlockTransformed;
+use Illuminate\Support\Facades\Event;
+
+// Dans AppServiceProvider ou EventServiceProvider
+public function boot(): void
+{
+    // Modifier les données avant transformation
+    Event::listen(BlockTransforming::class, function (BlockTransforming $event) {
+        if ($event->blockType === 'hero') {
+            $data = $event->getData();
+            $data['custom_field'] = 'valeur personnalisée';
+            $event->setData($data);
+        }
+    });
+    
+    // Modifier les données après transformation
+    Event::listen(BlockTransformed::class, function (BlockTransformed $event) {
+        $transformedData = $event->getTransformedData();
+        $transformedData['metadata'] = [
+            'transformed_at' => now()->toIso8601String(),
+        ];
+        $event->setTransformedData($transformedData);
+    });
+}
+```
+
+**Cas d'usage** :
+- Enrichir les données avec des informations externes (API, base de données)
+- Ajouter des métadonnées personnalisées
+- Logger et analytics
+- Validation personnalisée
+- A/B testing
+
+Voir [docs/improvements.md](docs/improvements.md#5-eventshooks-pour-personnalisation) pour plus d'exemples.
+
 ### CLI Interactif pour la gestion des blocs
 
 Le package inclut un système de commandes CLI complet pour gérer vos blocs :
