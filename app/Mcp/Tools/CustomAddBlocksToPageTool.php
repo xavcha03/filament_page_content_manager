@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Xavcha\PageContentManager\Mcp\Tools;
+namespace App\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -11,13 +11,13 @@ use Laravel\Mcp\Server\Tool;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Models\Page;
 
-class AddBlocksToPageTool extends Tool
+class CustomAddBlocksToPageTool extends Tool
 {
-    protected string $name = 'add_blocks_to_page';
+    protected string $name = 'custom_add_blocks_to_page';
 
-    protected string $title = 'Add Blocks to Page';
+    protected string $title = 'Custom Add Blocks to Page (including Home)';
 
-    protected string $description = 'Adds content blocks to an existing page. You can add one or multiple blocks at once. Each block must have a type and data matching the block schema.';
+    protected string $description = 'Adds content blocks to an existing page, including the home page. You can add one or multiple blocks at once. Each block must have a type and data matching the block schema. This tool allows modification of the home page, unlike the standard add_blocks_to_page tool.';
 
     /**
      * @return array<string, mixed>
@@ -71,6 +71,9 @@ class AddBlocksToPageTool extends Tool
         } else {
             return Response::error('Either "id" or "slug" must be provided to identify the page.');
         }
+
+        // Note: This tool allows updating the home page, unlike AddBlocksToPageTool
+        // No restriction check for home page here
 
         try {
             $registry = app(BlockRegistry::class);
@@ -130,4 +133,3 @@ class AddBlocksToPageTool extends Tool
         }
     }
 }
-

@@ -72,11 +72,6 @@ class UpdateBlockTool extends Tool
             return Response::error('Either "page_id" or "page_slug" must be provided to identify the page.');
         }
 
-        // Prevent updating home page via MCP
-        if ($page->isHome()) {
-            return Response::error('Home page cannot be updated via MCP.');
-        }
-
         try {
             $registry = app(BlockRegistry::class);
             $content = $page->content ?? [];
@@ -131,6 +126,7 @@ class UpdateBlockTool extends Tool
                     'id' => $page->id,
                     'title' => $page->title,
                     'slug' => $page->slug,
+                    'is_home' => $page->isHome(),
                 ],
             ]);
         } catch (\Exception $e) {

@@ -77,11 +77,6 @@ class UpdatePageTool extends Tool
             return Response::error('Either "id" or "slug" must be provided to identify the page.');
         }
 
-        // Prevent updating home page via MCP
-        if ($page->isHome()) {
-            return Response::error('Home page cannot be updated via MCP.');
-        }
-
         try {
             $updateData = [];
 
@@ -127,6 +122,7 @@ class UpdatePageTool extends Tool
                     'status' => $page->status,
                     'seo_title' => $page->seo_title,
                     'seo_description' => $page->seo_description,
+                    'is_home' => $page->isHome(),
                 ],
             ]);
         } catch (\Exception $e) {
