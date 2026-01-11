@@ -73,18 +73,15 @@ class GetPageContentTool extends Tool
 
             return Response::json([
                 'success' => true,
-                'page' => [
-                    'id' => $page->id,
-                    'title' => $page->title,
-                    'slug' => $page->slug,
-                    'type' => $page->type,
-                    'status' => $page->status,
-                    'seo_title' => $page->seo_title,
-                    'seo_description' => $page->seo_description,
-                ],
+                'id' => $page->id,
+                'title' => $page->title,
+                'slug' => $page->slug,
+                'type' => $page->type,
+                'status' => $page->status,
+                'seo_title' => $page->seo_title,
+                'seo_description' => $page->seo_description,
                 'content' => [
                     'sections' => $sections,
-                    'total_sections' => count($sections),
                     'metadata' => $content['metadata'] ?? [],
                 ],
             ]);
