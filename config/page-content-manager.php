@@ -27,6 +27,7 @@ return [
     'mcp' => [
         'enabled' => env('PAGE_CONTENT_MANAGER_MCP_ENABLED', true),
         'route' => env('PAGE_CONTENT_MANAGER_MCP_ROUTE', 'mcp/pages'),
+        'auto_register' => env('PAGE_CONTENT_MANAGER_MCP_AUTO_REGISTER', true),
     ],
 
     /*

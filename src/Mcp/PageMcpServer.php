@@ -30,6 +30,34 @@ class PageMcpServer extends Server
     MARKDOWN;
 
     /**
+     * Retourne la liste des outils MCP disponibles.
+     *
+     * Cette méthode permet d'accéder aux outils depuis l'extérieur du package,
+     * par exemple pour créer un serveur MCP personnalisé qui inclut ces outils.
+     *
+     * @return array<int, class-string<Tool>>
+     */
+    public static function getTools(): array
+    {
+        return [
+            // Pages
+            CreatePageTool::class,
+            UpdatePageTool::class,
+            ListPagesTool::class,
+            GetPageContentTool::class,
+            DeletePageTool::class,
+            DuplicatePageTool::class,
+            // Blocs
+            ListBlocksTool::class,
+            GetBlockSchemaTool::class,
+            AddBlocksToPageTool::class,
+            UpdateBlockTool::class,
+            DeleteBlockTool::class,
+            ReorderBlocksTool::class,
+        ];
+    }
+
+    /**
      * @var array<int, Tool|class-string<Tool>>
      */
     protected array $tools = [

@@ -37,8 +37,12 @@ class PageContentManagerServiceProvider extends ServiceProvider
             $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
         }
 
-        // Enregistrer le serveur MCP si activé
-        if (config('page-content-manager.mcp.enabled', true) && class_exists(\Laravel\Mcp\Facades\Mcp::class)) {
+        // Enregistrer le serveur MCP si activé et si l'enregistrement automatique est activé
+        if (
+            config('page-content-manager.mcp.enabled', true) &&
+            config('page-content-manager.mcp.auto_register', true) &&
+            class_exists(\Laravel\Mcp\Facades\Mcp::class)
+        ) {
             $mcpRoute = config('page-content-manager.mcp.route', 'mcp/pages');
             Mcp::web($mcpRoute, PageMcpServer::class);
         }
