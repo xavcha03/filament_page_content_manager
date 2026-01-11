@@ -20,48 +20,36 @@ class CTABlockTest extends TestCase
         $this->assertInstanceOf(Block::class, $block);
     }
 
-    public function test_transform_handles_different_variants(): void
+    public function test_transform_returns_correct_structure(): void
     {
-        // Test variant simple
-        $dataSimple = [
+        $data = [
             'titre' => 'CTA Title',
             'description' => 'CTA Description',
-            'variant' => 'simple',
             'cta_text' => 'Click me',
             'cta_link' => '/test',
         ];
 
-        $resultSimple = CTABlock::transform($dataSimple);
-        $this->assertEquals('simple', $resultSimple['variant']);
-        $this->assertEquals('CTA Title', $resultSimple['titre']);
+        $result = CTABlock::transform($data);
 
-        // Test variant hero
-        $dataHero = [
-            'titre' => 'Hero CTA',
-            'variant' => 'hero',
-            'cta_text' => 'Click',
-            'cta_link' => '/hero',
-            'background_image' => '/storage/test.jpg',
-            'phone_number' => '123456789',
-        ];
+        $this->assertArrayHasKey('type', $result);
+        $this->assertEquals('cta', $result['type']);
+        $this->assertEquals('CTA Title', $result['titre']);
+        $this->assertEquals('CTA Description', $result['description']);
+        $this->assertEquals('Click me', $result['cta_text']);
+        $this->assertEquals('/test', $result['cta_link']);
+    }
 
-        $resultHero = CTABlock::transform($dataHero);
-        $this->assertEquals('hero', $resultHero['variant']);
-        $this->assertArrayHasKey('background_image', $resultHero);
-        $this->assertArrayHasKey('phone_number', $resultHero);
+    public function test_transform_handles_missing_fields(): void
+    {
+        $data = [];
 
-        // Test variant subscription
-        $dataSubscription = [
-            'titre' => 'Subscription CTA',
-            'variant' => 'subscription',
-            'cta_text' => 'Subscribe',
-            'cta_link' => '/subscribe',
-            'secondary_cta_text' => 'Learn more',
-        ];
+        $result = CTABlock::transform($data);
 
-        $resultSubscription = CTABlock::transform($dataSubscription);
-        $this->assertEquals('subscription', $resultSubscription['variant']);
-        $this->assertArrayHasKey('secondary_cta_text', $resultSubscription);
+        $this->assertEquals('cta', $result['type']);
+        $this->assertEquals('', $result['titre']);
+        $this->assertEquals('', $result['description']);
+        $this->assertEquals('', $result['cta_text']);
+        $this->assertEquals('', $result['cta_link']);
     }
 }
 
