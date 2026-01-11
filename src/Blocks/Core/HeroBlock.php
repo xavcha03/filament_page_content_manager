@@ -6,13 +6,14 @@ use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMediaTransformation;
 use Xavier\MediaLibraryPro\Forms\Components\MediaPickerUnified;
 
 class HeroBlock implements BlockInterface
 {
-    use HasMediaTransformation;
+    use HasMediaTransformation, HasMcpMetadata;
 
     public static function getType(): string
     {
@@ -147,6 +148,84 @@ class HeroBlock implements BlockInterface
         }
 
         return $transformed;
+    }
+
+    /**
+     * Retourne les champs du bloc pour MCP.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre principal',
+                'type' => 'string',
+                'required' => true,
+                'description' => 'Le titre principal de la section hero',
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'description',
+                'label' => 'Description',
+                'type' => 'string',
+                'required' => true,
+                'description' => 'La description de la section hero',
+                'max_length' => 500,
+            ],
+            [
+                'name' => 'variant',
+                'label' => 'Variante',
+                'type' => 'string',
+                'required' => false,
+                'description' => 'La variante du hero (hero ou projects)',
+                'options' => [
+                    'hero' => 'Hero standard',
+                    'projects' => 'Hero projets (galerie)',
+                ],
+                'default' => 'hero',
+            ],
+            [
+                'name' => 'bouton_principal',
+                'label' => 'Bouton principal',
+                'type' => 'object',
+                'required' => false,
+                'description' => 'Bouton d\'appel à l\'action (optionnel)',
+                'fields' => [
+                    [
+                        'name' => 'texte',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 100,
+                    ],
+                    [
+                        'name' => 'lien',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 255,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Retourne un exemple de données pour le bloc.
+     *
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Bienvenue sur notre site',
+            'description' => 'Découvrez nos services et solutions innovantes',
+            'variant' => 'hero',
+            'bouton_principal' => [
+                'texte' => 'En savoir plus',
+                'lien' => '/contact',
+            ],
+        ];
     }
 }
 

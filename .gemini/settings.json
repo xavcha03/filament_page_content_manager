@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "xavcha-pages": {
+      "httpUrl": "https://xavcha-pages.ddev.site/mcp/pages",
+      "trust": true
+    }
+  }
+}

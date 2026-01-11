@@ -4,8 +4,10 @@ namespace Xavcha\PageContentManager;
 
 use Filament\Facades\Filament;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Mcp\Facades\Mcp;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Blocks\BlockValidator;
+use Xavcha\PageContentManager\Mcp\PageMcpServer;
 
 class PageContentManagerServiceProvider extends ServiceProvider
 {
@@ -33,6 +35,12 @@ class PageContentManagerServiceProvider extends ServiceProvider
         // Enregistrer les routes API si activées
         if (config('page-content-manager.routes', true)) {
             $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+        }
+
+        // Enregistrer le serveur MCP si activé
+        if (config('page-content-manager.mcp.enabled', true) && class_exists(\Laravel\Mcp\Facades\Mcp::class)) {
+            $mcpRoute = config('page-content-manager.mcp.route', 'mcp/pages');
+            Mcp::web($mcpRoute, PageMcpServer::class);
         }
 
         // Publier la configuration

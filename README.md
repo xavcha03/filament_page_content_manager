@@ -12,6 +12,7 @@ Package Laravel Filament professionnel pour gérer les pages avec un système de
 - 📄 **Ressource Filament complète** pour gérer les pages
 - 🧩 **Système de blocs modulaire** (Hero, Text, Image, Gallery, CTA, FAQ, Contact Form)
 - 🔌 **Routes API** pour récupérer les pages et leur contenu transformé
+- 🤖 **Serveur MCP (Model Context Protocol)** pour permettre aux agents IA de créer et gérer des pages
 - 🎨 **CLI interactif** pour la gestion des blocs (création, inspection, validation, etc.)
 - 🔍 **Validation des blocs au démarrage** pour détecter les erreurs tôt
 - 🔄 **Système réutilisable** pour ajouter SEO et Content à d'autres ressources Filament
@@ -552,6 +553,7 @@ Components\Tabs::make('tabs')
 - [Guide d'utilisation](docs/usage.md)
 - [Architecture des blocs](docs/blocks-architecture.md) ⭐ Nouveau
 - [Créer des blocs personnalisés](docs/custom-blocks.md) - Inclut la commande `make-block`
+- [Serveur MCP](docs/mcp-server.md) 🤖 - Pour les agents IA (Claude, ChatGPT, etc.)
 - [Système réutilisable](docs/reusable-system.md)
 - [Documentation API](docs/api.md)
 - [Tests](docs/testing.md)

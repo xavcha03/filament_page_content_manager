@@ -16,6 +16,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | MCP Server
+    |--------------------------------------------------------------------------
+    |
+    | Configuration du serveur MCP (Model Context Protocol) pour permettre
+    | aux agents IA de créer et gérer des pages.
+    |
+    */
+
+    'mcp' => [
+        'enabled' => env('PAGE_CONTENT_MANAGER_MCP_ENABLED', true),
+        'route' => env('PAGE_CONTENT_MANAGER_MCP_ROUTE', 'mcp/pages'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Enregistrement de la ressource Filament
     |--------------------------------------------------------------------------
     |

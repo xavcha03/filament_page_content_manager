@@ -4,12 +4,14 @@ namespace {{ namespace }};
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 {{ hasMediaUse }}
 
 class {{ blockName }}Block implements BlockInterface
 {
 {{ hasMediaTrait }}
+    use HasMcpMetadata;
 
     public static function getType(): string
     {
@@ -47,6 +49,41 @@ class {{ blockName }}Block implements BlockInterface
             'type' => '{{ type }}',
             'titre' => $data['titre'] ?? '',
             // Ajoutez votre logique de transformation ici
+        ];
+    }
+
+    /**
+     * Retourne les champs du bloc pour MCP.
+     * Cette méthode permet à l'IA de connaître les champs disponibles pour construire des pages.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre',
+                'type' => 'string',
+                'required' => true,
+                'description' => 'Le titre du bloc',
+                'max_length' => 200,
+            ],
+            // Ajoutez les autres champs ici
+        ];
+    }
+
+    /**
+     * Retourne un exemple de données pour le bloc.
+     * Utile pour guider l'IA dans la création de contenu.
+     *
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Exemple de titre',
+            // Ajoutez des exemples pour les autres champs
         ];
     }
 }

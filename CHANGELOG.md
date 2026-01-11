@@ -8,6 +8,13 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 ## [0.2.4] - 2025-01-XX
 
 ### Ajouté
+- **Serveur MCP (Model Context Protocol) pour les agents IA** 🤖
+  - Serveur MCP complet permettant aux agents IA (Claude, ChatGPT, etc.) de créer et gérer des pages
+  - 5 outils MCP disponibles : `create_page`, `update_page`, `list_pages`, `list_blocks`, `add_blocks_to_page`
+  - Support complet pour la création de pages avec blocs de contenu via MCP
+  - Documentation complète dans `docs/mcp-server.md`
+  - Route MCP configurable via `PAGE_CONTENT_MANAGER_MCP_ROUTE` (défaut: `mcp/pages`)
+  - Protection : les pages Home ne peuvent pas être modifiées via MCP
 - **Facade Blocks pour faciliter l'accès au BlockRegistry** 🎯
   - Facade `Blocks` pour un accès simplifié au `BlockRegistry`
   - Méthode `has(string $type): bool` dans `BlockRegistry` pour vérifier l'existence d'un bloc
@@ -24,10 +31,12 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 ### Modifié
 - `BlockRegistry` : Ajout de la méthode `has()` pour vérifier l'existence d'un bloc
 - `PageContentManagerServiceProvider` : Enregistrement de `BlockRegistry` comme singleton
+- Ajout de la dépendance `laravel/mcp` (^0.5.2) pour le support MCP
 
 ### Documentation
 - Ajout de la section "Utiliser la Facade Blocks" dans le README
 - Documentation complète dans `docs/blocks-architecture.md`
+- Documentation complète du serveur MCP dans `docs/mcp-server.md`
 
 ## [0.2.3] - 2025-01-XX
 

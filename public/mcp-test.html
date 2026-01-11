@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MCP Server - Page Content Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .result pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .result.success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .result.error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test MCP Server</h1>
+            <p>Page Content Manager - Testez votre serveur MCP directement depuis le navigateur</p>
+        </div>
+        <div class="content">
+            <div class="section">
+                <h2>Connexion</h2>
+                <div class="button-group">
+                    <button onclick="testConnection()">🔌 Tester la connexion</button>
+                    <button onclick="listTools()" class="secondary">📋 Lister les outils</button>
+                </div>
+                <div id="connectionResult"></div>
+            </div>
+
+            <div class="section">
+                <h2>Actions rapides</h2>
+                <div class="button-group">
+                    <button onclick="listPages()">📄 Lister les pages</button>
+                    <button onclick="listBlocks()">🧱 Lister les blocs</button>
+                    <button onclick="createTestPage()">➕ Créer une page test</button>
+                </div>
+                <div id="actionResult"></div>
+            </div>
+
+            <div class="section">
+                <h2>Requête personnalisée</h2>
+                <textarea id="customRequest" style="width: 100%; min-height: 150px; padding: 10px; border: 1px solid #dee2e6; border-radius: 6px; font-family: monospace; font-size: 13px;" placeholder='{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list"
+}'></textarea>
+                <div style="margin-top: 10px;">
+                    <button onclick="sendCustomRequest()">🚀 Envoyer la requête</button>
+                </div>
+                <div id="customResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MCP_URL = 'https://xavcha-pages.ddev.site/mcp/pages';
+
+        async function callMCP(method, params = {}) {
+            const request = {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                method: method,
+                params: params
+            };
+
+            try {
+                const response = await fetch(MCP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(request)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                throw new Error(`Erreur de connexion: ${error.message}`);
+            }
+        }
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${isError ? 'error' : 'success'}"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        }
+
+        async function testConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.innerHTML = '<div class="result"><div class="loading"></div> Test en cours...</div>';
+            
+            try {
+                const result = await callMCP('tools/list');
+                resultDiv.innerHTML = `<div class="result success">
+                    <p><strong>✅ Serveur accessible !</strong></p>
+                    <p>Outils disponibles: ${result.result.tools.length}</p>
+                    <ul style="margin-top: 10px;">
+                        ${result.result.tools.map(t => `<li>${t.name}: ${t.description}</li>`).join('')}
+                    </ul>
+                </div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error"><strong>❌ Erreur:</strong> ${error.message}</div>`;
+            }
+        }
+
+        async function listTools() {
+            showResult('connectionResult', { loading: true });
+            try {
+                const result = await callMCP('tools/list');
+                showResult('connectionResult', result);
+            } catch (error) {
+                showResult('connectionResult', { error: error.message }, true);
+            }
+        }
+
+        async function listPages() {
+            showResult('actionResult', { loading: true });
+            try {
+                const result = await callMCP('tools/call', {
+                    name: 'list_pages',
+                    arguments: {}
+                });
+                showResult('actionResult', result);
+            } catch (error) {
+                showResult('actionResult', { error: error.message }, true);
+            }
+        }
+
+        async function listBlocks() {
+            showResult('actionResult', { loading: true });
+            try {
+                const result = await callMCP('tools/call', {
+                    name: 'list_blocks',
+                    arguments: {}
+                });
+                showResult('actionResult', result);
+            } catch (error) {
+                showResult('actionResult', { error: error.message }, true);
+            }
+        }
+
+        async function createTestPage() {
+            showResult('actionResult', { loading: true });
+            try {
+                const result = await callMCP('tools/call', {
+                    name: 'create_page',
+                    arguments: {
+                        title: 'Page de test MCP',
+                        slug: 'test-mcp-' + Date.now(),
+                        status: 'draft'
+                    }
+                });
+                showResult('actionResult', result);
+            } catch (error) {
+                showResult('actionResult', { error: error.message }, true);
+            }
+        }
+
+        async function sendCustomRequest() {
+            const textarea = document.getElementById('customRequest');
+            const customResult = document.getElementById('customResult');
+            
+            try {
+                const request = JSON.parse(textarea.value);
+                customResult.innerHTML = '<div class="result"><div class="loading"></div> Envoi en cours...</div>';
+                
+                const response = await fetch(MCP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(request)
+                });
+
+                const data = await response.json();
+                showResult('customResult', data);
+            } catch (error) {
+                showResult('customResult', { error: error.message }, true);
+            }
+        }
+
+        // Test automatique au chargement
+        window.addEventListener('load', () => {
+            testConnection();
+        });
+    </script>
+</body>
+</html>
+
