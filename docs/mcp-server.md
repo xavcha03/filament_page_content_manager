@@ -54,7 +54,9 @@ curl -X POST https://votre-domaine.com/mcp/pages \
 
 ## 🛠️ Outils disponibles
 
-### 1. create_page
+### Gestion des Pages
+
+#### 1. create_page
 
 Crée une nouvelle page vierge.
 
@@ -191,7 +193,106 @@ Liste tous les blocs de contenu disponibles pour construire des pages.
 }
 ```
 
-### 5. add_blocks_to_page
+### 5. get_page_content
+
+Récupère le contenu complet d'une page incluant tous ses blocs. Utile pour comprendre la structure avant modification.
+
+**Paramètres** :
+- `id` ou `slug` (requis) : Identifiant de la page
+
+**Exemple** :
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "method": "tools/call",
+  "params": {
+    "name": "get_page_content",
+    "arguments": {
+      "slug": "ma-nouvelle-page"
+    }
+  }
+}
+```
+
+**Réponse** :
+```json
+{
+  "success": true,
+  "page": {
+    "id": 6,
+    "title": "Ma nouvelle page",
+    "slug": "ma-nouvelle-page",
+    "type": "standard",
+    "status": "published"
+  },
+  "content": {
+    "sections": [
+      {
+        "type": "hero",
+        "data": { ... }
+      }
+    ],
+    "total_sections": 1
+  }
+}
+```
+
+### 6. delete_page
+
+Supprime une page complètement. La page Home ne peut pas être supprimée.
+
+**Paramètres** :
+- `id` ou `slug` (requis) : Identifiant de la page
+- `confirm` (optionnel) : Confirmation pour éviter les suppressions accidentelles
+
+**Exemple** :
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "method": "tools/call",
+  "params": {
+    "name": "delete_page",
+    "arguments": {
+      "slug": "page-obsolete",
+      "confirm": true
+    }
+  }
+}
+```
+
+### 7. duplicate_page
+
+Crée une copie d'une page existante. Utile pour créer des variantes ou des templates.
+
+**Paramètres** :
+- `id` ou `slug` (requis) : Identifiant de la page à dupliquer
+- `new_slug` (optionnel) : Slug pour la page dupliquée (auto-généré si non fourni)
+- `new_title` (optionnel) : Titre pour la page dupliquée (auto-généré si non fourni)
+- `status` (optionnel) : Statut de la page dupliquée (défaut: `draft`)
+
+**Exemple** :
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 9,
+  "method": "tools/call",
+  "params": {
+    "name": "duplicate_page",
+    "arguments": {
+      "slug": "ma-nouvelle-page",
+      "new_slug": "ma-nouvelle-page-v2",
+      "new_title": "Ma nouvelle page V2",
+      "status": "draft"
+    }
+  }
+}
+```
+
+### Gestion des Blocs
+
+### 8. add_blocks_to_page
 
 Ajoute un ou plusieurs blocs de contenu à une page existante.
 
@@ -237,6 +338,125 @@ Ajoute un ou plusieurs blocs de contenu à une page existante.
 }
 ```
 
+### 9. get_block_schema
+
+Récupère le schéma complet d'un type de bloc incluant tous les champs, types, options, exemples et exigences.
+
+**Paramètres** :
+- `type` (requis) : Le type du bloc (ex: `hero`, `text`, `cta`)
+
+**Exemple** :
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 10,
+  "method": "tools/call",
+  "params": {
+    "name": "get_block_schema",
+    "arguments": {
+      "type": "hero"
+    }
+  }
+}
+```
+
+**Réponse** : Retourne toutes les informations du bloc (champs, types, exemples, etc.)
+
+### 10. update_block
+
+Met à jour un bloc existant dans une page. Permet de modifier les données d'un bloc sans recréer toute la structure.
+
+**Paramètres** :
+- `page_id` ou `page_slug` (requis) : Identifiant de la page
+- `block_index` (requis) : Index du bloc à modifier (0-based)
+- `data` (requis) : Nouvelles données pour le bloc
+
+**Exemple** :
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 11,
+  "method": "tools/call",
+  "params": {
+    "name": "update_block",
+    "arguments": {
+      "page_slug": "ma-nouvelle-page",
+      "block_index": 0,
+      "data": {
+        "titre": "Nouveau titre",
+        "description": "Nouvelle description"
+      }
+    }
+  }
+}
+```
+
+### 11. delete_block
+
+Supprime un bloc spécifique d'une page par son index.
+
+**Paramètres** :
+- `page_id` ou `page_slug` (requis) : Identifiant de la page
+- `block_index` (requis) : Index du bloc à supprimer (0-based)
+
+**Exemple** :
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 12,
+  "method": "tools/call",
+  "params": {
+    "name": "delete_block",
+    "arguments": {
+      "page_slug": "ma-nouvelle-page",
+      "block_index": 2
+    }
+  }
+}
+```
+
+### 12. reorder_blocks
+
+Réorganise l'ordre des blocs dans une page. Permet de déplacer un bloc ou de spécifier un nouvel ordre complet.
+
+**Paramètres** :
+- `page_id` ou `page_slug` (requis) : Identifiant de la page
+- `from_index` et `to_index` (optionnel) : Déplacer un bloc d'un index à un autre
+- `new_order` (optionnel) : Nouvel ordre complet comme tableau d'indices (alternative à from_index/to_index)
+
+**Exemple 1 - Déplacer un bloc** :
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 13,
+  "method": "tools/call",
+  "params": {
+    "name": "reorder_blocks",
+    "arguments": {
+      "page_slug": "ma-nouvelle-page",
+      "from_index": 2,
+      "to_index": 0
+    }
+  }
+}
+```
+
+**Exemple 2 - Nouvel ordre complet** :
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 14,
+  "method": "tools/call",
+  "params": {
+    "name": "reorder_blocks",
+    "arguments": {
+      "page_slug": "ma-nouvelle-page",
+      "new_order": [2, 0, 1, 3]
+    }
+  }
+}
+```
+
 ## 🔍 Lister les outils disponibles
 
 Pour voir tous les outils disponibles :
@@ -249,12 +469,17 @@ Pour voir tous les outils disponibles :
 }
 ```
 
+## 📦 Gestion des Médias
+
+La gestion des médias (upload, attachement aux blocs) n'est pas encore implémentée mais fait l'objet d'une proposition détaillée. Voir [Gestion des Médias via MCP](mcp-media-management.md) pour plus d'informations.
+
 ## 🔐 Sécurité
 
 - Les pages Home ne peuvent pas être créées ou modifiées via MCP
 - La validation des données est effectuée pour tous les paramètres
 - L'unicité des slugs est vérifiée automatiquement
 - Les erreurs sont gérées de manière sécurisée
+- Les pages Home ne peuvent pas être supprimées via MCP
 
 ## 🧪 Test avec MCP Inspector
 
