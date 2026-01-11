@@ -30,3 +30,4 @@ class BlockInspectCommandTest extends TestCase
 }
 
 
+

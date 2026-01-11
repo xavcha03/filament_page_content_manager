@@ -38,3 +38,4 @@ Ce document liste toutes les métriques orientées utilisateur final (éditeurs/
 
 - **Alertes de qualité** : Pages nécessitant une attention (SEO manquant, sections vides, etc.) oui mais déjà repris plus haut je pense
 
+

@@ -684,3 +684,4 @@ Ces améliorations UX sont des suggestions pour rendre l'interface d'administrat
 **Note** : Certaines améliorations peuvent nécessiter des dépendances supplémentaires (comme un éditeur WYSIWYG) ou des modifications importantes de l'architecture actuelle.
 
 
+

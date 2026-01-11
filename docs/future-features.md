@@ -616,3 +616,4 @@ Ces fonctionnalités sont des idées pour l'avenir du package. Si vous souhaitez
 **Note** : Certaines fonctionnalités peuvent nécessiter des packages supplémentaires ou des intégrations avec des services tiers (APIs payantes). Ces dépendances seront clairement documentées.
 
 
+
