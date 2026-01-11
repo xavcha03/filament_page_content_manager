@@ -3,8 +3,8 @@
 namespace Xavcha\PageContentManager\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMediaTransformation;
@@ -30,10 +30,22 @@ class SplitBlock implements BlockInterface
                     ->maxLength(200)
                     ->columnSpanFull(),
 
-                Textarea::make('texte')
+                RichEditor::make('texte')
                     ->label('Texte')
                     ->required()
-                    ->rows(6)
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'link',
+                        'bulletList',
+                        'orderedList',
+                        'blockquote',
+                        'codeBlock',
+                        'h2',
+                        'h3',
+                    ])
                     ->columnSpanFull(),
 
                 Select::make('variant')
