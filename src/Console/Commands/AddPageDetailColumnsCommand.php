@@ -62,3 +62,4 @@ class AddPageDetailColumnsCommand extends Command
 
 
 
+

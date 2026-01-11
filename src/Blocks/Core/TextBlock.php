@@ -3,7 +3,7 @@
 namespace Xavcha\PageContentManager\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 
@@ -25,10 +25,22 @@ class TextBlock implements BlockInterface
                     ->maxLength(200)
                     ->columnSpanFull(),
 
-                Textarea::make('content')
+                RichEditor::make('content')
                     ->label('Contenu')
                     ->required()
-                    ->rows(6)
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'link',
+                        'bulletList',
+                        'orderedList',
+                        'blockquote',
+                        'codeBlock',
+                        'h2',
+                        'h3',
+                    ])
                     ->columnSpanFull(),
             ]);
     }
@@ -42,6 +54,7 @@ class TextBlock implements BlockInterface
         ];
     }
 }
+
 
 
 

@@ -92,3 +92,4 @@ class FeaturesBlockTest extends TestCase
     }
 }
 
+

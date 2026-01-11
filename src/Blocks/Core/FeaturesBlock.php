@@ -102,3 +102,4 @@ class FeaturesBlock implements BlockInterface
     }
 }
 
+
