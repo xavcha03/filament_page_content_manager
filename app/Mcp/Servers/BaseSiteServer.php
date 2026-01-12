@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Mcp\Servers;
 
 use App\Mcp\Tools\CustomAddBlocksToPageTool;
-use Laravel\Mcp\Server;
+use Laravel\Mcp\Tool;
 use Xavcha\PageContentManager\Mcp\PageMcpServer;
 
-class BaseSiteServer extends Server
+class BaseSiteServer extends PageMcpServer
 {
     protected string $name = 'Base Site MCP Server';
 
@@ -23,10 +23,7 @@ class BaseSiteServer extends Server
     /**
      * @var array<int, Tool|class-string<Tool>>
      */
-    protected array $tools = [
-        // Tous les outils du package PageContentManager
-        ...PageMcpServer::getTools(),
-        // Outil personnalisé pour modifier la page home
+    protected array $tools = self::mergeTools([
         CustomAddBlocksToPageTool::class,
-    ];
+    ]);
 }

@@ -30,12 +30,9 @@ class PageMcpServer extends Server
     MARKDOWN;
 
     /**
-     * Retourne la liste des outils MCP disponibles.
+     * Tools du package (pages + blocs).
      *
-     * Cette méthode permet d'accéder aux outils depuis l'extérieur du package,
-     * par exemple pour créer un serveur MCP personnalisé qui inclut ces outils.
-     *
-     * @return array<int, class-string<Tool>>
+     * @return array<int, \Laravel\Mcp\Tool|class-string<\Laravel\Mcp\Tool>>
      */
     public static function getTools(): array
     {
@@ -58,23 +55,19 @@ class PageMcpServer extends Server
     }
 
     /**
-     * @var array<int, Tool|class-string<Tool>>
+     * Merge tools du package + custom.
+     *
+     * @param array<int, \Laravel\Mcp\Tool|class-string<\Laravel\Mcp\Tool>> $customTools
+     * @return array<int, \Laravel\Mcp\Tool|class-string<\Laravel\Mcp\Tool>>
      */
-    protected array $tools = [
-        // Pages
-        CreatePageTool::class,
-        UpdatePageTool::class,
-        ListPagesTool::class,
-        GetPageContentTool::class,
-        DeletePageTool::class,
-        DuplicatePageTool::class,
-        // Blocs
-        ListBlocksTool::class,
-        GetBlockSchemaTool::class,
-        AddBlocksToPageTool::class,
-        UpdateBlockTool::class,
-        DeleteBlockTool::class,
-        ReorderBlocksTool::class,
-    ];
+    public static function mergeTools(array $customTools): array
+    {
+        return array_merge(self::getTools(), $customTools);
+    }
+
+    /**
+     * @var array<int, \Laravel\Mcp\Tool|class-string<\Laravel\Mcp\Tool>>
+     */
+    protected array $tools = self::getTools();
 }
 
