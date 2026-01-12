@@ -68,6 +68,15 @@ class PageMcpServer extends Server
     /**
      * @var array<int, \Laravel\Mcp\Tool|class-string<\Laravel\Mcp\Tool>>
      */
-    protected array $tools = self::getTools();
+    protected array $tools = [];
+
+    /**
+     * Boot the server and initialize tools.
+     */
+    protected function boot(): void
+    {
+        parent::boot();
+        $this->tools = self::getTools();
+    }
 }
 
