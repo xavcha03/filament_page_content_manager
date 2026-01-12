@@ -4,6 +4,7 @@ namespace Xavcha\PageContentManager\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
@@ -54,11 +55,22 @@ class ServicesBlock implements BlockInterface
                             ->maxLength(200)
                             ->columnSpanFull(),
 
-                        Textarea::make('description')
+                        RichEditor::make('description')
                             ->label('Description')
                             ->required()
-                            ->rows(3)
-                            ->maxLength(500)
+                            ->toolbarButtons([
+                                'bold',
+                                'italic',
+                                'underline',
+                                'strike',
+                                'link',
+                                'bulletList',
+                                'orderedList',
+                                'blockquote',
+                                'codeBlock',
+                                'h2',
+                                'h3',
+                            ])
                             ->columnSpanFull(),
 
                         TextInput::make('lien')
