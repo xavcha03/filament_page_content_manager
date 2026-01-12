@@ -23,7 +23,16 @@ class BaseSiteServer extends PageMcpServer
     /**
      * @var array<int, Tool|class-string<Tool>>
      */
-    protected array $tools = self::mergeTools([
-        CustomAddBlocksToPageTool::class,
-    ]);
+    protected array $tools = [];
+
+    /**
+     * Boot the server and initialize tools.
+     */
+    protected function boot(): void
+    {
+        parent::boot();
+        $this->tools = self::mergeTools([
+            CustomAddBlocksToPageTool::class,
+        ]);
+    }
 }
