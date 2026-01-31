@@ -16,7 +16,7 @@ class GetPageContentTool extends Tool
 
     protected string $title = 'Get Page Content';
 
-    protected string $description = 'Retrieves the complete content of a page including all blocks. Useful to understand the structure before modifying.';
+    protected string $description = 'Retrieves the complete content of a page as it appears in Filament. Returns page metadata (title, slug, type, status, SEO fields) and all content blocks from the "Contenu" tab. Each block includes its type and data. Use this to inspect page structure before modifying with update_page, update_block, add_blocks_to_page, or reorder_blocks.';
 
     /**
      * @return array<string, mixed>
@@ -24,8 +24,8 @@ class GetPageContentTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id' => $schema->string()->description('The ID of the page (as string or integer)'),
-            'slug' => $schema->string()->description('The slug of the page (alternative to ID)'),
+            'id' => $schema->string()->description('Page ID (as string or integer). Either id or slug required.')->nullable(),
+            'slug' => $schema->string()->description('Page slug (alternative to ID). Either id or slug required.')->nullable(),
         ];
     }
 

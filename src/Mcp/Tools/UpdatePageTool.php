@@ -16,7 +16,7 @@ class UpdatePageTool extends Tool
 
     protected string $title = 'Update Page';
 
-    protected string $description = 'Updates an existing page by ID or slug. You can update the title, slug, SEO fields, and status.';
+    protected string $description = 'Updates page information from the "Général" and "SEO" tabs in Filament. Can update: Title (Titre), Slug (URL - use slug_new), Status (Brouillon/Draft, Planifié/Scheduled, or Publié/Published), SEO Title (Titre SEO), and SEO Description (Description SEO). Note: Slug cannot be changed after creation for existing pages (except home page).';
 
     /**
      * @return array<string, mixed>
@@ -24,13 +24,13 @@ class UpdatePageTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id' => $schema->string()->description('The ID of the page to update (as string or integer)')->nullable(),
-            'slug' => $schema->string()->description('The slug of the page to update (alternative to ID)')->nullable(),
-            'title' => $schema->string()->description('The new title of the page')->nullable(),
-            'slug_new' => $schema->string()->description('The new URL slug for the page (must be unique)')->nullable(),
-            'seo_title' => $schema->string()->description('Optional SEO title for the page')->nullable(),
-            'seo_description' => $schema->string()->description('Optional SEO description for the page')->nullable(),
-            'status' => $schema->string()->enum(['draft', 'scheduled', 'published'])->description('The new status of the page')->nullable(),
+            'id' => $schema->string()->description('Page ID (as string or integer) to identify the page to update. Either id or slug required.')->nullable(),
+            'slug' => $schema->string()->description('Page slug to identify the page to update (alternative to ID). Either id or slug required.')->nullable(),
+            'title' => $schema->string()->description('Title (Titre) - New page title from "Général" tab.')->nullable(),
+            'slug_new' => $schema->string()->description('Slug - New URL slug. Note: Slug cannot be changed after creation (except for home page). Use slug_new only if absolutely necessary.')->nullable(),
+            'seo_title' => $schema->string()->description('SEO Title (Titre SEO) - Meta title from "SEO" tab.')->nullable(),
+            'seo_description' => $schema->string()->description('SEO Description (Description SEO) - Meta description from "SEO" tab.')->nullable(),
+            'status' => $schema->string()->enum(['draft', 'scheduled', 'published'])->description('Status (Statut) - Page status: "draft" (Brouillon), "scheduled" (Planifié), or "published" (Publié).')->nullable(),
         ];
     }
 

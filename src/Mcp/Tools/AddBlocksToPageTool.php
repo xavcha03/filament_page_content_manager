@@ -17,7 +17,7 @@ class AddBlocksToPageTool extends Tool
 
     protected string $title = 'Add Blocks to Page';
 
-    protected string $description = 'Adds content blocks to an existing page. You can add one or multiple blocks at once. Each block must have a type and data matching the block schema.';
+    protected string $description = 'Adds content blocks to a page. Corresponds to adding blocks in the "Contenu" tab in Filament. Each block must have a "type" (e.g., "hero", "text", "cta") and "data" matching the block schema. Use get_block_schema to see required fields for each block type. IMPORTANT: For blocks with images (image, hero, gallery, etc.), images must be uploaded via Filament admin first, then reference them by image_id in the block data. Do not include image URLs or base64 data.';
 
     /**
      * @return array<string, mixed>
@@ -25,9 +25,9 @@ class AddBlocksToPageTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id' => $schema->string()->description('The ID of the page (as string or integer). Either id or slug must be provided.'),
-            'slug' => $schema->string()->description('The slug of the page (alternative to ID). Either id or slug must be provided.'),
-            'blocks' => $schema->array()->description('Array of blocks to add. Each block must have "type" and "data" fields.'),
+            'id' => $schema->string()->description('Page ID (as string or integer). Either id or slug required.')->nullable(),
+            'slug' => $schema->string()->description('Page slug (alternative to ID). Either id or slug required.')->nullable(),
+            'blocks' => $schema->array()->description('Array of blocks to add to the page "Contenu" tab. Each block must have "type" (e.g., "hero", "text", "cta") and "data" (object with block fields). Use get_block_schema to see required fields for each block type. IMPORTANT: For image fields, use image_id (MediaFile ID uploaded via Filament admin), not URLs or base64.'),
         ];
     }
 

@@ -16,7 +16,7 @@ class DeleteBlockTool extends Tool
 
     protected string $title = 'Delete Block';
 
-    protected string $description = 'Deletes a specific block from a page by its index. Useful to remove obsolete or misplaced blocks.';
+    protected string $description = 'Removes a block from a page. Corresponds to deleting a block in the "Contenu" tab in Filament. Use block_index (0-based) to identify which block to delete. The block will be permanently removed from the page content.';
 
     /**
      * @return array<string, mixed>
@@ -24,9 +24,9 @@ class DeleteBlockTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'page_id' => $schema->string()->description('The ID of the page (as string or integer)')->nullable(),
-            'page_slug' => $schema->string()->description('The slug of the page (alternative to ID)')->nullable(),
-            'block_index' => $schema->integer()->description('The index of the block to delete (0-based)'),
+            'page_id' => $schema->string()->description('Page ID (as string or integer). Either page_id or page_slug required.')->nullable(),
+            'page_slug' => $schema->string()->description('Page slug (alternative to ID). Either page_id or page_slug required.')->nullable(),
+            'block_index' => $schema->integer()->description('Block index (0-based) - The position of the block to delete in the page "Contenu" tab. Use get_page_content to see current block indices.'),
         ];
     }
 

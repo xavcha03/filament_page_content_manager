@@ -16,7 +16,7 @@ class CreatePageTool extends Tool
 
     protected string $title = 'Create Page';
 
-    protected string $description = 'Creates a new page with the specified title, slug, and optional content. The page will be created as a draft by default.';
+    protected string $description = 'Creates a new page in the CMS. Corresponds to the "Général" tab in Filament: Title (Titre), Slug (URL), Type (Standard only), Status (Brouillon/Draft or Publié/Published). Optional SEO fields from the "SEO" tab: SEO Title and SEO Description. The page is created empty (no content blocks) - use add_blocks_to_page to add content.';
 
     /**
      * @return array<string, mixed>
@@ -24,12 +24,12 @@ class CreatePageTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'title' => $schema->string()->description('The title of the page'),
-            'slug' => $schema->string()->description('The URL slug for the page (must be unique)'),
-            'type' => $schema->string()->enum(['standard'])->description('The type of page. Only "standard" is allowed'),
-            'seo_title' => $schema->string()->description('Optional SEO title for the page')->nullable(),
-            'seo_description' => $schema->string()->description('Optional SEO description for the page')->nullable(),
-            'status' => $schema->string()->enum(['draft', 'published'])->description('The status of the page'),
+            'title' => $schema->string()->description('Title (Titre) - The page title as shown in Filament "Général" tab. Required.'),
+            'slug' => $schema->string()->description('Slug - The URL path for the page (e.g., "about", "contact"). Must be unique. Required. Cannot be changed after creation.'),
+            'type' => $schema->string()->enum(['standard'])->description('Type - Page type. Only "standard" is allowed via MCP (home pages are created differently).'),
+            'seo_title' => $schema->string()->description('SEO Title (Titre SEO) - Optional meta title for search engines from "SEO" tab.')->nullable(),
+            'seo_description' => $schema->string()->description('SEO Description (Description SEO) - Optional meta description for search engines from "SEO" tab.')->nullable(),
+            'status' => $schema->string()->enum(['draft', 'published'])->description('Status (Statut) - Page status: "draft" (Brouillon) or "published" (Publié). Default: draft.'),
         ];
     }
 

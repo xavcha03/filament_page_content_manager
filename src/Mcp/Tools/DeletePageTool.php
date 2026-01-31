@@ -16,7 +16,7 @@ class DeletePageTool extends Tool
 
     protected string $title = 'Delete Page';
 
-    protected string $description = 'Deletes a page completely. Useful for cleanup or removing obsolete pages. Home page cannot be deleted.';
+    protected string $description = 'Permanently deletes a page from the CMS. This action cannot be undone. The page will be removed from the pages list in Filament. Home page cannot be deleted. Requires confirmation: set "confirm" to true (boolean) to proceed with deletion.';
 
     /**
      * @return array<string, mixed>
@@ -26,7 +26,7 @@ class DeletePageTool extends Tool
         return [
             'id' => $schema->string()->description('The ID of the page to delete (as string or integer)')->nullable(),
             'slug' => $schema->string()->description('The slug of the page to delete (alternative to ID)')->nullable(),
-            'confirm' => $schema->boolean()->description('Confirmation flag to prevent accidental deletion')->nullable(),
+            'confirm' => $schema->boolean()->description('Confirmation flag to prevent accidental deletion. Must be set to true (boolean) to proceed with deletion.')->nullable(),
         ];
     }
 
@@ -43,7 +43,7 @@ class DeletePageTool extends Tool
         $validated = $request->validate([
             'id' => 'sometimes|string',
             'slug' => 'sometimes|string',
-            'confirm' => 'sometimes|boolean',
+            'confirm' => 'sometimes',
         ]);
 
         // Convertir id en integer si c'est une string
@@ -51,6 +51,18 @@ class DeletePageTool extends Tool
             $validated['id'] = is_numeric($validated['id']) ? (int) $validated['id'] : null;
             if ($validated['id'] === null) {
                 return Response::error('Invalid ID format. ID must be a number.');
+            }
+        }
+
+        // Convertir confirm en booléen si présent (peut être string "true"/"false" ou booléen)
+        if (isset($validated['confirm'])) {
+            if (is_string($validated['confirm'])) {
+                $validated['confirm'] = filter_var($validated['confirm'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($validated['confirm'] === null) {
+                    return Response::error('Invalid confirm value. Must be true or false (boolean).');
+                }
+            } elseif (!is_bool($validated['confirm'])) {
+                return Response::error('Invalid confirm value. Must be true or false (boolean).');
             }
         }
 
@@ -74,7 +86,7 @@ class DeletePageTool extends Tool
             return Response::error('Home page cannot be deleted via MCP.');
         }
 
-        // Confirmation optionnelle
+        // Confirmation optionnelle - si confirm est fourni, il doit être true
         if (isset($validated['confirm']) && $validated['confirm'] !== true) {
             return Response::error('Deletion not confirmed. Set "confirm" to true to delete the page.');
         }

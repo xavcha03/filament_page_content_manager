@@ -16,7 +16,7 @@ class ListPagesTool extends Tool
 
     protected string $title = 'List Pages';
 
-    protected string $description = 'Lists all pages in the system. You can filter by status or type.';
+    protected string $description = 'Lists all pages from the pages table in Filament. Returns page ID, title, slug, type (home/standard), and status (draft/scheduled/published). Can filter by status or type. Useful to get page IDs or slugs before using other tools.';
 
     /**
      * @return array<string, mixed>

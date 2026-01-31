@@ -17,7 +17,7 @@ class ListBlocksTool extends Tool
 
     protected string $title = 'List Blocks';
 
-    protected string $description = 'Lists all available content blocks that can be used to build pages. Each block includes its type, description, and available fields.';
+    protected string $description = 'Lists all available content blocks from the block registry. These are the same blocks available in the "Contenu" tab in Filament when adding content to a page. Each block includes its type, label, description, icon, and field schema. Use get_block_schema for detailed field information.';
 
     /**
      * @return array<string, mixed>

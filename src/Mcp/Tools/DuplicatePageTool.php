@@ -16,7 +16,7 @@ class DuplicatePageTool extends Tool
 
     protected string $title = 'Duplicate Page';
 
-    protected string $description = 'Creates a copy of an existing page. Useful for creating variants or templates.';
+    protected string $description = 'Creates a duplicate of an existing page. Corresponds to the duplicate action in Filament pages list. Copies all page data (title, content blocks, SEO fields) to a new page. The new page will have a different slug (auto-generated or provided via new_slug) and can have a different title and status. Original page content and blocks are fully copied.';
 
     /**
      * @return array<string, mixed>
@@ -24,11 +24,11 @@ class DuplicatePageTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id' => $schema->string()->description('The ID of the page to duplicate (as string or integer)')->nullable(),
-            'slug' => $schema->string()->description('The slug of the page to duplicate (alternative to ID)')->nullable(),
-            'new_slug' => $schema->string()->description('The slug for the duplicated page (must be unique). If not provided, will be auto-generated')->nullable(),
-            'new_title' => $schema->string()->description('The title for the duplicated page. If not provided, will use original title with " (Copy)"')->nullable(),
-            'status' => $schema->string()->enum(['draft', 'published'])->description('The status for the duplicated page (default: draft)')->nullable(),
+            'id' => $schema->string()->description('Page ID (as string or integer) to identify the page to duplicate. Either id or slug required.')->nullable(),
+            'slug' => $schema->string()->description('Page slug to identify the page to duplicate (alternative to ID). Either id or slug required.')->nullable(),
+            'new_slug' => $schema->string()->description('New slug - URL slug for the duplicated page (must be unique). If not provided, will be auto-generated as "{original-slug}-copy-{number}".')->nullable(),
+            'new_title' => $schema->string()->description('New title - Title for the duplicated page. If not provided, will use "{original title} (Copy)".')->nullable(),
+            'status' => $schema->string()->enum(['draft', 'published'])->description('Status (Statut) - Status for the duplicated page: "draft" (Brouillon) or "published" (Publié). Default: draft.')->nullable(),
         ];
     }
 

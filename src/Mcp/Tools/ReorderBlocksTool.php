@@ -16,7 +16,7 @@ class ReorderBlocksTool extends Tool
 
     protected string $title = 'Reorder Blocks';
 
-    protected string $description = 'Reorders blocks in a page. You can move a block to a new position or provide a complete new order.';
+    protected string $description = 'Reorders blocks in a page. Corresponds to drag-and-drop reordering in the "Contenu" tab in Filament. Two methods: 1) Move one block using "from_index" and "to_index" (0-based), or 2) Provide complete new order using "new_order" array with all block indices. The "new_order" array must contain exactly the same number of indices as there are blocks, with no duplicates.';
 
     /**
      * @return array<string, mixed>
@@ -24,11 +24,11 @@ class ReorderBlocksTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'page_id' => $schema->string()->description('The ID of the page (as string or integer)')->nullable(),
-            'page_slug' => $schema->string()->description('The slug of the page (alternative to ID)')->nullable(),
-            'from_index' => $schema->integer()->description('The current index of the block to move')->nullable(),
-            'to_index' => $schema->integer()->description('The new index where to move the block')->nullable(),
-            'new_order' => $schema->array()->description('Complete new order as array of block indices (alternative to from_index/to_index)')->nullable(),
+            'page_id' => $schema->string()->description('Page ID (as string or integer). Either page_id or page_slug required.')->nullable(),
+            'page_slug' => $schema->string()->description('Page slug (alternative to ID). Either page_id or page_slug required.')->nullable(),
+            'from_index' => $schema->integer()->description('From index (0-based) - Current position of the block to move. Use with to_index to move one block.')->nullable(),
+            'to_index' => $schema->integer()->description('To index (0-based) - New position where to move the block. Use with from_index to move one block.')->nullable(),
+            'new_order' => $schema->array()->description('New order - Complete array of block indices (0-based) in desired order. Must contain exactly the same number of indices as there are blocks, with no duplicates. Alternative to from_index/to_index.')->nullable(),
         ];
     }
 

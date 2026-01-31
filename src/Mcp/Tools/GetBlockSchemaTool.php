@@ -17,7 +17,7 @@ class GetBlockSchemaTool extends Tool
 
     protected string $title = 'Get Block Schema';
 
-    protected string $description = 'Retrieves complete schema information for a specific block type including all fields, types, options, examples, and requirements.';
+    protected string $description = 'Retrieves complete schema information for a specific block type. Shows all fields available in Filament when editing this block type, including field types, labels, validation rules, options for select fields, and examples. Use this before creating or updating blocks to ensure correct data structure. IMPORTANT: For blocks with images, fields like "image_id" reference MediaFile IDs that must be uploaded via Filament admin first.';
 
     /**
      * @return array<string, mixed>
@@ -25,7 +25,7 @@ class GetBlockSchemaTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'type' => $schema->string()->description('The type of the block (e.g., "hero", "text", "cta")'),
+            'type' => $schema->string()->description('Block type - The type identifier of the block (e.g., "hero", "text", "cta", "image"). Use list_blocks to see all available block types.'),
         ];
     }
 

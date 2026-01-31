@@ -17,7 +17,7 @@ class UpdateBlockTool extends Tool
 
     protected string $title = 'Update Block';
 
-    protected string $description = 'Updates an existing block in a page. You can modify block data without recreating the entire page structure.';
+    protected string $description = 'Updates an existing block in a page. Corresponds to editing a block in the "Contenu" tab in Filament. Use block_index (0-based) to identify which block to update. The block type cannot be changed - only the data can be modified. IMPORTANT: For blocks with images, images must be uploaded via Filament admin first, then reference them by image_id. Do not include image URLs or base64 data.';
 
     /**
      * @return array<string, mixed>
@@ -25,10 +25,10 @@ class UpdateBlockTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'page_id' => $schema->string()->description('The ID of the page (as string or integer)')->nullable(),
-            'page_slug' => $schema->string()->description('The slug of the page (alternative to ID)')->nullable(),
-            'block_index' => $schema->integer()->description('The index of the block to update (0-based)'),
-            'data' => $schema->object()->description('The new data for the block'),
+            'page_id' => $schema->string()->description('Page ID (as string or integer). Either page_id or page_slug required.')->nullable(),
+            'page_slug' => $schema->string()->description('Page slug (alternative to ID). Either page_id or page_slug required.')->nullable(),
+            'block_index' => $schema->integer()->description('Block index (0-based) - The position of the block in the page "Contenu" tab. Use get_page_content to see current block indices.'),
+            'data' => $schema->object()->description('New block data - Object with all block fields. Use get_block_schema to see required fields. IMPORTANT: For image fields, use image_id (MediaFile ID uploaded via Filament admin), not URLs or base64.'),
         ];
     }
 
