@@ -28,6 +28,10 @@ return [
         'enabled' => env('PAGE_CONTENT_MANAGER_MCP_ENABLED', true),
         'route' => env('PAGE_CONTENT_MANAGER_MCP_ROUTE', 'mcp/pages'),
         'auto_register' => env('PAGE_CONTENT_MANAGER_MCP_AUTO_REGISTER', true),
+        'middleware' => [],
+        'token' => env('PAGE_CONTENT_MANAGER_MCP_TOKEN'),
+        'token_header' => env('PAGE_CONTENT_MANAGER_MCP_TOKEN_HEADER', 'X-MCP-Token'),
+        'require_token' => env('PAGE_CONTENT_MANAGER_MCP_REQUIRE_TOKEN', false),
     ],
 
     /*

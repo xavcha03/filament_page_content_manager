@@ -44,7 +44,19 @@ class PageContentManagerServiceProvider extends ServiceProvider
             class_exists(\Laravel\Mcp\Facades\Mcp::class)
         ) {
             $mcpRoute = config('page-content-manager.mcp.route', 'mcp/pages');
-            Mcp::web($mcpRoute, PageMcpServer::class);
+            $route = Mcp::web($mcpRoute, PageMcpServer::class);
+
+            $additionalMiddleware = (array) config('page-content-manager.mcp.middleware', []);
+            $token = (string) config('page-content-manager.mcp.token', '');
+            $requireToken = (bool) config('page-content-manager.mcp.require_token', false);
+
+            if ($token !== '' || $requireToken) {
+                $additionalMiddleware[] = \Xavcha\PageContentManager\Mcp\Middleware\EnsureMcpToken::class;
+            }
+
+            if (! empty($additionalMiddleware)) {
+                $route->middleware($additionalMiddleware);
+            }
         }
 
         // Publier la configuration
@@ -111,4 +123,3 @@ class PageContentManagerServiceProvider extends ServiceProvider
         BlockValidator::validateAll($registry, $throwOnError);
     }
 }
-

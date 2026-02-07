@@ -11,6 +11,8 @@ Le serveur MCP est activé par défaut. Vous pouvez le configurer dans votre fic
 ```env
 PAGE_CONTENT_MANAGER_MCP_ENABLED=true
 PAGE_CONTENT_MANAGER_MCP_ROUTE=mcp/pages
+PAGE_CONTENT_MANAGER_MCP_TOKEN=change-me
+PAGE_CONTENT_MANAGER_MCP_REQUIRE_TOKEN=true
 ```
 
 Ou dans `config/page-content-manager.php` :
@@ -19,6 +21,8 @@ Ou dans `config/page-content-manager.php` :
 'mcp' => [
     'enabled' => true,
     'route' => 'mcp/pages',
+    'token' => 'change-me',
+    'require_token' => true,
 ],
 ```
 
@@ -28,6 +32,26 @@ Une fois le package installé dans votre application Laravel, le serveur MCP est
 
 ```
 POST /mcp/pages
+```
+
+## 🔐 Sécurisation (recommandé)
+
+Le serveur MCP peut être protégé par token. Deux options :
+
+- Header `X-MCP-Token: <token>` (par défaut)
+- Header `Authorization: Bearer <token>`
+
+Configuration recommandée :
+
+```env
+PAGE_CONTENT_MANAGER_MCP_TOKEN=change-me
+PAGE_CONTENT_MANAGER_MCP_REQUIRE_TOKEN=true
+```
+
+Personnaliser le header :
+
+```env
+PAGE_CONTENT_MANAGER_MCP_TOKEN_HEADER=Your-Header-Name
 ```
 
 ### Exemple avec curl
@@ -624,4 +648,3 @@ Voici un exemple complet de création d'une page avec des blocs via MCP :
   }
 }
 ```
-

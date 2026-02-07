@@ -256,6 +256,13 @@ Blocks::clearCache();
 Le serveur MCP est fourni pour creer et gerer des pages via agents.
 Voir `docs/mcp-server.md`.
 
+Securisation recommande :
+
+```env
+PAGE_CONTENT_MANAGER_MCP_TOKEN=change-me
+PAGE_CONTENT_MANAGER_MCP_REQUIRE_TOKEN=true
+```
+
 ## Systeme reutilisable (autres ressources)
 
 Ajoute SEO + Content a n'importe quelle ressource Filament.
