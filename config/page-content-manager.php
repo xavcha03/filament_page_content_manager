@@ -239,6 +239,7 @@ return [
                 \Xavcha\PageContentManager\Blocks\Core\SplitBlock::class,
                 \Xavcha\PageContentManager\Blocks\Core\FeaturesBlock::class,
                 \Xavcha\PageContentManager\Blocks\Core\ServicesBlock::class,
+                \Xavcha\PageContentManager\Blocks\Core\TarifsBlock::class,
                 \Xavcha\PageContentManager\Blocks\Core\CTABlock::class,
                 \Xavcha\PageContentManager\Blocks\Core\FAQBlock::class,
                 \Xavcha\PageContentManager\Blocks\Core\ContactFormBlock::class,
