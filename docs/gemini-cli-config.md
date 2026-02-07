@@ -16,7 +16,8 @@ Dans votre fichier de configuration Gemini CLI (généralement `~/.gemini/settin
       "transport": "http",
       "headers": {
         "Content-Type": "application/json",
-        "Accept": "application/json"
+        "Accept": "application/json",
+        "X-MCP-Token": "change-me"
       },
       "verifySSL": false
     }
@@ -42,7 +43,8 @@ Si vous préférez éviter de désactiver la vérification SSL, vous pouvez util
       "transport": "http",
       "headers": {
         "Content-Type": "application/json",
-        "Accept": "application/json"
+        "Accept": "application/json",
+        "X-MCP-Token": "change-me"
       }
     }
   }
@@ -62,4 +64,3 @@ Après avoir configuré, redémarrez Gemini CLI et vérifiez avec :
 ```
 
 Le serveur devrait apparaître comme connecté (🟢).
-
