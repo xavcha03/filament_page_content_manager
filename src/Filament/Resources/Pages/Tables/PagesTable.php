@@ -3,11 +3,14 @@
 namespace Xavcha\PageContentManager\Filament\Resources\Pages\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Xavcha\PageContentManager\Models\Page;
 
 class PagesTable
 {
@@ -84,6 +87,12 @@ class PagesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('open_frontend')
+                    ->label('Ouvrir')
+                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                    ->color('gray')
+                    ->url(fn (Page $record): string => self::frontendUrlForPage($record))
+                    ->openUrlInNewTab(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -91,8 +100,15 @@ class PagesTable
                 ]),
             ]);
     }
-}
 
+    protected static function frontendUrlForPage(Page $page): string
+    {
+        $baseUrl = rtrim((string) config('app.frontend_url', config('app.url')), '/');
+        $path = $page->isHome() ? '/' : '/' . ltrim($page->slug, '/');
+
+        return $baseUrl . $path;
+    }
+}
 
 
 
