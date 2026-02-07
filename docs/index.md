@@ -11,6 +11,7 @@
 - Architecture des blocs : `docs/blocks-architecture.md`
 - Creer un bloc custom : `docs/custom-blocks.md`
 - MCP Server : `docs/mcp-server.md`
+- MCP Menu Tools : `docs/mcp-menu-tools.md`
 - API : `docs/api.md`
 - Systeme reutilisable : `docs/reusable-system.md`
 - Tests : `docs/testing.md`

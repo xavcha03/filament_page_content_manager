@@ -14,6 +14,10 @@ PAGE_CONTENT_MANAGER_MCP_AUTO_REGISTER=true
 PAGE_CONTENT_MANAGER_MCP_TOKEN=change-me
 PAGE_CONTENT_MANAGER_MCP_REQUIRE_TOKEN=true
 PAGE_CONTENT_MANAGER_MCP_TOKEN_HEADER=X-MCP-Token
+
+# Optional: expose menu tools from this package MCP server
+PAGE_CONTENT_MANAGER_MENU_MCP_ENABLED=true
+PAGE_CONTENT_MANAGER_MENU_LINKS_STORE=App\\Menu\\MainMenuLinksStore
 ```
 
 ## Acces
@@ -59,6 +63,23 @@ Toujours : `list_blocks` puis `get_block_schema`.
 - `update_block_fields`
 - `delete_block`
 - `reorder_blocks`
+
+## Outils disponibles (menu, optionnels)
+
+- `list_main_menu`
+- `get_main_menu`
+- `add_main_menu_link`
+- `upsert_main_menu_link`
+- `update_main_menu_link`
+- `delete_main_menu_link`
+- `reorder_main_menu_links`
+- `move_main_menu_link`
+- `replace_main_menu_links`
+
+Activer avec `PAGE_CONTENT_MANAGER_MENU_MCP_ENABLED=true` et fournir une classe
+`PAGE_CONTENT_MANAGER_MENU_LINKS_STORE` qui implemente :
+
+`Xavcha\PageContentManager\Menu\Contracts\MenuLinksStore`
 
 ## Structure des blocs
 

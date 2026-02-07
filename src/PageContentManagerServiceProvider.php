@@ -7,6 +7,9 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Mcp\Facades\Mcp;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Blocks\BlockValidator;
+use Xavcha\PageContentManager\Menu\Contracts\MenuLinksStore;
+use Xavcha\PageContentManager\Menu\MenuLinksService;
+use Xavcha\PageContentManager\Menu\Stores\NullMenuLinksStore;
 use Xavcha\PageContentManager\Mcp\PageMcpServer;
 
 class PageContentManagerServiceProvider extends ServiceProvider
@@ -21,6 +24,24 @@ class PageContentManagerServiceProvider extends ServiceProvider
         // Enregistrer BlockRegistry comme singleton pour la Facade
         $this->app->singleton(BlockRegistry::class, function ($app) {
             return new BlockRegistry();
+        });
+
+        $this->app->bind(MenuLinksStore::class, function ($app): MenuLinksStore {
+            $storeClass = config('page-content-manager.menu.links_store');
+
+            if (is_string($storeClass) && $storeClass !== '' && class_exists($storeClass)) {
+                $instance = $app->make($storeClass);
+
+                if ($instance instanceof MenuLinksStore) {
+                    return $instance;
+                }
+            }
+
+            return $app->make(NullMenuLinksStore::class);
+        });
+
+        $this->app->bind(MenuLinksService::class, function ($app): MenuLinksService {
+            return new MenuLinksService($app->make(MenuLinksStore::class));
         });
     }
 

@@ -36,6 +36,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | MCP Menu Tools (optional)
+    |--------------------------------------------------------------------------
+    |
+    | Optional menu management tools for MCP. Storage is app-specific and must
+    | be provided by the host app via a class implementing:
+    | \Xavcha\PageContentManager\Menu\Contracts\MenuLinksStore
+    |
+    */
+
+    'menu' => [
+        'enabled' => env('PAGE_CONTENT_MANAGER_MENU_MCP_ENABLED', false),
+        'links_store' => env('PAGE_CONTENT_MANAGER_MENU_LINKS_STORE'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Enregistrement de la ressource Filament
     |--------------------------------------------------------------------------
     |

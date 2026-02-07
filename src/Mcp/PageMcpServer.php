@@ -5,6 +5,15 @@ declare(strict_types=1);
 namespace Xavcha\PageContentManager\Mcp;
 
 use Laravel\Mcp\Server;
+use Xavcha\PageContentManager\Mcp\MenuTools\AddMainMenuLinkTool;
+use Xavcha\PageContentManager\Mcp\MenuTools\DeleteMainMenuLinkTool;
+use Xavcha\PageContentManager\Mcp\MenuTools\GetMainMenuTool;
+use Xavcha\PageContentManager\Mcp\MenuTools\ListMainMenuTool;
+use Xavcha\PageContentManager\Mcp\MenuTools\MoveMainMenuLinkTool;
+use Xavcha\PageContentManager\Mcp\MenuTools\ReorderMainMenuLinksTool;
+use Xavcha\PageContentManager\Mcp\MenuTools\ReplaceMainMenuLinksTool;
+use Xavcha\PageContentManager\Mcp\MenuTools\UpdateMainMenuLinkTool;
+use Xavcha\PageContentManager\Mcp\MenuTools\UpsertMainMenuLinkTool;
 use Xavcha\PageContentManager\Mcp\Tools\AddBlocksToPageTool;
 use Xavcha\PageContentManager\Mcp\Tools\CreatePageWithBlocksTool;
 use Xavcha\PageContentManager\Mcp\Tools\CreatePageTool;
@@ -29,6 +38,7 @@ class PageMcpServer extends Server
     protected string $instructions = <<<'MARKDOWN'
         This MCP server allows AI agents to create and manage pages in the Laravel application.
         Pages can contain flexible content blocks that can be arranged and customized.
+        Optionally, when enabled in config, menu tools are also available to manage main navigation links.
     MARKDOWN;
 
     /**
@@ -38,7 +48,7 @@ class PageMcpServer extends Server
      */
     public static function getTools(): array
     {
-        return [
+        $tools = [
             // Pages
             CreatePageTool::class,
             CreatePageWithBlocksTool::class,
@@ -56,6 +66,23 @@ class PageMcpServer extends Server
             DeleteBlockTool::class,
             ReorderBlocksTool::class,
         ];
+
+        if ((bool) config('page-content-manager.menu.enabled', false)) {
+            $tools = array_merge($tools, [
+                // Main menu (optional)
+                ListMainMenuTool::class,
+                GetMainMenuTool::class,
+                AddMainMenuLinkTool::class,
+                UpsertMainMenuLinkTool::class,
+                UpdateMainMenuLinkTool::class,
+                DeleteMainMenuLinkTool::class,
+                ReorderMainMenuLinksTool::class,
+                MoveMainMenuLinkTool::class,
+                ReplaceMainMenuLinksTool::class,
+            ]);
+        }
+
+        return $tools;
     }
 
     /**
