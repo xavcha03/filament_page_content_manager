@@ -5,6 +5,15 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [Unreleased]
+
+### Ajouté
+- Nouveau bloc core **`tarifs`** :
+  - Type MCP : `tarifs`
+  - Champs : `titre`, `description`, `plans[]`
+  - Plan : `nom`, `prix`, `prix_prefixe`, `periode`, `description`, `points[]`, `mise_en_avant`, `bouton_texte`, `bouton_lien`
+  - Intégré dans `block_groups.pages` pour l'édition Filament et l'exposition MCP.
+
 ## [0.2.4] - 2025-01-XX
 
 ### Ajouté
@@ -156,4 +165,3 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 [0.2.1]: https://github.com/xavcha03/page-content-manager/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/xavcha03/page-content-manager/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/xavcha03/page-content-manager/releases/tag/0.1.0
-

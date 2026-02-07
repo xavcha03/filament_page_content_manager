@@ -14,7 +14,11 @@ Utiliser :
 ```bash
 php artisan page-content-manager:block:list
 php artisan page-content-manager:block:inspect hero
+php artisan page-content-manager:block:inspect tarifs
 ```
+
+Exemple de bloc pricing core :
+- `tarifs` : plans avec `nom`, `prix`, `prix_prefixe`, `periode`, `description`, `points`, `mise_en_avant`, `bouton_texte`, `bouton_lien`.
 
 ## Groupes et ordre
 

@@ -38,6 +38,7 @@ public function panel(Panel $panel): Panel
 - **Blocs auto-decouverts** :
   - Core : `src/Blocks/Core/`
   - Custom : `app/Blocks/Custom/`
+- **Bloc core Tarifs** : disponible via le type `tarifs` pour afficher des plans de prix (nom, prix, periode, points inclus, mise en avant, CTA).
 - **Source of truth** : toujours le registry (CLI ou MCP), jamais une liste statique.
 - **Desactivation** : via `disabled_blocks` ou `block_groups` dans `config/page-content-manager.php`.
 
