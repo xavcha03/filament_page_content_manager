@@ -7,12 +7,15 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMediaTransformation;
 use Xavier\MediaLibraryPro\Forms\Components\MediaPickerUnified;
 
 class ServicesBlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     use HasMediaTransformation;
 
     public static function getType(): string
@@ -135,6 +138,92 @@ class ServicesBlock implements BlockInterface
             return $transformed;
         }, $services);
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre principal',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'description',
+                'label' => 'Description',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 500,
+            ],
+            [
+                'name' => 'services',
+                'label' => 'Services',
+                'type' => 'array',
+                'required' => true,
+                'items' => [
+                    [
+                        'name' => 'image_id',
+                        'type' => 'integer',
+                        'required' => false,
+                        'description' => 'ID MediaFile',
+                    ],
+                    [
+                        'name' => 'titre',
+                        'type' => 'string',
+                        'required' => true,
+                        'max_length' => 200,
+                    ],
+                    [
+                        'name' => 'description',
+                        'type' => 'string',
+                        'required' => true,
+                    ],
+                    [
+                        'name' => 'lien',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 255,
+                    ],
+                    [
+                        'name' => 'bouton_texte',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 100,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Nos services',
+            'description' => 'Une offre claire et lisible.',
+            'services' => [
+                [
+                    'image_id' => 301,
+                    'titre' => 'Audit',
+                    'description' => 'Analyse complete de votre presence en ligne.',
+                    'lien' => '/services/audit',
+                    'bouton_texte' => 'Voir le service',
+                ],
+                [
+                    'image_id' => 302,
+                    'titre' => 'Design',
+                    'description' => 'UI moderne et coherent avec votre marque.',
+                    'lien' => '/services/design',
+                    'bouton_texte' => 'Voir le service',
+                ],
+            ],
+        ];
+    }
+}
 

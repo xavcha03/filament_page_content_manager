@@ -6,12 +6,15 @@ use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMediaTransformation;
 use Xavier\MediaLibraryPro\Forms\Components\MediaPickerUnified;
 
 class SplitBlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     use HasMediaTransformation;
 
     public static function getType(): string
@@ -142,6 +145,96 @@ class SplitBlock implements BlockInterface
 
         return $transformed;
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'texte',
+                'label' => 'Texte',
+                'type' => 'string',
+                'required' => true,
+            ],
+            [
+                'name' => 'variant',
+                'label' => 'Variante',
+                'type' => 'string',
+                'required' => false,
+                'options' => ['left', 'right', 'feature'],
+                'default' => 'left',
+            ],
+            [
+                'name' => 'background',
+                'label' => 'Fond',
+                'type' => 'string',
+                'required' => false,
+                'options' => ['light', 'dark'],
+                'default' => 'light',
+            ],
+            [
+                'name' => 'image_id',
+                'label' => 'Image',
+                'type' => 'integer',
+                'required' => true,
+                'description' => 'ID MediaFile',
+            ],
+            [
+                'name' => 'image_alt',
+                'label' => 'Texte alternatif',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'bouton',
+                'label' => 'Bouton',
+                'type' => 'object',
+                'required' => false,
+                'fields' => [
+                    [
+                        'name' => 'texte',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 100,
+                    ],
+                    [
+                        'name' => 'lien',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 255,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Une approche simple',
+            'texte' => 'Nous combinons strategie, design et developpement.',
+            'variant' => 'left',
+            'background' => 'light',
+            'image_id' => 401,
+            'image_alt' => 'Equipe au travail',
+            'bouton' => [
+                'texte' => 'En savoir plus',
+                'lien' => '/apropos',
+            ],
+        ];
+    }
+}
 

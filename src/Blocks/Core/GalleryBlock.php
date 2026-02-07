@@ -4,12 +4,15 @@ namespace Xavcha\PageContentManager\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMediaTransformation;
 use Xavier\MediaLibraryPro\Forms\Components\MediaPickerUnified;
 
 class GalleryBlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     use HasMediaTransformation;
 
     public static function getType(): string
@@ -49,8 +52,41 @@ class GalleryBlock implements BlockInterface
             'images' => static::transformMediaFileIds($data['images_ids'] ?? []),
         ];
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'images_ids',
+                'label' => 'Images',
+                'type' => 'array',
+                'required' => true,
+                'description' => 'Liste d\'IDs MediaFile',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Galerie recente',
+            'images_ids' => [101, 102, 103],
+        ];
+    }
+}
 
 
 

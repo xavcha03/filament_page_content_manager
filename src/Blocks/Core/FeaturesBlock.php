@@ -7,10 +7,13 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 
 class FeaturesBlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     public static function getType(): string
     {
         return 'features';
@@ -100,6 +103,91 @@ class FeaturesBlock implements BlockInterface
             ];
         }, $items);
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre principal',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'description',
+                'label' => 'Description',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 500,
+            ],
+            [
+                'name' => 'columns',
+                'label' => 'Nombre de colonnes',
+                'type' => 'string',
+                'required' => true,
+                'options' => ['3', '4', '6'],
+                'default' => '3',
+            ],
+            [
+                'name' => 'items',
+                'label' => 'Elements',
+                'type' => 'array',
+                'required' => true,
+                'items' => [
+                    [
+                        'name' => 'icone',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 50,
+                    ],
+                    [
+                        'name' => 'titre',
+                        'type' => 'string',
+                        'required' => true,
+                        'max_length' => 200,
+                    ],
+                    [
+                        'name' => 'texte',
+                        'type' => 'string',
+                        'required' => true,
+                        'max_length' => 500,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Pourquoi nous choisir',
+            'description' => 'Des benefices clairs pour votre equipe.',
+            'columns' => '3',
+            'items' => [
+                [
+                    'icone' => 'bolt',
+                    'titre' => 'Rapide',
+                    'texte' => 'Mise en ligne en quelques semaines.',
+                ],
+                [
+                    'icone' => 'check',
+                    'titre' => 'Fiable',
+                    'texte' => 'Code propre et maintenable.',
+                ],
+                [
+                    'icone' => 'sparkles',
+                    'titre' => 'Elegant',
+                    'texte' => 'Design soigne et moderne.',
+                ],
+            ],
+        ];
+    }
+}
 

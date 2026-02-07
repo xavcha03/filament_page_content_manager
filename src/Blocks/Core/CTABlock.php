@@ -5,10 +5,13 @@ namespace Xavcha\PageContentManager\Blocks\Core;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 
 class CTABlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     public static function getType(): string
     {
         return 'cta';
@@ -57,8 +60,57 @@ class CTABlock implements BlockInterface
             'cta_link' => $data['cta_link'] ?? '',
         ];
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre',
+                'type' => 'string',
+                'required' => true,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'description',
+                'label' => 'Description',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 500,
+            ],
+            [
+                'name' => 'cta_text',
+                'label' => 'Texte du bouton',
+                'type' => 'string',
+                'required' => true,
+                'max_length' => 100,
+            ],
+            [
+                'name' => 'cta_link',
+                'label' => 'Lien du bouton',
+                'type' => 'string',
+                'required' => true,
+                'max_length' => 255,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Parlons de votre projet',
+            'description' => 'Obtenez un devis rapide et clair.',
+            'cta_text' => 'Demander un devis',
+            'cta_link' => '/contact',
+        ];
+    }
+}
 
 
 

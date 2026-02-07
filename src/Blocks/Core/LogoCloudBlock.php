@@ -5,12 +5,15 @@ namespace Xavcha\PageContentManager\Blocks\Core;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMediaTransformation;
 use Xavier\MediaLibraryPro\Forms\Components\MediaPickerUnified;
 
 class LogoCloudBlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     use HasMediaTransformation;
 
     public static function getType(): string
@@ -103,6 +106,69 @@ class LogoCloudBlock implements BlockInterface
             return $transformed;
         }, $logos);
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'logos',
+                'label' => 'Logos',
+                'type' => 'array',
+                'required' => true,
+                'items' => [
+                    [
+                        'name' => 'logo_id',
+                        'type' => 'integer',
+                        'required' => true,
+                        'description' => 'ID MediaFile',
+                    ],
+                    [
+                        'name' => 'nom',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 200,
+                    ],
+                    [
+                        'name' => 'lien',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 255,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Ils nous font confiance',
+            'logos' => [
+                [
+                    'logo_id' => 201,
+                    'nom' => 'Acme',
+                    'lien' => 'https://acme.test',
+                ],
+                [
+                    'logo_id' => 202,
+                    'nom' => 'Nova',
+                    'lien' => 'https://nova.test',
+                ],
+            ],
+        ];
+    }
+}
 

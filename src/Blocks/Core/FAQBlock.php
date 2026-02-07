@@ -6,10 +6,13 @@ use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 
 class FAQBlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     public static function getType(): string
     {
         return 'faq';
@@ -74,8 +77,64 @@ class FAQBlock implements BlockInterface
             ];
         }, $faqs);
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre principal',
+                'type' => 'string',
+                'required' => true,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'faqs',
+                'label' => 'Questions',
+                'type' => 'array',
+                'required' => true,
+                'description' => 'Liste de questions/reponses',
+                'items' => [
+                    [
+                        'name' => 'question',
+                        'type' => 'string',
+                        'required' => true,
+                        'max_length' => 300,
+                    ],
+                    [
+                        'name' => 'answer',
+                        'type' => 'string',
+                        'required' => true,
+                        'max_length' => 2000,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Questions frequentes',
+            'faqs' => [
+                [
+                    'question' => 'Quels sont vos delais ?',
+                    'answer' => 'En general 2 a 4 semaines selon le projet.',
+                ],
+                [
+                    'question' => 'Proposez-vous un devis ?',
+                    'answer' => 'Oui, un devis detaille est fourni avant demarrage.',
+                ],
+            ],
+        ];
+    }
+}
 
 
 

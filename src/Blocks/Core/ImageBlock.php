@@ -4,12 +4,15 @@ namespace Xavcha\PageContentManager\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMediaTransformation;
 use Xavier\MediaLibraryPro\Forms\Components\MediaPickerUnified;
 
 class ImageBlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     use HasMediaTransformation;
 
     public static function getType(): string
@@ -68,8 +71,49 @@ class ImageBlock implements BlockInterface
 
         return $transformed;
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'image_id',
+                'label' => 'Image',
+                'type' => 'integer',
+                'required' => true,
+                'description' => 'ID MediaFile',
+            ],
+            [
+                'name' => 'alt',
+                'label' => 'Texte alternatif',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'caption',
+                'label' => 'Legende',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 255,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'image_id' => 123,
+            'alt' => 'Photo du studio',
+            'caption' => 'Notre equipe en action',
+        ];
+    }
+}
 
 
 

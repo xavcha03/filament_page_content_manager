@@ -7,12 +7,15 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMediaTransformation;
 use Xavier\MediaLibraryPro\Forms\Components\MediaPickerUnified;
 
 class TestimonialsBlock implements BlockInterface
 {
+    use HasMcpMetadata;
+
     use HasMediaTransformation;
 
     public static function getType(): string
@@ -135,6 +138,101 @@ class TestimonialsBlock implements BlockInterface
             return $transformed;
         }, $testimonials);
     }
-}
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'titre',
+                'label' => 'Titre principal',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 200,
+            ],
+            [
+                'name' => 'description',
+                'label' => 'Description',
+                'type' => 'string',
+                'required' => false,
+                'max_length' => 500,
+            ],
+            [
+                'name' => 'temoignages',
+                'label' => 'Temoignages',
+                'type' => 'array',
+                'required' => true,
+                'items' => [
+                    [
+                        'name' => 'avis',
+                        'type' => 'string',
+                        'required' => true,
+                        'max_length' => 1000,
+                    ],
+                    [
+                        'name' => 'auteur',
+                        'type' => 'string',
+                        'required' => true,
+                        'max_length' => 200,
+                    ],
+                    [
+                        'name' => 'fonction',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 200,
+                    ],
+                    [
+                        'name' => 'entreprise',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 200,
+                    ],
+                    [
+                        'name' => 'photo_id',
+                        'type' => 'integer',
+                        'required' => false,
+                        'description' => 'ID MediaFile',
+                    ],
+                    [
+                        'name' => 'note',
+                        'type' => 'string',
+                        'required' => false,
+                        'options' => ['1', '2', '3', '4', '5'],
+                        'default' => '5',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'titre' => 'Ils parlent de nous',
+            'description' => 'Des retours simples et concrets.',
+            'temoignages' => [
+                [
+                    'avis' => 'Equipe reactive et resultat solide.',
+                    'auteur' => 'Julie R.',
+                    'fonction' => 'Marketing',
+                    'entreprise' => 'Acme',
+                    'photo_id' => 501,
+                    'note' => '5',
+                ],
+                [
+                    'avis' => 'Process clair et livraison dans les temps.',
+                    'auteur' => 'Marc D.',
+                    'fonction' => 'CEO',
+                    'entreprise' => 'Nova',
+                    'note' => '5',
+                ],
+            ],
+        ];
+    }
+}
 

@@ -6,6 +6,7 @@ namespace Xavcha\PageContentManager\Mcp;
 
 use Laravel\Mcp\Server;
 use Xavcha\PageContentManager\Mcp\Tools\AddBlocksToPageTool;
+use Xavcha\PageContentManager\Mcp\Tools\CreatePageWithBlocksTool;
 use Xavcha\PageContentManager\Mcp\Tools\CreatePageTool;
 use Xavcha\PageContentManager\Mcp\Tools\DeleteBlockTool;
 use Xavcha\PageContentManager\Mcp\Tools\DeletePageTool;
@@ -15,6 +16,7 @@ use Xavcha\PageContentManager\Mcp\Tools\GetPageContentTool;
 use Xavcha\PageContentManager\Mcp\Tools\ListBlocksTool;
 use Xavcha\PageContentManager\Mcp\Tools\ListPagesTool;
 use Xavcha\PageContentManager\Mcp\Tools\ReorderBlocksTool;
+use Xavcha\PageContentManager\Mcp\Tools\UpdateBlockFieldsTool;
 use Xavcha\PageContentManager\Mcp\Tools\UpdateBlockTool;
 use Xavcha\PageContentManager\Mcp\Tools\UpdatePageTool;
 
@@ -39,6 +41,7 @@ class PageMcpServer extends Server
         return [
             // Pages
             CreatePageTool::class,
+            CreatePageWithBlocksTool::class,
             UpdatePageTool::class,
             ListPagesTool::class,
             GetPageContentTool::class,
@@ -49,6 +52,7 @@ class PageMcpServer extends Server
             GetBlockSchemaTool::class,
             AddBlocksToPageTool::class,
             UpdateBlockTool::class,
+            UpdateBlockFieldsTool::class,
             DeleteBlockTool::class,
             ReorderBlocksTool::class,
         ];
@@ -79,4 +83,3 @@ class PageMcpServer extends Server
         $this->tools = self::getTools();
     }
 }
-

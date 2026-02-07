@@ -1,650 +1,242 @@
 # Serveur MCP - Page Content Manager
 
-## 📋 Vue d'ensemble
+## Vue d'ensemble
 
-Le serveur MCP (Model Context Protocol) permet aux agents IA (Claude, ChatGPT, etc.) de créer et gérer des pages dans votre application Laravel via le protocole MCP.
+Ce serveur MCP (Model Context Protocol) permet a des agents IA de lire et gerer les pages et leurs blocs (equivalent des actions Filament).
+Le transport est HTTP JSON-RPC 2.0.
 
-## 🔧 Configuration
-
-Le serveur MCP est activé par défaut. Vous pouvez le configurer dans votre fichier `.env` :
+## Configuration rapide
 
 ```env
 PAGE_CONTENT_MANAGER_MCP_ENABLED=true
 PAGE_CONTENT_MANAGER_MCP_ROUTE=mcp/pages
-PAGE_CONTENT_MANAGER_MCP_TOKEN=change-me
-PAGE_CONTENT_MANAGER_MCP_REQUIRE_TOKEN=true
+PAGE_CONTENT_MANAGER_MCP_AUTO_REGISTER=true
 ```
 
-Ou dans `config/page-content-manager.php` :
+Configuration avancee (token recommande) :
+
+```env
+PAGE_CONTENT_MANAGER_MCP_TOKEN=change-me
+PAGE_CONTENT_MANAGER_MCP_REQUIRE_TOKEN=true
+PAGE_CONTENT_MANAGER_MCP_TOKEN_HEADER=X-MCP-Token
+```
+
+Equivalent `config/page-content-manager.php` :
 
 ```php
 'mcp' => [
     'enabled' => true,
     'route' => 'mcp/pages',
+    'auto_register' => true,
+    'middleware' => [],
     'token' => 'change-me',
+    'token_header' => 'X-MCP-Token',
     'require_token' => true,
 ],
 ```
 
-## 🌐 Accès au serveur
+## Acces
 
-Une fois le package installé dans votre application Laravel, le serveur MCP est accessible via HTTP POST sur :
+Endpoint :
 
 ```
 POST /mcp/pages
 ```
 
-## 🔐 Sécurisation (recommandé)
+Le `GET` retourne 405 (MCP HTTP spec).
 
-Le serveur MCP peut être protégé par token. Deux options :
+## Securite (recommandee)
 
-- Header `X-MCP-Token: <token>` (par défaut)
+Deux options de token sont supportees :
+
+- Header `X-MCP-Token: <token>` (defaut)
 - Header `Authorization: Bearer <token>`
 
-Configuration recommandée :
+Pour une vraie auth (multi-clients, scopes, revocation), ajoute un middleware Laravel :
 
-```env
-PAGE_CONTENT_MANAGER_MCP_TOKEN=change-me
-PAGE_CONTENT_MANAGER_MCP_REQUIRE_TOKEN=true
+```php
+'mcp' => [
+    'middleware' => ['auth:sanctum'],
+],
 ```
 
-Personnaliser le header :
+## Format MCP (JSON-RPC 2.0)
 
-```env
-PAGE_CONTENT_MANAGER_MCP_TOKEN_HEADER=Your-Header-Name
-```
+Exemple d'initialisation :
 
-### Exemple avec curl
-
-```bash
-# Initialiser la connexion MCP
-curl -X POST https://votre-domaine.com/mcp/pages \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "initialize",
-    "params": {
-      "protocolVersion": "2024-11-05",
-      "capabilities": {},
-      "clientInfo": {
-        "name": "test-client",
-        "version": "1.0.0"
-      }
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "my-client",
+      "version": "1.0.0"
     }
-  }'
+  }
+}
 ```
 
-## 🛠️ Outils disponibles
+Exemple d'appel d'outil :
 
-### Gestion des Pages
-
-#### 1. create_page
-
-Crée une nouvelle page vierge.
-
-**Paramètres** :
-- `title` (requis) : Le titre de la page
-- `slug` (requis) : L'URL slug (doit être unique)
-- `type` (optionnel) : Type de page (`standard` uniquement, par défaut)
-- `seo_title` (optionnel) : Titre SEO
-- `seo_description` (optionnel) : Description SEO
-- `status` (optionnel) : Statut (`draft` ou `published`, par défaut `draft`)
-
-**Exemple** :
 ```json
 {
   "jsonrpc": "2.0",
   "id": 2,
   "method": "tools/call",
   "params": {
-    "name": "create_page",
-    "arguments": {
-      "title": "Ma nouvelle page",
-      "slug": "ma-nouvelle-page",
-      "status": "draft"
-    }
+    "name": "list_pages",
+    "arguments": {}
   }
 }
 ```
 
-### 2. update_page
+## Outils disponibles (pages)
 
-Met à jour une page existante.
+- `list_pages` : liste pages, filtres `status` (draft|scheduled|published|all) et `type` (home|standard|all).
+- `get_page_content` : recupere le contenu d'une page. Parametres `id` ou `slug`.
+- `create_page` : cree une page. Parametres `title`, `slug`, `type` (standard), `seo_title`, `seo_description`, `status` (draft|published).
+- `create_page_with_blocks` : cree une page avec ses blocs en une seule requete. Parametres `title`, `slug`, `type`, `seo_title`, `seo_description`, `status`, `blocks`.
+- `update_page` : modifie une page. Parametres `id` ou `slug`, puis champs a modifier (`title`, `slug_new`, `seo_title`, `seo_description`, `status`).
+- `duplicate_page` : duplique une page. Parametres `id` ou `slug`, `new_slug`, `new_title`, `status`.
+- `delete_page` : supprime une page. Parametres `id` ou `slug`, `confirm=true`.
 
-**Paramètres** :
-- `id` ou `slug` (requis) : Identifiant de la page
-- `title` (optionnel) : Nouveau titre
-- `slug_new` (optionnel) : Nouveau slug
-- `seo_title` (optionnel) : Nouveau titre SEO
-- `seo_description` (optionnel) : Nouvelle description SEO
-- `status` (optionnel) : Nouveau statut
+## Outils disponibles (blocs)
 
-**Exemple** :
+- `list_blocks` : liste tous les blocs disponibles (type, label, schema, etc.).
+- `get_block_schema` : details schema d'un bloc. Parametre `type`.
+- `add_blocks_to_page` : ajoute un ou plusieurs blocs a une page. Parametres `id` ou `slug`, `blocks`.
+- `update_block` : met a jour un bloc par index (0-based). Parametres `page_id` ou `page_slug`, `block_index`, `data`.
+- `update_block_fields` : met a jour partiellement un bloc sans ecraser tout `data`. Parametres `page_id` ou `page_slug`, `block_index`, `data`.
+- `delete_block` : supprime un bloc par index (0-based). Parametres `page_id` ou `page_slug`, `block_index`.
+- `reorder_blocks` : reordonne les blocs. Parametres `page_id` ou `page_slug` + soit `from_index` + `to_index`, soit `new_order`.
+
+## Workflow agent recommande
+
+Pour generer une page complete sans blocs vides :
+
+1. `list_blocks`
+2. `get_block_schema` pour chaque bloc utilise
+3. `create_page_with_blocks` (ou `create_page` puis `add_blocks_to_page`)
+4. `get_page_content` pour verifier
+5. `update_block_fields` pour les modifications ponctuelles
+
+## Structure des blocs
+
+Chaque bloc est stocke comme :
+
+```json
+{
+  "type": "hero",
+  "data": { "...": "..." }
+}
+```
+
+Les indices des blocs sont 0-based (0, 1, 2...).
+Utilise `get_page_content` pour obtenir la liste et les indices actuels.
+
+## Medias
+
+Les images doivent etre uploadees via Filament avant. Ensuite tu references les medias via leurs `image_id` (MediaFile ID). Ne pas envoyer d'URL ni de base64 dans MCP.
+
+## Limitations / regles
+
+- `create_page` : type autorise = `standard`.
+- `delete_page` : la page `home` ne peut pas etre supprimee.
+- Les blocs ne changent pas de type : `update_block` modifie seulement `data`.
+- `update_block_fields` fait un merge partiel des champs sur le `data` existant.
+- Le contenu est stocke dans `content.sections` + `content.metadata.schema_version`.
+
+## Metadonnees MCP pour blocs custom
+
+Pour enrichir la decouverte MCP, tu peux ajouter des metadonnees a un bloc custom via le trait `HasMcpMetadata`.
+Cela permet d'exposer une description, des champs et des exemples plus precis aux agents.
+
+## Exemples rapides
+
+Lister les pages :
+
 ```json
 {
   "jsonrpc": "2.0",
   "id": 3,
   "method": "tools/call",
   "params": {
-    "name": "update_page",
-    "arguments": {
-      "slug": "ma-nouvelle-page",
-      "title": "Page mise à jour",
-      "status": "published"
-    }
+    "name": "list_pages",
+    "arguments": { "status": "all", "type": "all" }
   }
 }
 ```
 
-### 3. list_pages
+Ajouter un bloc `hero` :
 
-Liste toutes les pages avec filtres optionnels.
-
-**Paramètres** :
-- `status` (optionnel) : Filtrer par statut (`draft`, `scheduled`, `published`, `all`)
-- `type` (optionnel) : Filtrer par type (`home`, `standard`, `all`)
-
-**Exemple** :
 ```json
 {
   "jsonrpc": "2.0",
   "id": 4,
   "method": "tools/call",
   "params": {
-    "name": "list_pages",
+    "name": "add_blocks_to_page",
     "arguments": {
-      "status": "published",
-      "type": "standard"
-    }
-  }
-}
-```
-
-### 4. list_blocks
-
-Liste tous les blocs de contenu disponibles pour construire des pages.
-
-**Paramètres** : Aucun
-
-**Exemple** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 5,
-  "method": "tools/call",
-  "params": {
-    "name": "list_blocks",
-    "arguments": {}
-  }
-}
-```
-
-**Réponse** :
-```json
-{
-  "success": true,
-  "blocks": [
-    {
-      "type": "text",
-      "class": "Xavcha\\PageContentManager\\Blocks\\Core\\TextBlock",
-      "description": "Texte",
-      "fields": [
+      "slug": "home",
+      "blocks": [
         {
-          "name": "titre",
-          "label": "Titre",
-          "type": "string",
-          "required": false,
-          "description": "Le titre du bloc de texte",
-          "max_length": 200
-        },
-        {
-          "name": "content",
-          "label": "Contenu",
-          "type": "string",
-          "required": true,
-          "description": "Le contenu du bloc (format HTML/rich text)"
+          "type": "hero",
+          "data": {
+            "titre": "Bienvenue",
+            "description": "Intro courte",
+            "variant": "hero",
+            "image_id": 123
+          }
         }
-      ],
-      "mcp_example": {
-        "titre": "Titre de la section",
-        "content": "<p>Contenu de la section avec du texte formaté.</p>"
-      }
-    }
-  ],
-  "count": 14
-}
-```
-
-### 5. get_page_content
-
-Récupère le contenu complet d'une page incluant tous ses blocs. Utile pour comprendre la structure avant modification.
-
-**Paramètres** :
-- `id` ou `slug` (requis) : Identifiant de la page
-
-**Exemple** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 7,
-  "method": "tools/call",
-  "params": {
-    "name": "get_page_content",
-    "arguments": {
-      "slug": "ma-nouvelle-page"
+      ]
     }
   }
 }
 ```
 
-**Réponse** :
-```json
-{
-  "success": true,
-  "page": {
-    "id": 6,
-    "title": "Ma nouvelle page",
-    "slug": "ma-nouvelle-page",
-    "type": "standard",
-    "status": "published"
-  },
-  "content": {
-    "sections": [
-      {
-        "type": "hero",
-        "data": { ... }
-      }
-    ],
-    "total_sections": 1
-  }
-}
-```
+Modifier seulement le titre du hero (index 0) :
 
-### 6. delete_page
-
-Supprime une page complètement. La page Home ne peut pas être supprimée.
-
-**Paramètres** :
-- `id` ou `slug` (requis) : Identifiant de la page
-- `confirm` (optionnel) : Confirmation pour éviter les suppressions accidentelles
-
-**Exemple** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 8,
-  "method": "tools/call",
-  "params": {
-    "name": "delete_page",
-    "arguments": {
-      "slug": "page-obsolete",
-      "confirm": true
-    }
-  }
-}
-```
-
-### 7. duplicate_page
-
-Crée une copie d'une page existante. Utile pour créer des variantes ou des templates.
-
-**Paramètres** :
-- `id` ou `slug` (requis) : Identifiant de la page à dupliquer
-- `new_slug` (optionnel) : Slug pour la page dupliquée (auto-généré si non fourni)
-- `new_title` (optionnel) : Titre pour la page dupliquée (auto-généré si non fourni)
-- `status` (optionnel) : Statut de la page dupliquée (défaut: `draft`)
-
-**Exemple** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 9,
-  "method": "tools/call",
-  "params": {
-    "name": "duplicate_page",
-    "arguments": {
-      "slug": "ma-nouvelle-page",
-      "new_slug": "ma-nouvelle-page-v2",
-      "new_title": "Ma nouvelle page V2",
-      "status": "draft"
-    }
-  }
-}
-```
-
-### Gestion des Blocs
-
-### 8. add_blocks_to_page
-
-Ajoute un ou plusieurs blocs de contenu à une page existante.
-
-**Paramètres** :
-- `id` ou `slug` (requis) : Identifiant de la page
-- `blocks` (requis) : Tableau de blocs à ajouter. Chaque bloc doit avoir :
-  - `type` : Le type du bloc (ex: `text`, `hero`)
-  - `data` : Les données du bloc selon le schéma du bloc
-
-**Exemple** :
 ```json
 {
   "jsonrpc": "2.0",
   "id": 6,
   "method": "tools/call",
   "params": {
-    "name": "add_blocks_to_page",
+    "name": "update_block_fields",
     "arguments": {
-      "slug": "ma-nouvelle-page",
-      "blocks": [
-        {
-          "type": "hero",
-          "data": {
-            "titre": "Bienvenue sur notre site",
-            "description": "Découvrez nos services",
-            "variant": "hero",
-            "bouton_principal": {
-              "texte": "En savoir plus",
-              "lien": "/contact"
-            }
-          }
-        },
-        {
-          "type": "text",
-          "data": {
-            "titre": "Section de contenu",
-            "content": "<p>Ceci est une section de texte.</p>"
-          }
-        }
-      ]
-    }
-  }
-}
-```
-
-### 9. get_block_schema
-
-Récupère le schéma complet d'un type de bloc incluant tous les champs, types, options, exemples et exigences.
-
-**Paramètres** :
-- `type` (requis) : Le type du bloc (ex: `hero`, `text`, `cta`)
-
-**Exemple** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 10,
-  "method": "tools/call",
-  "params": {
-    "name": "get_block_schema",
-    "arguments": {
-      "type": "hero"
-    }
-  }
-}
-```
-
-**Réponse** : Retourne toutes les informations du bloc (champs, types, exemples, etc.)
-
-### 10. update_block
-
-Met à jour un bloc existant dans une page. Permet de modifier les données d'un bloc sans recréer toute la structure.
-
-**Paramètres** :
-- `page_id` ou `page_slug` (requis) : Identifiant de la page
-- `block_index` (requis) : Index du bloc à modifier (0-based)
-- `data` (requis) : Nouvelles données pour le bloc
-
-**Exemple** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 11,
-  "method": "tools/call",
-  "params": {
-    "name": "update_block",
-    "arguments": {
-      "page_slug": "ma-nouvelle-page",
+      "page_slug": "home",
       "block_index": 0,
       "data": {
-        "titre": "Nouveau titre",
-        "description": "Nouvelle description"
+        "titre": "Nouveau titre hero"
       }
     }
   }
 }
 ```
 
-### 11. delete_block
-
-Supprime un bloc spécifique d'une page par son index.
-
-**Paramètres** :
-- `page_id` ou `page_slug` (requis) : Identifiant de la page
-- `block_index` (requis) : Index du bloc à supprimer (0-based)
-
-**Exemple** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 12,
-  "method": "tools/call",
-  "params": {
-    "name": "delete_block",
-    "arguments": {
-      "page_slug": "ma-nouvelle-page",
-      "block_index": 2
-    }
-  }
-}
-```
-
-### 12. reorder_blocks
-
-Réorganise l'ordre des blocs dans une page. Permet de déplacer un bloc ou de spécifier un nouvel ordre complet.
-
-**Paramètres** :
-- `page_id` ou `page_slug` (requis) : Identifiant de la page
-- `from_index` et `to_index` (optionnel) : Déplacer un bloc d'un index à un autre
-- `new_order` (optionnel) : Nouvel ordre complet comme tableau d'indices (alternative à from_index/to_index)
-
-**Exemple 1 - Déplacer un bloc** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 13,
-  "method": "tools/call",
-  "params": {
-    "name": "reorder_blocks",
-    "arguments": {
-      "page_slug": "ma-nouvelle-page",
-      "from_index": 2,
-      "to_index": 0
-    }
-  }
-}
-```
-
-**Exemple 2 - Nouvel ordre complet** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 14,
-  "method": "tools/call",
-  "params": {
-    "name": "reorder_blocks",
-    "arguments": {
-      "page_slug": "ma-nouvelle-page",
-      "new_order": [2, 0, 1, 3]
-    }
-  }
-}
-```
-
-## 🔍 Lister les outils disponibles
-
-Pour voir tous les outils disponibles :
+Reordonner les blocs :
 
 ```json
 {
   "jsonrpc": "2.0",
   "id": 5,
-  "method": "tools/list"
-}
-```
-
-## 📦 Gestion des Médias
-
-La gestion des médias (upload, attachement aux blocs) n'est pas encore implémentée mais fait l'objet d'une proposition détaillée. Voir [Gestion des Médias via MCP](mcp-media-management.md) pour plus d'informations.
-
-## 🔐 Sécurité
-
-- Les pages Home ne peuvent pas être créées ou modifiées via MCP
-- La validation des données est effectuée pour tous les paramètres
-- L'unicité des slugs est vérifiée automatiquement
-- Les erreurs sont gérées de manière sécurisée
-- Les pages Home ne peuvent pas être supprimées via MCP
-
-## 🧪 Test avec MCP Inspector
-
-Vous pouvez utiliser le MCP Inspector pour tester le serveur :
-
-```bash
-npx @modelcontextprotocol/inspector
-```
-
-Puis connectez-vous à votre serveur MCP via HTTP.
-
-## 📝 Notes importantes
-
-1. Le serveur MCP utilise le protocole JSON-RPC 2.0
-2. Toutes les requêtes doivent être en POST
-3. Le header `Content-Type: application/json` est requis
-4. Le header `Accept: application/json` est requis
-5. Les pages créées via MCP sont créées avec un contenu vide (sections vides)
-
-## 🎨 Métadonnées MCP pour les blocs
-
-Pour que vos blocs personnalisés soient correctement découverts par l'IA via MCP, vous pouvez utiliser le trait `HasMcpMetadata` :
-
-```php
-<?php
-
-namespace App\Blocks\Custom;
-
-use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
-use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
-
-class MonBloc implements BlockInterface
-{
-    use HasMcpMetadata;
-
-    // ... autres méthodes ...
-
-    /**
-     * Retourne les champs du bloc pour MCP.
-     */
-    public static function getMcpFields(): array
-    {
-        return [
-            [
-                'name' => 'titre',
-                'label' => 'Titre',
-                'type' => 'string',
-                'required' => true,
-                'description' => 'Le titre du bloc',
-                'max_length' => 200,
-            ],
-        ];
-    }
-
-    /**
-     * Retourne un exemple de données pour le bloc.
-     */
-    public static function getMcpExample(): array
-    {
-        return [
-            'titre' => 'Exemple de titre',
-        ];
-    }
-}
-```
-
-Le trait `HasMcpMetadata` est optionnel et n'est pas requis pour que les blocs fonctionnent. Il permet simplement de fournir des informations supplémentaires à l'IA pour mieux comprendre les blocs disponibles.
-
-**Note** : Les blocs créés via la commande `make-block` incluent automatiquement le trait `HasMcpMetadata` avec des méthodes de base que vous pouvez personnaliser.
-
-## 🚀 Workflow complet : Créer une page avec des blocs
-
-Voici un exemple complet de création d'une page avec des blocs via MCP :
-
-1. **Lister les blocs disponibles** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "list_blocks",
-    "arguments": {}
-  }
-}
-```
-
-2. **Créer une page** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 2,
-  "method": "tools/call",
-  "params": {
-    "name": "create_page",
+    "name": "reorder_blocks",
     "arguments": {
-      "title": "Ma page",
-      "slug": "ma-page",
-      "status": "draft"
+      "page_slug": "home",
+      "from_index": 0,
+      "to_index": 2
     }
   }
 }
 ```
 
-3. **Ajouter des blocs** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 3,
-  "method": "tools/call",
-  "params": {
-    "name": "add_blocks_to_page",
-    "arguments": {
-      "slug": "ma-page",
-      "blocks": [
-        {
-          "type": "hero",
-          "data": { /* données du bloc */ }
-        },
-        {
-          "type": "text",
-          "data": { /* données du bloc */ }
-        }
-      ]
-    }
-  }
-}
-```
+## Liens utiles
 
-4. **Publier la page** :
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 4,
-  "method": "tools/call",
-  "params": {
-    "name": "update_page",
-    "arguments": {
-      "slug": "ma-page",
-      "status": "published"
-    }
-  }
-}
-```
+- `docs/mcp-media-management.md` (proposition future, upload medias non implemente)
+- `docs/mcp-test-simple.md` (scripts de test simples)
