@@ -10,7 +10,7 @@ Package Laravel Filament professionnel pour gérer les pages avec un système de
 ## ✨ Fonctionnalités
 
 - 📄 **Ressource Filament complète** pour gérer les pages
-- 🧩 **Système de blocs modulaire** (Hero, Text, Image, Gallery, CTA, FAQ, Contact Form)
+- 🧩 **Système de blocs modulaire** (Hero, Text, Image, Gallery, CTA, FAQ, Contact Form, Features, Logo Cloud, Services, Split, Testimonials)
 - 🔌 **Routes API** pour récupérer les pages et leur contenu transformé
 - 🤖 **Serveur MCP (Model Context Protocol)** pour permettre aux agents IA de créer et gérer des pages
 - 🎨 **CLI interactif** pour la gestion des blocs (création, inspection, validation, etc.)
