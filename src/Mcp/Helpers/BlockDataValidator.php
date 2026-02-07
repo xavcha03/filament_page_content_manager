@@ -102,6 +102,14 @@ class BlockDataValidator
                 continue;
             }
 
+            $maxLength = $fieldDef['max_length'] ?? null;
+            if ($maxLength !== null && (is_string($value) || is_numeric($value))) {
+                $stringValue = (string) $value;
+                if (mb_strlen($stringValue) > (int) $maxLength) {
+                    return "{$path}.{$key} exceeds max_length {$maxLength} (got " . mb_strlen($stringValue) . ").";
+                }
+            }
+
             $fieldType = strtolower((string) ($fieldDef['type'] ?? ''));
             $nestedFields = $fieldDef['fields'] ?? null;
             $nestedItems = $fieldDef['items'] ?? null;
