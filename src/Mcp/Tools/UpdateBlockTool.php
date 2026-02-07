@@ -9,6 +9,7 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
+use Xavcha\PageContentManager\Mcp\Helpers\BlockDataValidator;
 use Xavcha\PageContentManager\Models\Page;
 
 class UpdateBlockTool extends Tool
@@ -74,6 +75,7 @@ class UpdateBlockTool extends Tool
 
         try {
             $registry = app(BlockRegistry::class);
+            $blockValidator = app(BlockDataValidator::class);
             $content = $page->content ?? [];
             $sections = $content['sections'] ?? [];
             $blockIndex = $validated['block_index'];
@@ -93,6 +95,11 @@ class UpdateBlockTool extends Tool
             // Vérifier que le bloc existe dans le registry
             if (!$registry->has($blockType)) {
                 return Response::error("Block type '{$blockType}' does not exist. Use list_blocks to see available blocks.");
+            }
+
+            $validation = $blockValidator->validateBlockData($blockType, $validated['data']);
+            if ($validation['ok'] !== true) {
+                return Response::error("Invalid block payload for '{$blockType}': {$validation['error']}");
             }
 
             // Mettre à jour les données du bloc

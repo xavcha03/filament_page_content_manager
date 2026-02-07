@@ -9,6 +9,7 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
+use Xavcha\PageContentManager\Mcp\Helpers\BlockDataValidator;
 use Xavcha\PageContentManager\Models\Page;
 
 class AddBlocksToPageTool extends Tool
@@ -74,6 +75,7 @@ class AddBlocksToPageTool extends Tool
 
         try {
             $registry = app(BlockRegistry::class);
+            $blockValidator = app(BlockDataValidator::class);
             $content = $page->content ?? [];
             $sections = $content['sections'] ?? [];
 
@@ -86,6 +88,11 @@ class AddBlocksToPageTool extends Tool
                 // Vérifier que le bloc existe
                 if (!$registry->has($blockType)) {
                     return Response::error("Block type '{$blockType}' does not exist. Use list_blocks to see available blocks.");
+                }
+
+                $validation = $blockValidator->validateBlockData($blockType, $blockData);
+                if ($validation['ok'] !== true) {
+                    return Response::error("Invalid block payload for '{$blockType}': {$validation['error']}");
                 }
 
                 // Ajouter la section
@@ -130,4 +137,3 @@ class AddBlocksToPageTool extends Tool
         }
     }
 }
-

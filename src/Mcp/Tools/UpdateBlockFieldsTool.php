@@ -9,6 +9,7 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
+use Xavcha\PageContentManager\Mcp\Helpers\BlockDataValidator;
 use Xavcha\PageContentManager\Models\Page;
 
 class UpdateBlockFieldsTool extends Tool
@@ -72,6 +73,7 @@ class UpdateBlockFieldsTool extends Tool
 
         try {
             $registry = app(BlockRegistry::class);
+            $blockValidator = app(BlockDataValidator::class);
             $content = $page->content ?? [];
             $sections = $content['sections'] ?? [];
             $blockIndex = $validated['block_index'];
@@ -93,6 +95,11 @@ class UpdateBlockFieldsTool extends Tool
 
             $existingData = is_array($existingBlock['data'] ?? null) ? $existingBlock['data'] : [];
             $patchedData = array_replace_recursive($existingData, $validated['data']);
+
+            $validation = $blockValidator->validateBlockData($blockType, $patchedData);
+            if ($validation['ok'] !== true) {
+                return Response::error("Invalid block payload for '{$blockType}': {$validation['error']}");
+            }
 
             $sections[$blockIndex] = [
                 'type' => $blockType,
