@@ -8,9 +8,11 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Throwable;
 use Xavcha\PageContentManager\Mcp\MenuTools\Concerns\InteractsWithMenu;
 
+#[IsDestructive]
 class ReorderMainMenuLinksTool extends Tool
 {
     use InteractsWithMenu;

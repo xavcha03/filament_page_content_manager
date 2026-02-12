@@ -8,8 +8,10 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Xavcha\PageContentManager\Models\Page;
 
+#[IsDestructive]
 class DeleteBlockTool extends Tool
 {
     protected string $name = 'delete_block';
@@ -66,7 +68,7 @@ class DeleteBlockTool extends Tool
                 return Response::error('Page not found with the provided slug.');
             }
         } else {
-            return Response::error('Either "page_id" or "page_slug" must be provided to identify the page.');
+            return Response::error(\Xavcha\PageContentManager\Mcp\Messages::PAGE_IDENTIFIER_REQUIRED);
         }
 
         try {

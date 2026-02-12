@@ -8,6 +8,7 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Xavcha\PageContentManager\Mcp\Messages;
 use Xavcha\PageContentManager\Models\Page;
 
 class GetPageContentTool extends Tool
@@ -16,7 +17,7 @@ class GetPageContentTool extends Tool
 
     protected string $title = 'Get Page Content';
 
-    protected string $description = 'Retrieves the complete content of a page as it appears in Filament. Returns page metadata (title, slug, type, status, SEO fields) and all content blocks from the "Contenu" tab. Each block includes its type and data. Use this to inspect page structure before modifying with update_page, update_block, add_blocks_to_page, or reorder_blocks.';
+    protected string $description = 'Use when you need to read a page\'s full content and blocks before editing or to verify after a change. Retrieves the complete content as in Filament: metadata (title, slug, type, status, SEO) and all content blocks from the "Contenu" tab with type and data. Identify the page with page_id or page_slug (e.g. "home" for home page).';
 
     /**
      * @return array<string, mixed>
@@ -24,8 +25,10 @@ class GetPageContentTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id' => $schema->string()->description('Page ID (as string or integer). Either id or slug required.')->nullable(),
-            'slug' => $schema->string()->description('Page slug (alternative to ID). Either id or slug required.')->nullable(),
+            'page_id' => $schema->string()->description('Page ID (numeric). One of page_id or page_slug required.')->nullable(),
+            'page_slug' => $schema->string()->description('Page slug (e.g. "home" for home page). One of page_id or page_slug required.')->nullable(),
+            'id' => $schema->string()->description('Alias for page_id.')->nullable(),
+            'slug' => $schema->string()->description('Alias for page_slug.')->nullable(),
         ];
     }
 
@@ -42,7 +45,17 @@ class GetPageContentTool extends Tool
         $validated = $request->validate([
             'id' => 'sometimes|string',
             'slug' => 'sometimes|string',
+            'page_id' => 'sometimes|string',
+            'page_slug' => 'sometimes|string',
         ]);
+
+        // Normaliser page_id / page_slug vers id / slug
+        if (isset($validated['page_id']) && ! isset($validated['id'])) {
+            $validated['id'] = $validated['page_id'];
+        }
+        if (isset($validated['page_slug']) && empty($validated['slug'])) {
+            $validated['slug'] = $validated['page_slug'];
+        }
 
         // Convertir id en integer si c'est une string
         if (isset($validated['id'])) {
@@ -52,19 +65,23 @@ class GetPageContentTool extends Tool
             }
         }
 
-        // Find the page by ID or slug
+        // Find the page by ID, slug, or home-page alias
         if (isset($validated['id'])) {
             $page = Page::find($validated['id']);
-            if (!$page) {
+            if (! $page) {
                 return Response::error('Page not found with the provided ID.');
             }
-        } elseif (isset($validated['slug'])) {
-            $page = Page::where('slug', $validated['slug'])->first();
-            if (!$page) {
+        } elseif (! empty($validated['slug']) || array_key_exists('slug', $validated)) {
+            $slug = trim((string) ($validated['slug'] ?? ''));
+            $page = $slug !== '' ? Page::where('slug', $slug)->first() : null;
+            if (! $page && in_array(strtolower($slug), ['home', 'accueil', ''], true)) {
+                $page = Page::where('type', 'home')->first();
+            }
+            if (! $page) {
                 return Response::error('Page not found with the provided slug.');
             }
         } else {
-            return Response::error('Either "id" or "slug" must be provided to identify the page.');
+            return Response::error(Messages::PAGE_IDENTIFIER_REQUIRED);
         }
 
         try {

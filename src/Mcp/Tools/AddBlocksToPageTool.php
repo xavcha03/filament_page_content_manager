@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xavcha\PageContentManager\Mcp\Tools;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
@@ -28,6 +29,7 @@ class AddBlocksToPageTool extends Tool
         return [
             'id' => $schema->string()->description('Page ID (as string or integer). Either id or slug required.')->nullable(),
             'slug' => $schema->string()->description('Page slug (alternative to ID). Either id or slug required.')->nullable(),
+            'request_id' => $schema->string()->description('Optional idempotency key for this add operation. Reusing the same request_id on the same page within a short window prevents duplicate inserts on retries.')->nullable(),
             'blocks' => $schema->array()->description('Array of blocks to add to the page "Contenu" tab. Each block must have "type" (e.g., "hero", "text", "cta") and "data" (object with block fields). Use get_block_schema to see required fields for each block type. IMPORTANT: For image fields, use image_id (MediaFile ID uploaded via Filament admin), not URLs or base64.'),
         ];
     }
@@ -45,6 +47,7 @@ class AddBlocksToPageTool extends Tool
         $validated = $request->validate([
             'id' => 'sometimes|string',
             'slug' => 'sometimes|string',
+            'request_id' => 'sometimes|string|max:191',
             'blocks' => 'required|array|min:1',
             'blocks.*.type' => 'required|string',
             'blocks.*.data' => 'required|array',
@@ -70,7 +73,7 @@ class AddBlocksToPageTool extends Tool
                 return Response::error('Page not found with the provided slug.');
             }
         } else {
-            return Response::error('Either "id" or "slug" must be provided to identify the page.');
+            return Response::error(\Xavcha\PageContentManager\Mcp\Messages::PAGE_IDENTIFIER_REQUIRED);
         }
 
         try {
@@ -78,6 +81,28 @@ class AddBlocksToPageTool extends Tool
             $blockValidator = app(BlockDataValidator::class);
             $content = $page->content ?? [];
             $sections = $content['sections'] ?? [];
+            $requestId = isset($validated['request_id']) ? trim((string) $validated['request_id']) : null;
+            $cacheKey = null;
+
+            if ($requestId !== null && $requestId !== '') {
+                $cacheKey = $this->idempotencyCacheKey(pageId: (int) $page->id, requestId: $requestId);
+                if (Cache::has($cacheKey)) {
+                    return Response::json([
+                        'success' => true,
+                        'message' => 'Request already processed (idempotent replay).',
+                        'idempotent_replay' => true,
+                        'request_id' => $requestId,
+                        'added_blocks' => [],
+                        'total_sections' => count($sections),
+                        'page' => [
+                            'id' => $page->id,
+                            'title' => $page->title,
+                            'slug' => $page->slug,
+                            'is_home' => $page->isHome(),
+                        ],
+                    ]);
+                }
+            }
 
             // Valider et ajouter chaque bloc
             $addedBlocks = [];
@@ -120,9 +145,19 @@ class AddBlocksToPageTool extends Tool
             $page->save();
             $page->refresh();
 
+            if ($cacheKey !== null) {
+                Cache::put(
+                    key: $cacheKey,
+                    value: ['stored_at' => now()->toIso8601String()],
+                    ttl: now()->addMinutes(5),
+                );
+            }
+
             return Response::json([
                 'success' => true,
                 'message' => 'Blocks added successfully',
+                'idempotent_replay' => false,
+                'request_id' => $requestId,
                 'added_blocks' => $addedBlocks,
                 'total_sections' => count($sections),
                 'page' => [
@@ -135,5 +170,10 @@ class AddBlocksToPageTool extends Tool
         } catch (\Exception $e) {
             return Response::error('Failed to add blocks: ' . $e->getMessage());
         }
+    }
+
+    private function idempotencyCacheKey(int $pageId, string $requestId): string
+    {
+        return sprintf('xavcha:pcm:add_blocks_to_page:%d:%s', $pageId, sha1($requestId));
     }
 }

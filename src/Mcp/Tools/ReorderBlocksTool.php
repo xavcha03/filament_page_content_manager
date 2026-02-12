@@ -70,7 +70,7 @@ class ReorderBlocksTool extends Tool
                 return Response::error('Page not found with the provided slug.');
             }
         } else {
-            return Response::error('Either "page_id" or "page_slug" must be provided to identify the page.');
+            return Response::error(\Xavcha\PageContentManager\Mcp\Messages::PAGE_IDENTIFIER_REQUIRED);
         }
 
         try {

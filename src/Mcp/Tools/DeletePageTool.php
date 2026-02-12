@@ -8,8 +8,10 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Xavcha\PageContentManager\Models\Page;
 
+#[IsDestructive]
 class DeletePageTool extends Tool
 {
     protected string $name = 'delete_page';
@@ -43,8 +45,18 @@ class DeletePageTool extends Tool
         $validated = $request->validate([
             'id' => 'sometimes|string',
             'slug' => 'sometimes|string',
+            'page_id' => 'sometimes|string',
+            'page_slug' => 'sometimes|string',
             'confirm' => 'sometimes',
         ]);
+
+        // Alias page_id/page_slug vers id/slug pour compatibilité clients (LLM, etc.)
+        if (isset($validated['page_id']) && empty($validated['id'])) {
+            $validated['id'] = $validated['page_id'];
+        }
+        if (isset($validated['page_slug']) && empty($validated['slug'])) {
+            $validated['slug'] = $validated['page_slug'];
+        }
 
         // Convertir id en integer si c'est une string
         if (isset($validated['id'])) {
@@ -78,7 +90,7 @@ class DeletePageTool extends Tool
                 return Response::error('Page not found with the provided slug.');
             }
         } else {
-            return Response::error('Either "id" or "slug" must be provided to identify the page.');
+            return Response::error(\Xavcha\PageContentManager\Mcp\Messages::PAGE_IDENTIFIER_REQUIRED);
         }
 
         // Prevent deleting home page

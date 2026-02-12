@@ -8,6 +8,7 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Xavcha\PageContentManager\Mcp\Messages;
 use Xavcha\PageContentManager\Models\Page;
 
 class UpdatePageTool extends Tool
@@ -16,7 +17,7 @@ class UpdatePageTool extends Tool
 
     protected string $title = 'Update Page';
 
-    protected string $description = 'Updates page information from the "Général" and "SEO" tabs in Filament. Can update: Title (Titre), Slug (URL - use slug_new), Status (Brouillon/Draft, Planifié/Scheduled, or Publié/Published), SEO Title (Titre SEO), and SEO Description (Description SEO). Note: Slug cannot be changed after creation for existing pages (except home page).';
+    protected string $description = 'Use when you need to change a page\'s title, SEO fields, or status without creating a new page. Updates page information from the "Général" and "SEO" tabs in Filament. Can update: Title (Titre), Slug (URL - use slug_new), Status (draft/scheduled/published), SEO Title and Description. IMPORTANT: For the home page, the slug is fixed by the system and must NOT be changed (do not send slug or slug_new for the home page – update only the title). For other pages, avoid changing the slug unless explicitly requested. Identify the page with page_id or page_slug (e.g. "home" for home page).';
 
     /**
      * @return array<string, mixed>
@@ -24,10 +25,12 @@ class UpdatePageTool extends Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id' => $schema->string()->description('Page ID (as string or integer) to identify the page to update. Either id or slug required.')->nullable(),
-            'slug' => $schema->string()->description('Page slug to identify the page to update (alternative to ID). Either id or slug required.')->nullable(),
+            'page_id' => $schema->string()->description('Page ID (numeric). One of page_id or page_slug required.')->nullable(),
+            'page_slug' => $schema->string()->description('Page slug (e.g. "home" for home page, "contact"). One of page_id or page_slug required.')->nullable(),
+            'id' => $schema->string()->description('Alias for page_id.')->nullable(),
+            'slug' => $schema->string()->description('Alias for page_slug.')->nullable(),
             'title' => $schema->string()->description('Title (Titre) - New page title from "Général" tab.')->nullable(),
-            'slug_new' => $schema->string()->description('Slug - New URL slug. Note: Slug cannot be changed after creation (except for home page). Use slug_new only if absolutely necessary.')->nullable(),
+            'slug_new' => $schema->string()->description('Slug - New URL slug. IMPORTANT: Do NOT use slug_new for the home page (its slug is managed by the system and must remain stable). For other pages, only use slug_new if explicitly requested and if changing the URL is safe.')->nullable(),
             'seo_title' => $schema->string()->description('SEO Title (Titre SEO) - Meta title from "SEO" tab.')->nullable(),
             'seo_description' => $schema->string()->description('SEO Description (Description SEO) - Meta description from "SEO" tab.')->nullable(),
             'status' => $schema->string()->enum(['draft', 'scheduled', 'published'])->description('Status (Statut) - Page status: "draft" (Brouillon), "scheduled" (Planifié), or "published" (Publié).')->nullable(),
@@ -47,12 +50,22 @@ class UpdatePageTool extends Tool
         $validated = $request->validate([
             'id' => 'sometimes|string',
             'slug' => 'sometimes|string',
+            'page_id' => 'sometimes|string',
+            'page_slug' => 'sometimes|string',
             'title' => 'sometimes|string|max:255',
             'slug_new' => 'sometimes|string|max:255',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string',
             'status' => 'sometimes|string|in:draft,scheduled,published',
         ]);
+
+        // Normaliser page_id / page_slug vers id / slug
+        if (isset($validated['page_id']) && ! isset($validated['id'])) {
+            $validated['id'] = $validated['page_id'];
+        }
+        if (empty($validated['slug']) && ! empty($validated['page_slug'])) {
+            $validated['slug'] = $validated['page_slug'];
+        }
 
         // Convertir id en integer si c'est une string (pour compatibilité avec les outils MCP)
         if (isset($validated['id'])) {
@@ -62,19 +75,24 @@ class UpdatePageTool extends Tool
             }
         }
 
-        // Find the page by ID or slug
+        // Find the page by ID, slug, or home-page alias
         if (isset($validated['id'])) {
             $page = Page::find($validated['id']);
-            if (!$page) {
+            if (! $page) {
                 return Response::error('Page not found with the provided ID.');
             }
-        } elseif (isset($validated['slug'])) {
-            $page = Page::where('slug', $validated['slug'])->first();
-            if (!$page) {
+        } elseif (! empty($validated['slug'])) {
+            $slug = trim((string) $validated['slug']);
+            $page = Page::where('slug', $slug)->first();
+            // Si slug "home" / "accueil" / "" et pas trouvé, cibler la page d'accueil (type=home)
+            if (! $page && in_array(strtolower($slug), ['home', 'accueil', ''], true)) {
+                $page = Page::where('type', 'home')->first();
+            }
+            if (! $page) {
                 return Response::error('Page not found with the provided slug.');
             }
         } else {
-            return Response::error('Either "id" or "slug" must be provided to identify the page.');
+            return Response::error(Messages::PAGE_IDENTIFIER_REQUIRED);
         }
 
         try {

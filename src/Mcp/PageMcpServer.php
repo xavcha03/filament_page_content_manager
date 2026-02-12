@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Xavcha\PageContentManager\Mcp;
 
+use Illuminate\Container\Container;
+use Laravel\Mcp\Request;
 use Laravel\Mcp\Server;
+use Laravel\Mcp\Server\ServerContext;
+use Laravel\Mcp\Server\Transport\JsonRpcRequest;
+use Laravel\Mcp\Server\Transport\JsonRpcResponse;
 use Xavcha\PageContentManager\Mcp\MenuTools\AddMainMenuLinkTool;
 use Xavcha\PageContentManager\Mcp\MenuTools\DeleteMainMenuLinkTool;
 use Xavcha\PageContentManager\Mcp\MenuTools\GetMainMenuTool;
@@ -108,5 +113,39 @@ class PageMcpServer extends Server
     {
         parent::boot();
         $this->tools = self::getTools();
+    }
+
+    /**
+     * Build tool request with merged arguments so clients can send either
+     * params.arguments = { id, title } or params = { name, id, title }.
+     */
+    protected function runMethodHandle(JsonRpcRequest $request, ServerContext $context): iterable|JsonRpcResponse
+    {
+        $container = Container::getInstance();
+
+        /** @var \Laravel\Mcp\Server\Contracts\Method $methodClass */
+        $methodClass = $container->make($this->methods[$request->method]);
+
+        $args = $request->params['arguments'] ?? [];
+        if (! is_array($args)) {
+            $args = [];
+        }
+        $rest = $request->params;
+        unset($rest['arguments'], $rest['name'], $rest['_meta']);
+        $merged = array_merge($rest, $args);
+
+        $container->instance('mcp.request', new Request(
+            $merged,
+            $request->sessionId,
+            $request->meta()
+        ));
+
+        try {
+            $response = $methodClass->handle($request, $context);
+        } finally {
+            $container->forgetInstance('mcp.request');
+        }
+
+        return $response;
     }
 }

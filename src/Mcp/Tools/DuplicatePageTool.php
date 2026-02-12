@@ -70,7 +70,7 @@ class DuplicatePageTool extends Tool
                 return Response::error('Page not found with the provided slug.');
             }
         } else {
-            return Response::error('Either "id" or "slug" must be provided to identify the page to duplicate.');
+            return Response::error(\Xavcha\PageContentManager\Mcp\Messages::PAGE_IDENTIFIER_REQUIRED);
         }
 
         try {

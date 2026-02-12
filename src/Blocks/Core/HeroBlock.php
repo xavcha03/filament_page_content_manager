@@ -89,6 +89,18 @@ class HeroBlock implements BlockInterface
                     ->helperText('URL, chemin (ex: /devis) ou ancre (ex: #section)')
                     ->maxLength(255)
                     ->columnSpanFull(),
+
+                // Bouton secondaire (optionnel)
+                TextInput::make('bouton_secondaire.texte')
+                    ->label('Texte du bouton secondaire')
+                    ->maxLength(100)
+                    ->columnSpanFull(),
+
+                TextInput::make('bouton_secondaire.lien')
+                    ->label('Lien du bouton secondaire')
+                    ->helperText('URL, chemin (ex: /devis) ou ancre (ex: #section)')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -141,6 +153,18 @@ class HeroBlock implements BlockInterface
             
             if (is_array($button) && !empty($button['texte']) && !empty($button['lien'])) {
                 $transformed['bouton_principal'] = [
+                    'texte' => $button['texte'],
+                    'lien' => $button['lien'],
+                ];
+            }
+        }
+
+        // Bouton secondaire (optionnel)
+        if (!empty($data['bouton_secondaire'])) {
+            $button = $data['bouton_secondaire'];
+            
+            if (is_array($button) && !empty($button['texte']) && !empty($button['lien'])) {
+                $transformed['bouton_secondaire'] = [
                     'texte' => $button['texte'],
                     'lien' => $button['lien'],
                 ];
@@ -207,6 +231,27 @@ class HeroBlock implements BlockInterface
                     ],
                 ],
             ],
+            [
+                'name' => 'bouton_secondaire',
+                'label' => 'Bouton secondaire',
+                'type' => 'object',
+                'required' => false,
+                'description' => 'Bouton secondaire (ex: lien texte souligné)',
+                'fields' => [
+                    [
+                        'name' => 'texte',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 100,
+                    ],
+                    [
+                        'name' => 'lien',
+                        'type' => 'string',
+                        'required' => false,
+                        'max_length' => 255,
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -223,6 +268,10 @@ class HeroBlock implements BlockInterface
             'variant' => 'hero',
             'bouton_principal' => [
                 'texte' => 'En savoir plus',
+                'lien' => '/contact',
+            ],
+            'bouton_secondaire' => [
+                'texte' => 'Nous contacter',
                 'lien' => '/contact',
             ],
         ];
