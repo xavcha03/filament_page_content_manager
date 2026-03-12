@@ -27,6 +27,7 @@ class CTABlockTest extends TestCase
             'description' => 'CTA Description',
             'cta_text' => 'Click me',
             'cta_link' => '/test',
+            'open_in_new_tab' => true,
         ];
 
         $result = CTABlock::transform($data);
@@ -37,6 +38,7 @@ class CTABlockTest extends TestCase
         $this->assertEquals('CTA Description', $result['description']);
         $this->assertEquals('Click me', $result['cta_text']);
         $this->assertEquals('/test', $result['cta_link']);
+        $this->assertTrue($result['open_in_new_tab']);
     }
 
     public function test_transform_handles_missing_fields(): void
@@ -50,6 +52,7 @@ class CTABlockTest extends TestCase
         $this->assertEquals('', $result['description']);
         $this->assertEquals('', $result['cta_text']);
         $this->assertEquals('', $result['cta_link']);
+        $this->assertFalse($result['open_in_new_tab']);
     }
 }
 

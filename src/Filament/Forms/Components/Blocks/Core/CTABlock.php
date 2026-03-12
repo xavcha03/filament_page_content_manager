@@ -7,6 +7,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 
 class CTABlock
 {
@@ -51,6 +52,12 @@ class CTABlock
                     ->required()
                     ->helperText('URL, chemin (ex: /devis) ou ancre (ex: #section)')
                     ->maxLength(255)
+                    ->columnSpanFull(),
+
+                Toggle::make('open_in_new_tab')
+                    ->label('Ouvrir dans un nouvel onglet')
+                    ->helperText('Activez pour ouvrir le bouton dans un nouvel onglet (target="_blank").')
+                    ->default(false)
                     ->columnSpanFull(),
 
                 // Champs pour variant "hero"

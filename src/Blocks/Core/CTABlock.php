@@ -5,6 +5,7 @@ namespace Xavcha\PageContentManager\Blocks\Core;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 
@@ -47,6 +48,12 @@ class CTABlock implements BlockInterface
                     ->helperText('URL, chemin (ex: /devis) ou ancre (ex: #section)')
                     ->maxLength(255)
                     ->columnSpanFull(),
+
+                Toggle::make('open_in_new_tab')
+                    ->label('Ouvrir dans un nouvel onglet')
+                    ->helperText('Activez pour ouvrir le lien dans un nouvel onglet (target="_blank").')
+                    ->default(false)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -58,6 +65,7 @@ class CTABlock implements BlockInterface
             'description' => $data['description'] ?? '',
             'cta_text' => $data['cta_text'] ?? '',
             'cta_link' => $data['cta_link'] ?? '',
+            'open_in_new_tab' => (bool) ($data['open_in_new_tab'] ?? false),
         ];
     }
 
@@ -95,6 +103,12 @@ class CTABlock implements BlockInterface
                 'required' => true,
                 'max_length' => 255,
             ],
+            [
+                'name' => 'open_in_new_tab',
+                'label' => 'Ouvrir dans un nouvel onglet',
+                'type' => 'boolean',
+                'required' => false,
+            ],
         ];
     }
 
@@ -108,6 +122,7 @@ class CTABlock implements BlockInterface
             'description' => 'Obtenez un devis rapide et clair.',
             'cta_text' => 'Demander un devis',
             'cta_link' => '/contact',
+            'open_in_new_tab' => false,
         ];
     }
 }
