@@ -72,12 +72,10 @@ class FeaturesBlockTest extends TestCase
         $data = [
             'items' => [
                 [
-                    'icone' => 'star',
                     'titre' => 'Feature 1',
                     'texte' => 'Description 1',
                 ],
                 [
-                    'icone' => 'check',
                     'titre' => 'Feature 2',
                     'texte' => 'Description 2',
                 ],
@@ -89,6 +87,48 @@ class FeaturesBlockTest extends TestCase
         $this->assertCount(2, $result['items']);
         $this->assertEquals('Feature 1', $result['items'][0]['titre']);
         $this->assertEquals('Feature 2', $result['items'][1]['titre']);
+    }
+
+    public function test_transform_uses_media_picker_for_icone(): void
+    {
+        $data = [
+            'items' => [
+                [
+                    'icone_id' => 123,
+                    'titre' => 'Feature with icon',
+                    'texte' => 'Description',
+                ],
+            ],
+        ];
+
+        $result = FeaturesBlockForTest::transform($data);
+
+        $this->assertCount(1, $result['items']);
+        $this->assertEquals('Feature with icon', $result['items'][0]['titre']);
+        $this->assertEquals('Description', $result['items'][0]['texte']);
+        $this->assertEquals('https://example.com/media/icon-123.png', $result['items'][0]['icone']);
+        $this->assertEquals('https://example.com/media/icon-123.png', $result['items'][0]['icone_url']);
+        $this->assertEquals(64, $result['items'][0]['icone_width']);
+        $this->assertEquals(64, $result['items'][0]['icone_height']);
+        $this->assertEquals('Feature icon', $result['items'][0]['icone_alt']);
+    }
+}
+
+class FeaturesBlockForTest extends FeaturesBlock
+{
+    protected static function getMediaFileData($mediaFileId): ?array
+    {
+        if (empty($mediaFileId)) {
+            return null;
+        }
+
+        return [
+            'url' => 'https://example.com/media/icon-' . $mediaFileId . '.png',
+            'width' => 64,
+            'height' => 64,
+            'alt_text' => 'Feature icon',
+            'description' => null,
+        ];
     }
 }
 
