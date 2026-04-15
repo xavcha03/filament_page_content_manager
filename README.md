@@ -15,9 +15,9 @@ Fournir un "mini CMS" propre et rapide a integrer, avec :
 ## Demarrage rapide
 
 ```bash
-composer require xavcha/page-content-manager
-php artisan vendor:publish --tag=page-content-manager-config
-php artisan migrate
+ddev composer require xavcha/page-content-manager
+ddev artisan vendor:publish --tag=page-content-manager-config
+ddev artisan migrate
 ```
 
 Enregistrer la ressource Filament dans votre `PanelProvider` :

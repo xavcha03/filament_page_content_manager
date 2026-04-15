@@ -25,9 +25,9 @@ Si la media library n'est pas installee, ajouter le repository dans `composer.js
 Puis :
 
 ```bash
-composer require xavcha/page-content-manager
-php artisan vendor:publish --tag=page-content-manager-config
-php artisan migrate
+ddev composer require xavcha/page-content-manager
+ddev artisan vendor:publish --tag=page-content-manager-config
+ddev artisan migrate
 ```
 
 ## Enregistrer la ressource Filament
@@ -49,4 +49,4 @@ public function panel(Panel $panel): Panel
 
 - Les pages apparaissent dans Filament
 - `GET /api/pages` fonctionne
-- `php artisan page-content-manager:block:list` liste vos blocs
+- `ddev artisan page-content-manager:block:list` liste vos blocs

@@ -338,7 +338,7 @@ AiAssistantTab::make()
 **Exemple** :
 ```php
 // Commande Artisan
-php artisan page-content-manager:ai:generate-section \
+ddev artisan page-content-manager:ai:generate-section \
     --page-id=1 \
     --block-type=text \
     --topic="Les avantages du SEO" \
@@ -358,7 +358,7 @@ php artisan page-content-manager:ai:generate-section \
 **Exemple** :
 ```php
 // Commande Artisan
-php artisan page-content-manager:ai:generate-page \
+ddev artisan page-content-manager:ai:generate-page \
     --topic="Guide du référencement naturel" \
     --target-audience="débutants" \
     --sections=5 \

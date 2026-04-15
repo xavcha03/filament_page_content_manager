@@ -14,9 +14,9 @@
 
 - `composer test` : runs PHPUnit test suite.
 - `ddev exec vendor/bin/phpunit` : run tests inside DDEV.
-- `php artisan page-content-manager:block:list` : list discovered blocks.
-- `php artisan page-content-manager:blocks:validate` : validate block definitions.
-- `php artisan vendor:publish --tag=page-content-manager-config` : publish config.
+- `ddev artisan page-content-manager:block:list` : list discovered blocks.
+- `ddev artisan page-content-manager:blocks:validate` : validate block definitions.
+- `ddev artisan vendor:publish --tag=page-content-manager-config` : publish config.
 
 ## Coding Style & Naming Conventions
 
@@ -30,7 +30,7 @@
 - Framework: PHPUnit.
 - Tests live in `tests/Unit/` and `tests/Feature/`.
 - Name tests by class/function intent (e.g. `HeroBlockTest`).
-- Run `php artisan page-content-manager:blocks:validate` after block changes.
+- Run `ddev artisan page-content-manager:blocks:validate` after block changes.
 
 ## Commit & Pull Request Guidelines
 

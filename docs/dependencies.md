@@ -19,7 +19,7 @@ Si Composer ne la trouve pas, ajoutez le repository VCS dans `composer.json` :
 Puis :
 
 ```bash
-composer require xavcha/page-content-manager
+ddev composer require xavcha/page-content-manager
 ```
 
 ## Versioning

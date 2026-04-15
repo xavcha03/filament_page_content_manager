@@ -3,7 +3,7 @@
 namespace Xavcha\PageContentManager\Filament\Forms\Components\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 
 class TextBlock
@@ -19,10 +19,46 @@ class TextBlock
                     ->maxLength(200)
                     ->columnSpanFull(),
 
-                Textarea::make('content')
+                RichEditor::make('content')
                     ->label('Contenu')
                     ->required()
-                    ->rows(6)
+                    ->toolbarButtons([
+                        'h1',
+                        'h2',
+                        'h3',
+                        'lead',
+                        'small',
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'code',
+                        'highlight',
+                        'textColor',
+                        'clearFormatting',
+                        'alignJustify',
+                        'bulletList',
+                        'orderedList',
+                        'link',
+                        'blockquote',
+                        'horizontalRule',
+                        'details',
+                        'grid',
+                        'gridDelete',
+                        'codeBlock',
+                        'table',
+                        'tableAddColumnBefore',
+                        'tableAddColumnAfter',
+                        'tableDeleteColumn',
+                        'tableAddRowBefore',
+                        'tableAddRowAfter',
+                        'tableDeleteRow',
+                        'tableMergeCells',
+                        'tableSplitCell',
+                        'tableToggleHeaderRow',
+                        'tableToggleHeaderCell',
+                        'tableDelete',
+                    ])
                     ->columnSpanFull(),
             ]);
     }

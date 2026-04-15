@@ -3,7 +3,7 @@
 ## Methode rapide (CLI)
 
 ```bash
-php artisan page-content-manager:make-block video \
+ddev artisan page-content-manager:make-block video \
   --group=content \
   --order=50 \
   --force
@@ -72,5 +72,5 @@ Si vous voulez un ordre specifique, ajoutez la classe dans `block_groups`.
 ## Tests minimum
 
 ```bash
-php artisan page-content-manager:blocks:validate
+ddev artisan page-content-manager:blocks:validate
 ```

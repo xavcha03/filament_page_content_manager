@@ -5,7 +5,7 @@ Vous pouvez ajouter les onglets SEO + Content a d'autres ressources Filament.
 ## 1. Ajouter les colonnes
 
 ```bash
-php artisan page-content-manager:add-page-detail <table> --after=<column>
+ddev artisan page-content-manager:add-page-detail <table> --after=<column>
 ```
 
 ## 2. Ajouter le trait au modele

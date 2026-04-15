@@ -24,7 +24,7 @@ src/Blocks/
 
 1. CLI :
 ```bash
-php artisan page-content-manager:block:disable hero --force
+ddev artisan page-content-manager:block:disable hero --force
 ```
 
 2. Config :
@@ -52,7 +52,7 @@ Le custom remplace le core.
 Invalider :
 
 ```bash
-php artisan page-content-manager:blocks:clear-cache
+ddev artisan page-content-manager:blocks:clear-cache
 ```
 
 ## Validation
@@ -65,7 +65,7 @@ PAGE_CONTENT_MANAGER_VALIDATE_BLOCKS_ON_BOOT_THROW=false
 Ou manuellement :
 
 ```bash
-php artisan page-content-manager:blocks:validate
+ddev artisan page-content-manager:blocks:validate
 ```
 
 ## Evenements de transformation

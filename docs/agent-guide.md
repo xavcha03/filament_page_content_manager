@@ -48,7 +48,7 @@ Ce guide est la source de verite pour utiliser ce package via MCP/CLI et pour aj
 ## Desactiver un bloc core
 
 Options :
-- CLI : `php artisan page-content-manager:block:disable hero --force`
+- CLI : `ddev artisan page-content-manager:block:disable hero --force`
 - Config : `disabled_blocks` dans `config/page-content-manager.php`
 - Groups : ne pas inclure le bloc dans le groupe utilise
 
@@ -60,6 +60,6 @@ Options :
 
 ## Tests minimum
 
-- `php artisan page-content-manager:blocks:validate`
+- `ddev artisan page-content-manager:blocks:validate`
 - Verification API `/api/pages/{slug}`
 

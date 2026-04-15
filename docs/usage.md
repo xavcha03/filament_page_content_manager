@@ -12,9 +12,9 @@ Ne pas utiliser de liste statique.
 Utiliser :
 
 ```bash
-php artisan page-content-manager:block:list
-php artisan page-content-manager:block:inspect hero
-php artisan page-content-manager:block:inspect tarifs
+ddev artisan page-content-manager:block:list
+ddev artisan page-content-manager:block:inspect hero
+ddev artisan page-content-manager:block:inspect tarifs
 ```
 
 Exemple de bloc pricing core :
@@ -38,7 +38,7 @@ Pour limiter ou ordonner les blocs par ressource :
 ## Desactivation
 
 ```bash
-php artisan page-content-manager:block:disable hero --force
+ddev artisan page-content-manager:block:disable hero --force
 ```
 
 ou
