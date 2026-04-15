@@ -4,6 +4,7 @@ namespace Xavcha\PageContentManager\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
 use Filament\Forms\Components\TextInput;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
@@ -11,6 +12,7 @@ use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 class TextBlock implements BlockInterface
 {
     use HasMcpMetadata;
+
     public static function getType(): string
     {
         return 'text';
@@ -31,41 +33,89 @@ class TextBlock implements BlockInterface
                     ->label('Contenu')
                     ->required()
                     ->toolbarButtons([
-                        'h1',
-                        'h2',
-                        'h3',
-                        'lead',
-                        'small',
-                        'bold',
-                        'italic',
-                        'underline',
-                        'strike',
-                        'code',
-                        'highlight',
-                        'textColor',
-                        'clearFormatting',
-                        'alignJustify',
-                        'bulletList',
-                        'orderedList',
-                        'link',
-                        'blockquote',
-                        'horizontalRule',
-                        'details',
-                        'grid',
-                        'gridDelete',
-                        'codeBlock',
-                        'table',
-                        'tableAddColumnBefore',
-                        'tableAddColumnAfter',
-                        'tableDeleteColumn',
-                        'tableAddRowBefore',
-                        'tableAddRowAfter',
-                        'tableDeleteRow',
-                        'tableMergeCells',
-                        'tableSplitCell',
-                        'tableToggleHeaderRow',
-                        'tableToggleHeaderCell',
-                        'tableDelete',
+                        // Inline (le plus utilisé)
+                        ['bold', 'italic', 'underline', 'strike', 'link'],
+                        // “Typo” (dropdown)
+                        [
+                            ToolbarButtonGroup::make('Typo', [
+                                'lead',
+                                'small',
+                                'code',
+                                'highlight',
+                                'textColor',
+                                'clearFormatting',
+                            ])->textualButtons(),
+                        ],
+                        // Titres / paragraphe (dropdown)
+                        [
+                            ToolbarButtonGroup::make('Titres', [
+                                'paragraph',
+                                'h1',
+                                'h2',
+                                'h3',
+                                'h4',
+                                'h5',
+                                'h6',
+                            ])->textualButtons(),
+                        ],
+                        // Alignement (dropdown)
+                        [
+                            ToolbarButtonGroup::make('Align', [
+                                'alignStart',
+                                'alignCenter',
+                                'alignEnd',
+                                'alignJustify',
+                            ]),
+                        ],
+                        // Structure
+                        ['bulletList', 'orderedList', 'blockquote', 'horizontalRule'],
+                        // Table (insertion). Les actions avancées restent en floating toolbar (contextuelle dans un tableau).
+                        ['table'],
+                        // Layout (dropdown)
+                        [
+                            ToolbarButtonGroup::make('Layout', [
+                                'grid',
+                                'gridDelete',
+                                'details',
+                            ])->textualButtons(),
+                        ],
+                        // Historique
+                        ['undo', 'redo'],
+                    ])
+                    ->floatingToolbars([
+                        'paragraph' => [
+                            'bold',
+                            'italic',
+                            'underline',
+                            'strike',
+                            'code',
+                            'highlight',
+                            'textColor',
+                            'clearFormatting',
+                            'link',
+                        ],
+                        'heading' => [
+                            'paragraph',
+                            'h1',
+                            'h2',
+                            'h3',
+                            'h4',
+                            'h5',
+                            'h6',
+                        ],
+                        'table' => [
+                            'tableAddColumnBefore',
+                            'tableAddColumnAfter',
+                            'tableDeleteColumn',
+                            'tableAddRowBefore',
+                            'tableAddRowAfter',
+                            'tableDeleteRow',
+                            'tableMergeCells',
+                            'tableSplitCell',
+                            'tableToggleHeaderRow',
+                            'tableToggleHeaderCell',
+                            'tableDelete',
+                        ],
                     ])
                     ->columnSpanFull(),
             ]);
