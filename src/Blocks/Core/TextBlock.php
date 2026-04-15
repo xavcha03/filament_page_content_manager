@@ -25,12 +25,13 @@ class TextBlock implements BlockInterface
             ->icon('heroicon-o-document-text')
             ->schema([
                 TextInput::make('titre')
-                    ->label('Titre')
+                    ->label('Titre (affiché en H2)')
                     ->maxLength(200)
                     ->columnSpanFull(),
 
                 RichEditor::make('content')
                     ->label('Contenu')
+                    ->helperText("Le titre du bloc est déjà affiché comme un titre principal (H2) sur le site. Utilisez les niveaux de titres du menu « Titres » pour structurer le contenu (sous-titres / intertitres), ou « Texte normal » pour du paragraphe.")
                     ->required()
                     ->toolbarButtons([
                         // Inline (le plus utilisé)
@@ -50,8 +51,6 @@ class TextBlock implements BlockInterface
                         [
                             ToolbarButtonGroup::make('Titres', [
                                 'paragraph',
-                                'h1',
-                                'h2',
                                 'h3',
                                 'h4',
                                 'h5',
@@ -96,8 +95,6 @@ class TextBlock implements BlockInterface
                         ],
                         'heading' => [
                             'paragraph',
-                            'h1',
-                            'h2',
                             'h3',
                             'h4',
                             'h5',
