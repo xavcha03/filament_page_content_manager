@@ -55,6 +55,7 @@ Doc complete : `docs/agent-guide.md`.
 
 - `docs/installation.md`
 - `docs/usage.md`
+- `docs/filament-upgrade.md`
 - `docs/blocks-architecture.md`
 - `docs/custom-blocks.md`
 - `docs/api.md`
