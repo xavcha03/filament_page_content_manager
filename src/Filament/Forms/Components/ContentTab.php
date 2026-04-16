@@ -25,6 +25,7 @@ class ContentTab
                     ->label('Sections')
                     ->blocks($blocks)
                     ->collapsible()
+                    ->collapsed()
                     ->columnSpanFull(),
             ]);
     }
