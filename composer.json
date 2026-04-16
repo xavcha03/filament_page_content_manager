@@ -11,7 +11,7 @@
     "illuminate/filesystem": "^12.0",
     "illuminate/routing": "^12.0",
     "illuminate/support": "^12.0",
-    "xavcha/fillament-xavcha-media-library": "dev-main",
+    "xavcha/fillament-xavcha-media-library": "^1.1.0",
     "laravel/mcp": "^0.5.2"
   },
   "require-dev": {
@@ -22,7 +22,8 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/xavcha03/fillament_xavcha_media_library.git"
+      "url": "https://github.com/xavcha03/fillament_xavcha_media_library.git",
+      "no-api": true
     }
   ],
   "autoload": {
@@ -46,5 +47,8 @@
     "test": "vendor/bin/phpunit"
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "config": {
+    "github-protocols": ["https"]
+  }
 }

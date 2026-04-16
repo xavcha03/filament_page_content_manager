@@ -33,6 +33,9 @@ class ImageBlockTest extends TestCase
         $this->assertEquals('image', $result['type']);
         $this->assertEquals('Alt text', $result['alt']);
         $this->assertEquals('Caption text', $result['caption']);
+        $this->assertEquals('center', $result['alignment']);
+        $this->assertEquals('medium', $result['size']);
+        $this->assertEquals('auto', $result['ratio']);
         // image_url ne sera pas présent car getMediaFileUrl retourne null sans MediaFile réel
     }
 
@@ -46,6 +49,9 @@ class ImageBlockTest extends TestCase
 
         $this->assertEquals('image', $result['type']);
         $this->assertEquals('Alt text', $result['alt']);
+        $this->assertEquals('center', $result['alignment']);
+        $this->assertEquals('medium', $result['size']);
+        $this->assertEquals('auto', $result['ratio']);
         $this->assertArrayNotHasKey('image_url', $result);
     }
 }
