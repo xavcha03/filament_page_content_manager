@@ -52,7 +52,7 @@ class AddPageDetailColumnsCommand extends Command
         File::put($migrationPath, $stub);
 
         $this->info("Migration créée : {$migrationPath}");
-        $this->info("N'oubliez pas d'ajouter le trait HasPageDetail à votre modèle et de mettre à jour le fillable avec 'seo_title', 'seo_description', 'content'.");
+        $this->info("N'oubliez pas d'ajouter le trait HasPageDetail à votre modèle et de mettre à jour le fillable avec 'seo_title', 'seo_description', 'seo_noindex', 'content'.");
 
         return Command::SUCCESS;
     }

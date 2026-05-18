@@ -33,6 +33,7 @@ class UpdatePageTool extends Tool
             'slug_new' => $schema->string()->description('Slug - New URL slug. IMPORTANT: Do NOT use slug_new for the home page (its slug is managed by the system and must remain stable). For other pages, only use slug_new if explicitly requested and if changing the URL is safe.')->nullable(),
             'seo_title' => $schema->string()->description('SEO Title (Titre SEO) - Meta title from "SEO" tab.')->nullable(),
             'seo_description' => $schema->string()->description('SEO Description (Description SEO) - Meta description from "SEO" tab.')->nullable(),
+            'seo_noindex' => $schema->boolean()->description('SEO noindex - When true, page must not be indexed by search engines (checkbox in "SEO" tab).')->nullable(),
             'status' => $schema->string()->enum(['draft', 'scheduled', 'published'])->description('Status (Statut) - Page status: "draft" (Brouillon), "scheduled" (Planifié), or "published" (Publié).')->nullable(),
         ];
     }
@@ -56,6 +57,7 @@ class UpdatePageTool extends Tool
             'slug_new' => 'sometimes|string|max:255',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string',
+            'seo_noindex' => 'sometimes|boolean',
             'status' => 'sometimes|string|in:draft,scheduled,published',
         ]);
 
@@ -118,6 +120,10 @@ class UpdatePageTool extends Tool
                 $updateData['seo_description'] = $validated['seo_description'];
             }
 
+            if (array_key_exists('seo_noindex', $validated)) {
+                $updateData['seo_noindex'] = (bool) $validated['seo_noindex'];
+            }
+
             if (isset($validated['status'])) {
                 $updateData['status'] = $validated['status'];
             }
@@ -140,6 +146,8 @@ class UpdatePageTool extends Tool
                     'status' => $page->status,
                     'seo_title' => $page->seo_title,
                     'seo_description' => $page->seo_description,
+                    'seo_noindex' => (bool) $page->seo_noindex,
+                    'robots' => $page->seo_noindex ? 'noindex' : null,
                     'is_home' => $page->isHome(),
                 ],
             ]);

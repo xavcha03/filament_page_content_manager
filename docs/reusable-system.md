@@ -21,6 +21,7 @@ class Article extends Model
         'title',
         'seo_title',
         'seo_description',
+        'seo_noindex',
         'content',
     ];
 
@@ -28,6 +29,7 @@ class Article extends Model
     {
         return [
             'content' => 'array',
+            'seo_noindex' => 'boolean',
         ];
     }
 }
@@ -47,5 +49,7 @@ Components\Tabs::make('tabs')
 
 ## Notes
 
+- `PageDetailTabs::tabs()` inclut l'onglet SEO avec la case **Ne pas indexer** (`seo_noindex`).
 - Utilisez `ContentTab::make('group')` si vous voulez limiter les blocs.
 - Les blocs sont auto-decouverts.
+- Pour exposer `robots` via une API custom : `seo_noindex ? 'noindex' : null`.

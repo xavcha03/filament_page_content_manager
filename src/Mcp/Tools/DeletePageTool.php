@@ -9,7 +9,10 @@ use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
+use Xavcha\PageContentManager\Enums\DeletedPageResponseType;
+use Xavcha\PageContentManager\Mcp\Messages;
 use Xavcha\PageContentManager\Models\Page;
+use Xavcha\PageContentManager\Services\PageDeletionService;
 
 #[IsDestructive]
 class DeletePageTool extends Tool
@@ -18,23 +21,25 @@ class DeletePageTool extends Tool
 
     protected string $title = 'Delete Page';
 
-    protected string $description = 'Permanently deletes a page from the CMS. This action cannot be undone. The page will be removed from the pages list in Filament. Home page cannot be deleted. Requires confirmation: set "confirm" to true (boolean) to proceed with deletion.';
+    protected string $description = 'Soft-deletes a page and stores the URL policy (404, 410, 301 to page or URL). The page moves to trash and can be restored. Home page cannot be deleted. Optional confirm=true.';
 
-    /**
-     * @return array<string, mixed>
-     */
     public function schema(JsonSchema $schema): array
     {
         return [
-            'id' => $schema->string()->description('The ID of the page to delete (as string or integer)')->nullable(),
-            'slug' => $schema->string()->description('The slug of the page to delete (alternative to ID)')->nullable(),
-            'confirm' => $schema->boolean()->description('Confirmation flag to prevent accidental deletion. Must be set to true (boolean) to proceed with deletion.')->nullable(),
+            'id' => $schema->string()->description('Alias for page_id.')->nullable(),
+            'slug' => $schema->string()->description('Alias for page_slug.')->nullable(),
+            'page_id' => $schema->string()->description('The ID of the page to delete.')->nullable(),
+            'page_slug' => $schema->string()->description('The slug of the page to delete.')->nullable(),
+            'deleted_response_type' => $schema->string()
+                ->enum(['404', '410', '301_page', '301_url'])
+                ->description('URL policy after deletion: 404, 410, 301_page, or 301_url.')
+                ->nullable(),
+            'redirect_target_page_id' => $schema->string()->description('Target page ID when deleted_response_type is 301_page.')->nullable(),
+            'redirect_target_url' => $schema->string()->description('Target URL when deleted_response_type is 301_url.')->nullable(),
+            'confirm' => $schema->boolean()->description('Optional confirmation flag. If provided, must be true.')->nullable(),
         ];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function outputSchema(JsonSchema $schema): array
     {
         return [];
@@ -47,61 +52,71 @@ class DeletePageTool extends Tool
             'slug' => 'sometimes|string',
             'page_id' => 'sometimes|string',
             'page_slug' => 'sometimes|string',
+            'deleted_response_type' => 'sometimes|string|in:404,410,301_page,301_url',
+            'redirect_target_page_id' => 'sometimes|string',
+            'redirect_target_url' => 'sometimes|string|max:2048',
             'confirm' => 'sometimes',
         ]);
 
-        // Alias page_id/page_slug vers id/slug pour compatibilité clients (LLM, etc.)
-        if (isset($validated['page_id']) && empty($validated['id'])) {
+        if (isset($validated['page_id']) && ! isset($validated['id'])) {
             $validated['id'] = $validated['page_id'];
         }
-        if (isset($validated['page_slug']) && empty($validated['slug'])) {
+
+        if (empty($validated['slug']) && ! empty($validated['page_slug'])) {
             $validated['slug'] = $validated['page_slug'];
         }
 
-        // Convertir id en integer si c'est une string
         if (isset($validated['id'])) {
             $validated['id'] = is_numeric($validated['id']) ? (int) $validated['id'] : null;
+
             if ($validated['id'] === null) {
                 return Response::error('Invalid ID format. ID must be a number.');
             }
         }
 
-        // Convertir confirm en booléen si présent (peut être string "true"/"false" ou booléen)
         if (isset($validated['confirm'])) {
             if (is_string($validated['confirm'])) {
                 $validated['confirm'] = filter_var($validated['confirm'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
                 if ($validated['confirm'] === null) {
                     return Response::error('Invalid confirm value. Must be true or false (boolean).');
                 }
-            } elseif (!is_bool($validated['confirm'])) {
+            } elseif (! is_bool($validated['confirm'])) {
                 return Response::error('Invalid confirm value. Must be true or false (boolean).');
             }
         }
 
-        // Find the page by ID or slug
-        if (isset($validated['id'])) {
-            $page = Page::find($validated['id']);
-            if (!$page) {
-                return Response::error('Page not found with the provided ID.');
-            }
-        } elseif (isset($validated['slug'])) {
-            $page = Page::where('slug', $validated['slug'])->first();
-            if (!$page) {
-                return Response::error('Page not found with the provided slug.');
-            }
-        } else {
-            return Response::error(\Xavcha\PageContentManager\Mcp\Messages::PAGE_IDENTIFIER_REQUIRED);
+        if (isset($validated['confirm']) && $validated['confirm'] !== true) {
+            return Response::error('Deletion not confirmed. Set "confirm" to true to delete the page.');
         }
 
-        // Prevent deleting home page
+        if (isset($validated['id'])) {
+            $page = Page::find($validated['id']);
+        } elseif (! empty($validated['slug'])) {
+            $page = Page::where('slug', trim((string) $validated['slug']))->first();
+        } else {
+            return Response::error(Messages::PAGE_IDENTIFIER_REQUIRED);
+        }
+
+        if (! $page) {
+            return Response::error('Page not found.');
+        }
+
         if ($page->isHome()) {
             return Response::error('Home page cannot be deleted via MCP.');
         }
 
-        // Confirmation optionnelle - si confirm est fourni, il doit être true
-        if (isset($validated['confirm']) && $validated['confirm'] !== true) {
-            return Response::error('Deletion not confirmed. Set "confirm" to true to delete the page.');
+        if ($page->trashed()) {
+            return Response::error('Page is already in the trash.');
         }
+
+        $responseType = DeletedPageResponseType::tryFrom(
+            (string) ($validated['deleted_response_type'] ?? app(PageDeletionService::class)->defaultResponseType()->value)
+        ) ?? app(PageDeletionService::class)->defaultResponseType();
+
+        $redirectPageId = isset($validated['redirect_target_page_id']) && is_numeric($validated['redirect_target_page_id'])
+            ? (int) $validated['redirect_target_page_id']
+            : null;
 
         try {
             $pageData = [
@@ -110,12 +125,18 @@ class DeletePageTool extends Tool
                 'slug' => $page->slug,
             ];
 
-            $page->delete();
+            app(PageDeletionService::class)->softDelete(
+                $page,
+                $responseType,
+                $redirectPageId,
+                $validated['redirect_target_url'] ?? null,
+            );
 
             return Response::json([
                 'success' => true,
-                'message' => 'Page deleted successfully',
+                'message' => 'Page moved to trash successfully',
                 'deleted_page' => $pageData,
+                'deleted_response_type' => $responseType->value,
             ]);
         } catch (\Exception $e) {
             return Response::error('Failed to delete page: ' . $e->getMessage());

@@ -105,6 +105,7 @@ class DuplicatePageTool extends Tool
                 'status' => $validated['status'] ?? 'draft',
                 'seo_title' => $originalPage->seo_title,
                 'seo_description' => $originalPage->seo_description,
+                'seo_noindex' => (bool) $originalPage->seo_noindex,
                 'content' => $originalPage->content, // Copier tout le contenu
             ]);
 

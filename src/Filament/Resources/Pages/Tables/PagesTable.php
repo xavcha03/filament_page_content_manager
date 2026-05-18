@@ -6,8 +6,15 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\Collection;
+use Xavcha\PageContentManager\Filament\Forms\PageDeletionPolicyForm;
+use Xavcha\PageContentManager\Services\PageDeletionService;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Xavcha\PageContentManager\Models\Page;
@@ -28,20 +35,6 @@ class PagesTable
                     ->copyable()
                     ->copyMessage('Slug copié')
                     ->copyMessageDuration(1500),
-                TextColumn::make('type')
-                    ->label('Type')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'home' => 'success',
-                        'standard' => 'info',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'home' => 'Home',
-                        'standard' => 'Standard',
-                        default => $state,
-                    })
-                    ->sortable(),
                 TextColumn::make('status')
                     ->label('Statut')
                     ->badge()
@@ -58,19 +51,29 @@ class PagesTable
                         default => $state,
                     })
                     ->sortable(),
+                IconColumn::make('seo_noindex')
+                    ->label('Indexée')
+                    ->getStateUsing(fn (Page $record): bool => ! (bool) $record->seo_noindex)
+                    ->boolean()
+                    ->alignCenter()
+                    ->sortable()
+                    ->tooltip(fn (Page $record): string => $record->seo_noindex
+                        ? 'Non indexée (noindex)'
+                        : 'Indexée par les moteurs de recherche'),
                 TextColumn::make('published_at')
                     ->label('Date de publication')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('updated_at')
                     ->label('Modifié le')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('updated_at', 'desc')
             ->filters([
+                TrashedFilter::make(),
                 SelectFilter::make('status')
                     ->label('Statut')
                     ->options([
@@ -96,7 +99,28 @@ class PagesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading('Supprimer les pages sélectionnées')
+                        ->modalDescription('Ces pages ne seront plus visibles sur le site.')
+                        ->form(fn (Collection $records): array => PageDeletionPolicyForm::schema($records))
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                if ($record->isHome()) {
+                                    continue;
+                                }
+
+                                PageDeletionPolicyForm::applyDeletion($record, $data);
+                            }
+                        }),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make()
+                        ->action(function (Collection $records): void {
+                            $service = app(PageDeletionService::class);
+
+                            foreach ($records as $record) {
+                                $service->forceDelete($record);
+                            }
+                        }),
                 ]),
             ]);
     }

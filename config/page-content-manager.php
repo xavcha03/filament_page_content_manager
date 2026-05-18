@@ -179,6 +179,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Suppression de pages (soft delete + politique SEO)
+    |--------------------------------------------------------------------------
+    |
+    | default_response_type : politique proposee par defaut dans Filament/MCP
+    | Valeurs : 404, 410, 301_page, 301_url
+    |
+    */
+
+    'deletion' => [
+        'default_response_type' => env('PAGE_CONTENT_MANAGER_DEFAULT_DELETED_RESPONSE', '410'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Validation des blocs au démarrage
     |--------------------------------------------------------------------------
     |

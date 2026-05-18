@@ -29,6 +29,7 @@ class CreatePageTool extends Tool
             'type' => $schema->string()->enum(['standard'])->description('Type - Page type. Only "standard" is allowed via MCP (home pages are created differently).'),
             'seo_title' => $schema->string()->description('SEO Title (Titre SEO) - Optional meta title for search engines from "SEO" tab.')->nullable(),
             'seo_description' => $schema->string()->description('SEO Description (Description SEO) - Optional meta description for search engines from "SEO" tab.')->nullable(),
+            'seo_noindex' => $schema->boolean()->description('SEO noindex - When true, page must not be indexed by search engines.')->nullable(),
             'status' => $schema->string()->enum(['draft', 'published'])->description('Status (Statut) - Page status: "draft" (Brouillon) or "published" (Publié). Default: draft.'),
         ];
     }
@@ -49,6 +50,7 @@ class CreatePageTool extends Tool
             'type' => 'sometimes|string|in:standard',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string',
+            'seo_noindex' => 'sometimes|boolean',
             'status' => 'sometimes|string|in:draft,published',
         ]);
 
@@ -64,6 +66,7 @@ class CreatePageTool extends Tool
                 'type' => $validated['type'] ?? 'standard',
                 'seo_title' => $validated['seo_title'] ?? null,
                 'seo_description' => $validated['seo_description'] ?? null,
+                'seo_noindex' => (bool) ($validated['seo_noindex'] ?? false),
                 'status' => $validated['status'] ?? 'draft',
                 'content' => [
                     'sections' => [],

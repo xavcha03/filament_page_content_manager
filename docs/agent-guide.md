@@ -52,6 +52,19 @@ Options :
 - Config : `disabled_blocks` dans `config/page-content-manager.php`
 - Groups : ne pas inclure le bloc dans le groupe utilise
 
+## SEO / indexation
+
+- Champ Filament : `seo_noindex` (boolean)
+- MCP : `create_page` / `update_page` acceptent `seo_noindex`
+- API frontend : champ `robots` vaut `"noindex"` ou `null`
+
+## Suppression de pages
+
+- `delete_page` : soft delete + `deleted_response_type` (`404`, `410`, `301_page`, `301_url`)
+- `restore_page` : restaure depuis la corbeille
+- `force_delete_page` : suppression definitive (`confirm=true`)
+- API `GET /api/pages/{slug}` : voir `docs/api.md` (resolutions `gone`, `redirect`, etc.)
+
 ## Points d'attention
 
 - La liste des blocs change selon le projet (base_site ou un autre).

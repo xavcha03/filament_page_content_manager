@@ -5,11 +5,14 @@ namespace Xavcha\PageContentManager\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Xavcha\PageContentManager\Enums\DeletedPageResponseType;
 use Xavcha\PageContentManager\Models\Concerns\HasContentBlocks;
 
 class Page extends Model
 {
-    use HasFactory, HasContentBlocks;
+    use HasFactory, HasContentBlocks, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +26,10 @@ class Page extends Model
         'content',
         'seo_title',
         'seo_description',
+        'seo_noindex',
+        'deleted_response_type',
+        'redirect_target_page_id',
+        'redirect_target_url',
         'status',
         'published_at',
     ];
@@ -36,8 +43,15 @@ class Page extends Model
     {
         return [
             'content' => 'array',
+            'seo_noindex' => 'boolean',
+            'deleted_response_type' => DeletedPageResponseType::class,
             'published_at' => 'datetime',
         ];
+    }
+
+    public function redirectTargetPage(): BelongsTo
+    {
+        return $this->belongsTo(Page::class, 'redirect_target_page_id');
     }
 
     /**

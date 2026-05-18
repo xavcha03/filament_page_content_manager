@@ -97,6 +97,8 @@ class GetPageContentTool extends Tool
                 'status' => $page->status,
                 'seo_title' => $page->seo_title,
                 'seo_description' => $page->seo_description,
+                'seo_noindex' => (bool) $page->seo_noindex,
+                'robots' => $page->seo_noindex ? 'noindex' : null,
                 'content' => [
                     'sections' => $sections,
                     'metadata' => $content['metadata'] ?? [],

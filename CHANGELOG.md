@@ -7,12 +7,31 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-18
+
 ### Ajouté
-- Nouveau bloc core **`tarifs`** :
-  - Type MCP : `tarifs`
-  - Champs : `titre`, `description`, `plans[]`
-  - Plan : `nom`, `prix`, `prix_prefixe`, `periode`, `description`, `points[]`, `mise_en_avant`, `bouton_texte`, `bouton_lien`
-  - Intégré dans `block_groups.pages` pour l'édition Filament et l'exposition MCP.
+- **Soft delete** sur `Page` (`deleted_at`) + corbeille Filament (restaurer / supprimer definitivement)
+- **Politique SEO de suppression** : `deleted_response_type` (`404`, `410`, `301_page`, `301_url`)
+- Champs `redirect_target_page_id`, `redirect_target_url`
+- Services `PageDeletionService`, `PageUrlResolver`
+- Enum `DeletedPageResponseType`
+- Modal Filament a la suppression (politique URL)
+- API : resolutions `not_found`, `gone`, `redirect` + headers HTTP 404/410/301
+- MCP : `restore_page`, `force_delete_page` ; `delete_page` = soft delete
+- Config `page-content-manager.deletion.default_response_type` (defaut `410`)
+- Migration `2026_05_18_100000_add_soft_deletes_and_deletion_policy_to_pages_table.php`
+- Champ **`seo_noindex`** : case « Ne pas indexer cette page » dans l'onglet SEO Filament
+- Exposition API **`robots`** (`"noindex"` ou `null`)
+- Support MCP `seo_noindex` sur `create_page`, `update_page`, `get_page_content`, duplication de page
+- Colonne **Indexée** (icone ✓/✗) dans la liste Filament des pages
+- Migration `2026_05_18_000000_add_seo_noindex_to_pages_table.php`
+- Nouveau bloc core **`tarifs`** (plans, prix, CTA, mise en avant)
+
+### Modifié
+- Liste Filament : colonne **Type** retiree du tableau (filtre conserve)
+- Dates Filament : format francais `d/m/Y H:i` (liste + DateTimePicker publication)
+- `PageForm` : onglet SEO via `SeoTab::make()` (DRY)
+- Stub `add-page-detail` : colonne `seo_noindex`
 
 ## [0.2.4] - 2025-01-XX
 
@@ -159,6 +178,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 - Migration initiale avec création automatique de la page Home
 - Configuration flexible via fichier de config
 
+[0.3.0]: https://github.com/xavcha03/page-content-manager/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/xavcha03/page-content-manager/compare/0.2.3...0.2.4
 [0.2.3]: https://github.com/xavcha03/page-content-manager/compare/0.2.2...0.2.3
 [0.2.2]: https://github.com/xavcha03/page-content-manager/compare/0.2.1...0.2.2

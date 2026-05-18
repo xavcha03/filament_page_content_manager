@@ -25,11 +25,13 @@ use Xavcha\PageContentManager\Mcp\Tools\CreatePageTool;
 use Xavcha\PageContentManager\Mcp\Tools\DeleteBlockTool;
 use Xavcha\PageContentManager\Mcp\Tools\DeletePageTool;
 use Xavcha\PageContentManager\Mcp\Tools\DuplicatePageTool;
+use Xavcha\PageContentManager\Mcp\Tools\ForceDeletePageTool;
 use Xavcha\PageContentManager\Mcp\Tools\GetBlockSchemaTool;
 use Xavcha\PageContentManager\Mcp\Tools\GetPageContentTool;
 use Xavcha\PageContentManager\Mcp\Tools\ListBlocksTool;
 use Xavcha\PageContentManager\Mcp\Tools\ListPagesTool;
 use Xavcha\PageContentManager\Mcp\Tools\ReorderBlocksTool;
+use Xavcha\PageContentManager\Mcp\Tools\RestorePageTool;
 use Xavcha\PageContentManager\Mcp\Tools\UpdateBlockFieldsTool;
 use Xavcha\PageContentManager\Mcp\Tools\UpdateBlockTool;
 use Xavcha\PageContentManager\Mcp\Tools\UpdatePageTool;
@@ -38,7 +40,7 @@ class PageMcpServer extends Server
 {
     protected string $name = 'Page Content Manager MCP Server';
 
-    protected string $version = '0.2.4';
+    protected string $version = '0.3.0';
 
     protected string $instructions = <<<'MARKDOWN'
         This MCP server allows AI agents to create and manage pages in the Laravel application.
@@ -61,6 +63,8 @@ class PageMcpServer extends Server
             ListPagesTool::class,
             GetPageContentTool::class,
             DeletePageTool::class,
+            RestorePageTool::class,
+            ForceDeletePageTool::class,
             DuplicatePageTool::class,
             // Blocs
             ListBlocksTool::class,

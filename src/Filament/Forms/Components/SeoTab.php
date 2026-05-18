@@ -25,6 +25,10 @@ class SeoTab
                     ->label('Description SEO')
                     ->rows(3)
                     ->helperText('Description pour les moteurs de recherche (optionnel)'),
+                Forms\Components\Checkbox::make('seo_noindex')
+                    ->label('Ne pas indexer cette page')
+                    ->default(false)
+                    ->helperText('Empêche l\'indexation par les moteurs de recherche (meta robots noindex).'),
             ]);
     }
 }

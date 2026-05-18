@@ -2,7 +2,7 @@
 
 Package Laravel Filament pour gerer des pages avec un systeme de blocs de contenu simple, flexible et reutilisable.
 
-> Version 0.2.4 (pre-v1). L'API peut evoluer.
+> Version 0.3.0 (pre-v1). L'API peut evoluer.
 
 ## Objectif
 

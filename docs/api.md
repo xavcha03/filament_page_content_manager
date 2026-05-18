@@ -17,6 +17,7 @@ Le prefix est configurable via `route_prefix` dans `config/page-content-manager.
   "type": "home",
   "seo_title": "...",
   "seo_description": "...",
+  "robots": null,
   "sections": [
     {
       "type": "hero",
@@ -28,6 +29,43 @@ Le prefix est configurable via `route_prefix` dans `config/page-content-manager.
   }
 }
 ```
+
+## Champ `robots`
+
+Expose pour le frontend (meta robots). Valeurs :
+
+- `null` : page indexable (defaut)
+- `"noindex"` : page non indexable (`seo_noindex = true` en base)
+
+## Pages supprimees (soft delete)
+
+`GET /api/pages/{slug}` utilise `PageUrlResolver` :
+
+| Situation | HTTP | `resolution` |
+|-----------|------|----------------|
+| Page publiee active | 200 | (corps page habituel) |
+| Slug inconnu | 404 | `not_found` |
+| Brouillon / non publie | 404 | `not_found` |
+| Corbeille + politique 404 | 404 | `not_found` |
+| Corbeille + politique 410 | 410 | `gone` |
+| Corbeille + 301 page | 301 | `redirect` + header `Location` |
+| Corbeille + 301 URL | 301 | `redirect` + header `Location` |
+
+Exemple redirect :
+
+```json
+{
+  "resolution": "redirect",
+  "message": "Redirection vers une autre page",
+  "redirect": {
+    "type": "page",
+    "slug": "nouvelle-page",
+    "location": "/nouvelle-page"
+  }
+}
+```
+
+`GET /api/pages` (liste) exclut les pages en corbeille.
 
 ## Notes
 

@@ -24,6 +24,7 @@ class PageResource extends JsonResource
             'type' => $this->type,
             'seo_title' => $this->seo_title,
             'seo_description' => $this->seo_description,
+            'robots' => $this->seo_noindex ? 'noindex' : null,
             'sections' => $transformerService->transform($this->getSections()),
             'metadata' => $this->getMetadata(),
         ];

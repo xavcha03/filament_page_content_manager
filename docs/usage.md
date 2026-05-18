@@ -3,8 +3,26 @@
 ## Pages dans Filament
 
 - Créer/editer une page dans l'admin Filament
-- Champs : titre, slug, type, statut, SEO
-- Onglet Contenu : ajouter des blocs
+- **Onglet Général** : titre, slug, type, statut, date de publication (`d/m/Y H:i`)
+- **Onglet SEO** : titre SEO, description SEO, case **Ne pas indexer cette page** (`seo_noindex`)
+- **Onglet Contenu** : blocs (`content.sections`)
+
+### Liste des pages
+
+Colonnes affichees : titre, slug, statut, indexation (icone ✓/✗), date de publication, modifie le.
+Filtre **Corbeille** : pages actives / supprimees uniquement / avec supprimees.
+Actions : supprimer (avec politique URL), restaurer, supprimer definitivement.
+
+### Suppression d'une page
+
+La suppression est un **soft delete** (corbeille). A la suppression, choisir la politique pour l'ancienne URL :
+
+- **410** — page supprimee definitivement (defaut configurable)
+- **404** — introuvable
+- **301** vers une autre page CMS (publiee)
+- **301** vers une URL personnalisee
+
+La suppression definitive retire l'enregistrement de la base (slug libere).
 
 ## Blocs disponibles
 

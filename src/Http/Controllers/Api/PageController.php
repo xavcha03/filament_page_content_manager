@@ -5,6 +5,7 @@ namespace Xavcha\PageContentManager\Http\Controllers\Api;
 use Xavcha\PageContentManager\Http\Controllers\Controller;
 use Xavcha\PageContentManager\Http\Resources\PageResource;
 use Xavcha\PageContentManager\Models\Page;
+use Xavcha\PageContentManager\Services\PageUrlResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -43,24 +44,25 @@ class PageController extends Controller
      */
     public function show(string $slug): JsonResponse
     {
-        // Gérer le cas spécial de la page Home (slug vide ou "home")
-        if ($slug === 'home' || $slug === '') {
-            $page = Page::where('type', 'home')
-                ->published()
-                ->first();
-        } else {
-            $page = Page::where('slug', $slug)
-                ->published()
-                ->first();
+        $resolver = app(PageUrlResolver::class);
+        $resolution = $resolver->resolve($slug);
+
+        if ($resolution['resolution'] === PageUrlResolver::RESOLUTION_PAGE) {
+            return response()->json(new PageResource($resolution['page']));
         }
 
-        if (!$page) {
-            return response()->json([
-                'message' => 'Page non trouvée',
-            ], 404);
+        $response = response()->json(
+            $resolver->toJsonResponsePayload($resolution),
+            $resolution['http_status'],
+        );
+
+        $location = $resolver->redirectLocationHeader($resolution);
+
+        if ($location !== null) {
+            $response->header('Location', $location);
         }
 
-        return response()->json(new PageResource($page));
+        return $response;
     }
 }
 

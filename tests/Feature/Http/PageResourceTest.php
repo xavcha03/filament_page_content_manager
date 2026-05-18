@@ -33,6 +33,8 @@ class PageResourceTest extends TestCase
         $this->assertArrayHasKey('type', $array);
         $this->assertArrayHasKey('seo_title', $array);
         $this->assertArrayHasKey('seo_description', $array);
+        $this->assertArrayHasKey('robots', $array);
+        $this->assertNull($array['robots']);
         $this->assertArrayHasKey('sections', $array);
         $this->assertArrayHasKey('metadata', $array);
     }
@@ -109,6 +111,26 @@ class PageResourceTest extends TestCase
 
         $this->assertIsArray($array['sections']);
         $this->assertEmpty($array['sections']);
+    }
+
+    public function test_to_array_exposes_noindex_robots_when_seo_noindex_is_true(): void
+    {
+        $page = Page::create([
+            'type' => 'standard',
+            'slug' => 'noindex-page',
+            'title' => 'Noindex Page',
+            'content' => [
+                'sections' => [],
+                'metadata' => ['schema_version' => 1],
+            ],
+            'status' => 'published',
+            'seo_noindex' => true,
+        ]);
+
+        $resource = new PageResource($page);
+        $array = $resource->toArray(new Request());
+
+        $this->assertSame('noindex', $array['robots']);
     }
 
     public function test_to_array_handles_null_content(): void

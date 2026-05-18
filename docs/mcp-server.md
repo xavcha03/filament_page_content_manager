@@ -52,7 +52,9 @@ Toujours : `list_blocks` puis `get_block_schema`.
 - `create_page_with_blocks`
 - `update_page`
 - `duplicate_page`
-- `delete_page`
+- `delete_page` (soft delete + politique URL)
+- `restore_page`
+- `force_delete_page`
 
 ## Outils disponibles (blocs)
 
@@ -95,6 +97,12 @@ Indices 0-based.
 ## Medias
 
 Les images doivent etre uploadees via Filament, puis referencees par ID (ex: `image_id`).
+
+## Champs SEO (pages)
+
+- `seo_title`, `seo_description` : metadonnees classiques
+- `seo_noindex` (boolean) : si `true`, la page ne doit pas etre indexee
+- Reponse API/MCP : `robots` = `"noindex"` ou `null`
 
 ## Limitations
 

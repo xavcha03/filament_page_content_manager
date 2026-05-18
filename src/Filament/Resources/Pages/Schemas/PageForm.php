@@ -7,6 +7,7 @@ use Filament\Schemas\Components;
 use Filament\Schemas\Schema;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Filament\Forms\Components\ContentTab;
+use Xavcha\PageContentManager\Filament\Forms\Components\SeoTab;
 use Illuminate\Support\Str;
 
 class PageForm
@@ -63,6 +64,7 @@ class PageForm
                                 Forms\Components\DateTimePicker::make('published_at')
                                     ->label('Date de publication')
                                     ->native(false)
+                                    ->displayFormat('d/m/Y H:i')
                                     ->required(fn ($get) => $get('status') === 'scheduled')
                                     ->visible(fn ($get) => in_array($get('status'), ['scheduled', 'published']))
                                     ->helperText(fn ($get) => match($get('status')) {
@@ -71,18 +73,7 @@ class PageForm
                                         default => null,
                                     }),
                             ]),
-                        Components\Tabs\Tab::make('seo')
-                            ->label('SEO')
-                            ->schema([
-                                Forms\Components\TextInput::make('seo_title')
-                                    ->label('Titre SEO')
-                                    ->maxLength(255)
-                                    ->helperText('Titre pour les moteurs de recherche (optionnel)'),
-                                Forms\Components\Textarea::make('seo_description')
-                                    ->label('Description SEO')
-                                    ->rows(3)
-                                    ->helperText('Description pour les moteurs de recherche (optionnel)'),
-                            ]),
+                        SeoTab::make(),
                         ContentTab::make('pages'), // Utilise le groupe 'pages' par défaut
                     ])
                     ->columnSpanFull(),
