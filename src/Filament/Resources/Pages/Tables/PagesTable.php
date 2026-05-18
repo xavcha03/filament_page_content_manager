@@ -12,6 +12,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Collection;
 use Xavcha\PageContentManager\Filament\Forms\PageDeletionPolicyForm;
 use Xavcha\PageContentManager\Services\PageDeletionService;
+use Xavcha\PageContentManager\Services\PagePreviewService;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\IconColumn;
@@ -94,7 +95,15 @@ class PagesTable
                     ->label('Ouvrir')
                     ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
                     ->color('gray')
+                    ->visible(fn (Page $record): bool => $record->isPublished() && ! $record->trashed())
                     ->url(fn (Page $record): string => self::frontendUrlForPage($record))
+                    ->openUrlInNewTab(),
+                Action::make('preview_frontend')
+                    ->label('Prévisualiser')
+                    ->icon(Heroicon::OutlinedEye)
+                    ->color('info')
+                    ->visible(fn (Page $record): bool => ! $record->trashed() && ! $record->isPublished())
+                    ->url(fn (Page $record): string => app(PagePreviewService::class)->buildFrontendPreviewUrl($record))
                     ->openUrlInNewTab(),
             ])
             ->toolbarActions([

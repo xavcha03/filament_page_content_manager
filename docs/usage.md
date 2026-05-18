@@ -24,6 +24,13 @@ La suppression est un **soft delete** (corbeille). A la suppression, choisir la 
 
 La suppression definitive retire l'enregistrement de la base (slug libere).
 
+### Prévisualisation
+
+- **Publiée** : bouton **Ouvrir** (site public)
+- **Brouillon / planifiée** : bouton **Prévisualiser** (lien signé vers `/preview/{slug}?preview_token=...`)
+
+Integration frontend : `docs/preview-frontend.md`.
+
 ## Blocs disponibles
 
 Ne pas utiliser de liste statique.

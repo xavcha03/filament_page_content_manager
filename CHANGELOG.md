@@ -7,6 +7,13 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Ajouté
+- **Prévisualisation** : tokens signés (`preview_token`) pour brouillons / pages planifiées
+- Service `PagePreviewService`, config `page-content-manager.preview`
+- API `GET /api/pages/{slug}?preview_token=...` (200 + `preview: true` ou 403)
+- Filament : bouton **Prévisualiser** (brouillon/planifié), **Ouvrir** réservé aux pages publiées
+- Doc `docs/preview-frontend.md` pour l'intégration Next.js
+
 ## [0.3.0] - 2026-05-18
 
 ### Ajouté

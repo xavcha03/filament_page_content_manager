@@ -67,6 +67,18 @@ Exemple redirect :
 
 `GET /api/pages` (liste) exclut les pages en corbeille.
 
+## Prévisualisation (brouillon / planifié)
+
+```
+GET /api/pages/{slug}?preview_token={token}
+```
+
+- Token signé généré depuis Filament (bouton **Prévisualiser**)
+- Réponse 200 avec `preview: true` et `page_status` si le token est valide
+- 403 si token invalide ou expiré
+
+Voir `docs/preview-frontend.md` pour l'intégration Next.js.
+
 ## Notes
 
 - Le contenu est transforme par `SectionTransformer`.

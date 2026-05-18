@@ -193,6 +193,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Prévisualisation (brouillons / planifiées)
+    |--------------------------------------------------------------------------
+    |
+    | Token signé passé en query `preview_token` sur GET /api/pages/{slug}.
+    | Le frontend doit exposer une route /preview/{slug} qui transmet ce token.
+    |
+    | PAGE_CONTENT_MANAGER_PREVIEW_SECRET : secret HMAC (defaut: APP_KEY)
+    | PAGE_CONTENT_MANAGER_PREVIEW_TTL : duree de vie du token en minutes
+    | PAGE_CONTENT_MANAGER_PREVIEW_PATH : chemin frontend (defaut: /preview)
+    |
+    */
+
+    'preview' => [
+        'enabled' => env('PAGE_CONTENT_MANAGER_PREVIEW_ENABLED', true),
+        'secret' => env('PAGE_CONTENT_MANAGER_PREVIEW_SECRET'),
+        'ttl_minutes' => (int) env('PAGE_CONTENT_MANAGER_PREVIEW_TTL', 60),
+        'path' => env('PAGE_CONTENT_MANAGER_PREVIEW_PATH', '/preview'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Validation des blocs au démarrage
     |--------------------------------------------------------------------------
     |

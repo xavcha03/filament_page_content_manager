@@ -5,6 +5,7 @@ namespace Xavcha\PageContentManager\Http\Controllers\Api;
 use Xavcha\PageContentManager\Http\Controllers\Controller;
 use Xavcha\PageContentManager\Http\Resources\PageResource;
 use Xavcha\PageContentManager\Models\Page;
+use Xavcha\PageContentManager\Services\PagePreviewService;
 use Xavcha\PageContentManager\Services\PageUrlResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,8 +43,14 @@ class PageController extends Controller
      * @param string $slug Le slug de la page
      * @return JsonResponse
      */
-    public function show(string $slug): JsonResponse
+    public function show(Request $request, string $slug): JsonResponse
     {
+        $previewToken = $request->query('preview_token');
+
+        if (is_string($previewToken) && $previewToken !== '') {
+            return $this->showPreview($previewToken, $slug);
+        }
+
         $resolver = app(PageUrlResolver::class);
         $resolution = $resolver->resolve($slug);
 
@@ -63,6 +70,33 @@ class PageController extends Controller
         }
 
         return $response;
+    }
+
+    protected function showPreview(string $previewToken, string $slug): JsonResponse
+    {
+        $preview = app(PagePreviewService::class);
+
+        if (! $preview->isEnabled()) {
+            return response()->json([
+                'message' => 'La prévisualisation est désactivée.',
+            ], 403);
+        }
+
+        $page = $preview->resolvePageFromToken($previewToken, $slug);
+
+        if (! $page) {
+            return response()->json([
+                'message' => 'Token de prévisualisation invalide ou expiré.',
+            ], 403);
+        }
+
+        $data = (new PageResource($page))->toArray(request());
+        $data['preview'] = true;
+        $data['page_status'] = $page->status;
+
+        return response()
+            ->json($data)
+            ->header('X-Page-Preview', '1');
     }
 }
 
