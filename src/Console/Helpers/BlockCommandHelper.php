@@ -5,6 +5,7 @@ namespace Xavcha\PageContentManager\Console\Helpers;
 use Illuminate\Console\Command;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
+use Xavcha\PageContentManager\Blocks\Helpers\BlockSchemaExtractor;
 
 class BlockCommandHelper
 {
@@ -140,10 +141,10 @@ class BlockCommandHelper
         // Champs du formulaire (si possible)
         try {
             $block = $blockClass::make();
-            $schema = $block->getSchema();
+            $components = BlockSchemaExtractor::getComponents($block);
             $fields = [];
 
-            foreach ($schema as $field) {
+            foreach ($components as $field) {
                 $fieldInfo = [
                     'name' => $field->getName(),
                     'type' => class_basename(get_class($field)),

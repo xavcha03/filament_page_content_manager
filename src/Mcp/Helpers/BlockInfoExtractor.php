@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Xavcha\PageContentManager\Mcp\Helpers;
 
-use Filament\Forms\Components\Builder\Block;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
-use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
+use Xavcha\PageContentManager\Blocks\Helpers\BlockSchemaExtractor;
 
 /**
  * Helper pour extraire les informations des blocs pour MCP.
@@ -82,108 +81,15 @@ class BlockInfoExtractor
      */
     protected static function extractFields(string $blockClass): array
     {
-        $fields = [];
-
         try {
             $block = $blockClass::make();
-            
-            // Utiliser la réflexion pour accéder au schéma
-            $reflection = new \ReflectionClass($block);
-            
-            // Essayer d'accéder à la propriété schema via différentes méthodes
-            $components = null;
-            
-            // Méthode 1: getChildComponents() si disponible
-            if (method_exists($block, 'getChildComponents')) {
-                try {
-                    $components = $block->getChildComponents();
-                } catch (\Throwable $e) {
-                    // Ignorer
-                }
-            }
-            
-            // Méthode 2: Accéder directement à la propriété schema via réflexion
-            if ($components === null && $reflection->hasProperty('schema')) {
-                $schemaProperty = $reflection->getProperty('schema');
-                $schemaProperty->setAccessible(true);
-                $components = $schemaProperty->getValue($block);
-            }
-            
-            // Méthode 3: Utiliser getSchema() si disponible
-            if ($components === null && method_exists($block, 'getSchema')) {
-                try {
-                    $components = $block->getSchema();
-                } catch (\Throwable $e) {
-                    // Ignorer
-                }
-            }
 
-            if (is_array($components)) {
-                foreach ($components as $component) {
-                    $fieldInfo = static::extractFieldInfo($component);
-                    if ($fieldInfo !== null) {
-                        $fields[] = $fieldInfo;
-                    }
-                }
-            }
-        } catch (\Throwable $e) {
-            // En cas d'erreur, retourner un tableau vide
+            return BlockSchemaExtractor::serializeComponents(
+                BlockSchemaExtractor::getComponents($block)
+            );
+        } catch (\Throwable) {
+            return [];
         }
-
-        return $fields;
-    }
-
-    /**
-     * Extrait les informations d'un composant Filament.
-     *
-     * @param mixed $component
-     * @return array<string, mixed>|null
-     */
-    protected static function extractFieldInfo($component): ?array
-    {
-        if (!is_object($component)) {
-            return null;
-        }
-
-        $info = [
-            'name' => method_exists($component, 'getName') ? $component->getName() : null,
-            'label' => method_exists($component, 'getLabel') ? $component->getLabel() : null,
-            'type' => class_basename($component),
-            'required' => method_exists($component, 'isRequired') ? $component->isRequired() : false,
-        ];
-
-        // Extraire les contraintes si disponibles
-        if (method_exists($component, 'getMaxLength')) {
-            $maxLength = $component->getMaxLength();
-            if ($maxLength !== null) {
-                $info['max_length'] = $maxLength;
-            }
-        }
-
-        if (method_exists($component, 'getMinLength')) {
-            $minLength = $component->getMinLength();
-            if ($minLength !== null) {
-                $info['min_length'] = $minLength;
-            }
-        }
-
-        // Extraire les options pour les Select
-        if (method_exists($component, 'getOptions')) {
-            $options = $component->getOptions();
-            if (is_array($options) && !empty($options)) {
-                $info['options'] = $options;
-            }
-        }
-
-        // Extraire la valeur par défaut
-        if (method_exists($component, 'getDefaultState')) {
-            $default = $component->getDefaultState();
-            if ($default !== null) {
-                $info['default'] = $default;
-            }
-        }
-
-        return $info['name'] !== null ? $info : null;
     }
 }
 

@@ -27,6 +27,17 @@ class BlockInspectCommandTest extends TestCase
         ])
             ->assertSuccessful();
     }
+
+    public function test_command_with_show_schema_option(): void
+    {
+        $this->artisan('page-content-manager:block:inspect', [
+            'type' => 'hero',
+            '--show-schema' => true,
+        ])
+            ->assertSuccessful()
+            ->doesntExpectOutputToContain('Erreur lors de la récupération du schéma')
+            ->expectsOutputToContain('"name": "titre"');
+    }
 }
 
 

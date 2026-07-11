@@ -3,6 +3,8 @@
 Le package génère des **tokens signés** pour consulter une page non publiée.  
 Le frontend Next.js doit implémenter une route dédiée qui transmet ce token à l'API.
 
+> **Sites Xavcha (starter)** : réexporter `@xavcha/frontend-core/app/preview` dans `app/preview/[...slug]/page.tsx` et déclarer `export const dynamic = 'force-dynamic'` dans ce fichier (Next.js 16). Voir [installation frontend-core](https://github.com/xavcha03/xavcha-frontend-core/blob/master/docs/installation.md).
+
 ## Flux
 
 ```

@@ -44,6 +44,7 @@ Ce guide est la source de verite pour utiliser ce package via MCP/CLI et pour aj
 3. Ajouter `HasMcpMetadata` pour exposer schema + exemples
 4. (Optionnel) Ajouter `HasMediaTransformation` si medias
 5. Si besoin d'ordre, ajouter le bloc dans `block_groups`
+6. **Frontend Next.js** (sites Xavcha starter) : composant React dans `frontend/components/blocks/custom/` + registre `frontend/lib/register-blocks.ts`. Voir [@xavcha/frontend-core — custom-blocks-pairing](https://github.com/xavcha03/xavcha-frontend-core/blob/master/docs/custom-blocks-pairing.md) et `xavcha-base-site/FRONTEND.md`.
 
 ## Desactiver un bloc core
 

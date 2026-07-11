@@ -5,6 +5,7 @@ namespace Xavcha\PageContentManager\Console\Commands;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Helper\Table;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
+use Xavcha\PageContentManager\Blocks\Helpers\BlockSchemaExtractor;
 use Xavcha\PageContentManager\Console\ExitCodes;
 use Xavcha\PageContentManager\Console\Helpers\BlockCommandHelper;
 
@@ -144,7 +145,10 @@ class BlockInspectCommand extends Command
             $this->comment('Schéma complet:');
             try {
                 $block = $blockClass::make();
-                $this->line(json_encode($block->getSchema(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                $schema = BlockSchemaExtractor::serializeComponents(
+                    BlockSchemaExtractor::getComponents($block)
+                );
+                $this->line(json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
             } catch (\Throwable $e) {
                 $this->error("Erreur lors de la récupération du schéma: {$e->getMessage()}");
             }
@@ -191,7 +195,9 @@ class BlockInspectCommand extends Command
         if ($this->option('detailed')) {
             try {
                 $block = $blockClass::make();
-                $data['schema'] = $block->getSchema();
+                $data['schema'] = BlockSchemaExtractor::serializeComponents(
+                    BlockSchemaExtractor::getComponents($block)
+                );
             } catch (\Throwable $e) {
                 $data['schema_error'] = $e->getMessage();
             }
