@@ -35,5 +35,6 @@ class BlockSchemaExtractorTest extends TestCase
         $this->assertCount(2, $faqsField['fields']);
         $this->assertSame('question', $faqsField['fields'][0]['name']);
         $this->assertSame('answer', $faqsField['fields'][1]['name']);
+        $this->assertSame('RichEditor', $faqsField['fields'][1]['type']);
     }
 }

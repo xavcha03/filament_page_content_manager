@@ -4,8 +4,9 @@ namespace Xavcha\PageContentManager\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Xavcha\PageContentManager\Blocks\Concerns\HasMcpMetadata;
 use Xavcha\PageContentManager\Blocks\Contracts\BlockInterface;
 
@@ -39,12 +40,7 @@ class FAQBlock implements BlockInterface
                             ->maxLength(300)
                             ->columnSpanFull(),
 
-                        Textarea::make('answer')
-                            ->label('Réponse')
-                            ->required()
-                            ->rows(4)
-                            ->maxLength(2000)
-                            ->columnSpanFull(),
+                        static::makeAnswerEditor(),
                     ])
                     ->minItems(1)
                     ->maxItems(50)
@@ -53,6 +49,87 @@ class FAQBlock implements BlockInterface
                     ->itemLabel(fn (array $state): ?string => $state['question'] ?? 'Question')
                     ->columnSpanFull(),
             ]);
+    }
+
+    protected static function makeAnswerEditor(): RichEditor
+    {
+        return RichEditor::make('answer')
+            ->label('Réponse')
+            ->required()
+            ->toolbarButtons([
+                ['bold', 'italic', 'underline', 'strike', 'link'],
+                [
+                    ToolbarButtonGroup::make('Typo', [
+                        'lead',
+                        'small',
+                        'code',
+                        'highlight',
+                        'textColor',
+                        'clearFormatting',
+                    ])->textualButtons(),
+                ],
+                [
+                    ToolbarButtonGroup::make('Titres', [
+                        'paragraph',
+                        'h3',
+                        'h4',
+                        'h5',
+                        'h6',
+                    ])->textualButtons(),
+                ],
+                [
+                    ToolbarButtonGroup::make('Align', [
+                        'alignStart',
+                        'alignCenter',
+                        'alignEnd',
+                        'alignJustify',
+                    ]),
+                ],
+                ['bulletList', 'orderedList', 'blockquote', 'horizontalRule'],
+                ['table'],
+                [
+                    ToolbarButtonGroup::make('Layout', [
+                        'grid',
+                        'gridDelete',
+                        'details',
+                    ])->textualButtons(),
+                ],
+                ['undo', 'redo'],
+            ])
+            ->floatingToolbars([
+                'paragraph' => [
+                    'bold',
+                    'italic',
+                    'underline',
+                    'strike',
+                    'code',
+                    'highlight',
+                    'textColor',
+                    'clearFormatting',
+                    'link',
+                ],
+                'heading' => [
+                    'paragraph',
+                    'h3',
+                    'h4',
+                    'h5',
+                    'h6',
+                ],
+                'table' => [
+                    'tableAddColumnBefore',
+                    'tableAddColumnAfter',
+                    'tableDeleteColumn',
+                    'tableAddRowBefore',
+                    'tableAddRowAfter',
+                    'tableDeleteRow',
+                    'tableMergeCells',
+                    'tableSplitCell',
+                    'tableToggleHeaderRow',
+                    'tableToggleHeaderCell',
+                    'tableDelete',
+                ],
+            ])
+            ->columnSpanFull();
     }
 
     public static function transform(array $data): array
@@ -73,9 +150,32 @@ class FAQBlock implements BlockInterface
 
             return [
                 'question' => $faq['question'] ?? '',
-                'answer' => $faq['answer'] ?? '',
+                'answer' => static::normalizeAnswer($faq['answer'] ?? ''),
             ];
         }, $faqs);
+    }
+
+    protected static function normalizeAnswer(string $answer): string
+    {
+        if ($answer === '') {
+            return '';
+        }
+
+        // Compatibilité avec les anciennes réponses saisies en texte brut (Textarea).
+        if ($answer === strip_tags($answer)) {
+            $paragraphs = array_filter(array_map('trim', preg_split('/\R+/', $answer) ?: []));
+
+            if ($paragraphs === []) {
+                return '';
+            }
+
+            return implode('', array_map(
+                static fn (string $paragraph): string => '<p>'.e($paragraph).'</p>',
+                $paragraphs
+            ));
+        }
+
+        return $answer;
     }
 
     /**
@@ -108,7 +208,7 @@ class FAQBlock implements BlockInterface
                         'name' => 'answer',
                         'type' => 'string',
                         'required' => true,
-                        'max_length' => 2000,
+                        'description' => 'Reponse au format HTML/rich text',
                     ],
                 ],
             ],
@@ -125,18 +225,13 @@ class FAQBlock implements BlockInterface
             'faqs' => [
                 [
                     'question' => 'Quels sont vos delais ?',
-                    'answer' => 'En general 2 a 4 semaines selon le projet.',
+                    'answer' => '<p>En general <strong>2 a 4 semaines</strong> selon le projet.</p>',
                 ],
                 [
                     'question' => 'Proposez-vous un devis ?',
-                    'answer' => 'Oui, un devis detaille est fourni avant demarrage.',
+                    'answer' => '<p>Oui, un devis detaille est fourni avant demarrage.</p>',
                 ],
             ],
         ];
     }
 }
-
-
-
-
-

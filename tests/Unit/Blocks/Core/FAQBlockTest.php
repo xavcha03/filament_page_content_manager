@@ -44,7 +44,41 @@ class FAQBlockTest extends TestCase
         $this->assertIsArray($result['faqs']);
         $this->assertCount(2, $result['faqs']);
         $this->assertEquals('Question 1?', $result['faqs'][0]['question']);
-        $this->assertEquals('Answer 1', $result['faqs'][0]['answer']);
+        $this->assertEquals('<p>Answer 1</p>', $result['faqs'][0]['answer']);
+    }
+
+    public function test_transform_preserves_rich_text_answers(): void
+    {
+        $data = [
+            'titre' => 'FAQ Title',
+            'faqs' => [
+                [
+                    'question' => 'Question 1?',
+                    'answer' => '<p>Reponse <strong>formatee</strong>.</p>',
+                ],
+            ],
+        ];
+
+        $result = FAQBlock::transform($data);
+
+        $this->assertSame('<p>Reponse <strong>formatee</strong>.</p>', $result['faqs'][0]['answer']);
+    }
+
+    public function test_transform_wraps_legacy_plain_text_answers_in_paragraphs(): void
+    {
+        $data = [
+            'titre' => 'FAQ Title',
+            'faqs' => [
+                [
+                    'question' => 'Question 1?',
+                    'answer' => "Ligne 1\n\nLigne 2",
+                ],
+            ],
+        ];
+
+        $result = FAQBlock::transform($data);
+
+        $this->assertSame('<p>Ligne 1</p><p>Ligne 2</p>', $result['faqs'][0]['answer']);
     }
 }
 
