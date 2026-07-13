@@ -3,7 +3,10 @@
 namespace Xavcha\PageContentManager\Tests\Unit\Blocks\Core;
 
 use Filament\Forms\Components\Builder\Block;
+use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Blocks\Core\HeroBlock;
+use Xavcha\PageContentManager\Mcp\Helpers\BlockDataValidator;
+use Xavcha\PageContentManager\Mcp\Helpers\BlockInfoExtractor;
 use Xavcha\PageContentManager\Tests\TestCase;
 
 class HeroBlockTest extends TestCase
@@ -123,6 +126,95 @@ class HeroBlockTest extends TestCase
 
         $this->assertArrayHasKey('image_fond', $result);
         $this->assertArrayHasKey('image_fond_alt', $result);
+    }
+
+    public function test_get_mcp_fields_includes_media_fields(): void
+    {
+        $fields = HeroBlock::getMcpFields();
+        $fieldNames = array_column($fields, 'name');
+
+        $this->assertContains('image_fond_id', $fieldNames);
+        $this->assertContains('image_fond_alt', $fieldNames);
+        $this->assertContains('images_ids', $fieldNames);
+        $this->assertContains('image_fond', $fieldNames);
+    }
+
+    public function test_get_mcp_example_includes_media_fields(): void
+    {
+        $example = HeroBlock::getMcpExample();
+
+        $this->assertArrayHasKey('image_fond_id', $example);
+        $this->assertArrayHasKey('image_fond_alt', $example);
+    }
+
+    public function test_block_info_extractor_exposes_media_fields_for_hero(): void
+    {
+        $info = BlockInfoExtractor::extract('hero', HeroBlock::class);
+        $fieldNames = array_column($info['fields'], 'name');
+
+        $this->assertContains('image_fond_id', $fieldNames);
+        $this->assertContains('image_fond_alt', $fieldNames);
+        $this->assertContains('images_ids', $fieldNames);
+    }
+
+    public function test_validator_accepts_hero_with_image_fields(): void
+    {
+        $registry = app(BlockRegistry::class);
+        $registry->register('hero', HeroBlock::class);
+
+        $validator = new BlockDataValidator($registry);
+        $result = $validator->validateBlockData('hero', [
+            'titre' => 'Titre hero',
+            'description' => 'Description hero',
+            'variant' => 'hero',
+            'image_fond_id' => 123,
+            'image_fond_alt' => 'Image d\'accueil',
+        ]);
+
+        $this->assertTrue($result['ok']);
+        $this->assertNull($result['error']);
+    }
+
+    public function test_validator_accepts_partial_update_merge_with_existing_image(): void
+    {
+        $registry = app(BlockRegistry::class);
+        $registry->register('hero', HeroBlock::class);
+
+        $existingData = [
+            'titre' => 'Titre hero',
+            'description' => 'Ancienne description',
+            'variant' => 'hero',
+            'image_fond_id' => 123,
+            'image_fond_alt' => 'Image d\'accueil',
+        ];
+
+        $patchedData = array_replace_recursive($existingData, [
+            'description' => 'Nouvelle description courte',
+        ]);
+
+        $validator = new BlockDataValidator($registry);
+        $result = $validator->validateBlockData('hero', $patchedData);
+
+        $this->assertTrue($result['ok']);
+        $this->assertNull($result['error']);
+    }
+
+    public function test_validator_accepts_legacy_image_fond_field(): void
+    {
+        $registry = app(BlockRegistry::class);
+        $registry->register('hero', HeroBlock::class);
+
+        $validator = new BlockDataValidator($registry);
+        $result = $validator->validateBlockData('hero', [
+            'titre' => 'Titre hero',
+            'description' => 'Description hero',
+            'variant' => 'hero',
+            'image_fond' => '/storage/test.jpg',
+            'image_fond_alt' => 'Alt text',
+        ]);
+
+        $this->assertTrue($result['ok']);
+        $this->assertNull($result['error']);
     }
 }
 
