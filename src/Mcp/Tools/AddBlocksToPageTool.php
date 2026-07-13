@@ -11,6 +11,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Mcp\Helpers\BlockDataValidator;
+use Xavcha\PageContentManager\Mcp\Helpers\BlockMcpSchema;
 use Xavcha\PageContentManager\Models\Page;
 
 class AddBlocksToPageTool extends Tool
@@ -30,7 +31,10 @@ class AddBlocksToPageTool extends Tool
             'id' => $schema->string()->description('Page ID (as string or integer). Either id or slug required.')->nullable(),
             'slug' => $schema->string()->description('Page slug (alternative to ID). Either id or slug required.')->nullable(),
             'request_id' => $schema->string()->description('Optional idempotency key for this add operation. Reusing the same request_id on the same page within a short window prevents duplicate inserts on retries.')->nullable(),
-            'blocks' => $schema->array()->description('Array of blocks to add to the page "Contenu" tab. Each block must have "type" (e.g., "hero", "text", "cta") and "data" (object with block fields). Use get_block_schema to see required fields for each block type. IMPORTANT: For image fields, use image_id (MediaFile ID uploaded via Filament admin), not URLs or base64.'),
+            'blocks' => BlockMcpSchema::blocksParameter(
+                $schema,
+                'Array of blocks to add to the page "Contenu" tab. Each block must have "type" (e.g., "hero", "text", "cta") and "data" (object with block fields). Use get_block_schema to see required fields for each block type. IMPORTANT: For image fields, use image_id (MediaFile ID uploaded via Filament admin), not URLs or base64.',
+            ),
         ];
     }
 

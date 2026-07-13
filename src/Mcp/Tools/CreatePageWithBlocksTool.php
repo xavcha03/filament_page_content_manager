@@ -10,6 +10,7 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Mcp\Helpers\BlockDataValidator;
+use Xavcha\PageContentManager\Mcp\Helpers\BlockMcpSchema;
 use Xavcha\PageContentManager\Models\Page;
 
 class CreatePageWithBlocksTool extends Tool
@@ -32,7 +33,10 @@ class CreatePageWithBlocksTool extends Tool
             'seo_title' => $schema->string()->description('SEO Title (Titre SEO) - Optional meta title from "SEO" tab.')->nullable(),
             'seo_description' => $schema->string()->description('SEO Description (Description SEO) - Optional meta description from "SEO" tab.')->nullable(),
             'status' => $schema->string()->enum(['draft', 'published'])->description('Status (Statut) - Page status. Default: draft.')->nullable(),
-            'blocks' => $schema->array()->description('Array of blocks to set as page content. Each block must have "type" and "data". Use list_blocks and get_block_schema.'),
+            'blocks' => BlockMcpSchema::blocksParameter(
+                $schema,
+                'Array of blocks to set as page content. Each block must have "type" and "data". Use list_blocks and get_block_schema.',
+            ),
         ];
     }
 
