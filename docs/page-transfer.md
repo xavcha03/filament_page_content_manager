@@ -76,6 +76,7 @@ ddev artisan page-content-manager:page:import export.xavcha-page.zip --keep-stat
 - Les politiques de redirection de suppression ne sont pas exportées
 - Les blocs absents sur la cible génèrent des avertissements
 - L'optimisation WebP de la médiathèque peut transformer le fichier importé (la référence UUID reste valide)
+- Si un média existe déjà (même UUID ou même checksum), il est réutilisé sans réassigner l'UUID
 
 ## Configuration
 

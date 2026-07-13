@@ -50,7 +50,7 @@ class PageTransferValidator
         }
 
         foreach ($package->mediaManifest as $uuid => $entry) {
-            if (MediaFile::query()->where('uuid', $uuid)->exists()) {
+            if (MediaFile::query()->withTrashed()->where('uuid', $uuid)->exists()) {
                 $mediaExisting++;
 
                 continue;
