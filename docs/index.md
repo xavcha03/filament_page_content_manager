@@ -14,6 +14,7 @@
 - MCP Menu Tools : `docs/mcp-menu-tools.md`
 - API : `docs/api.md`
 - Preview frontend : `docs/preview-frontend.md`
+- Export / import de pages : `docs/page-transfer.md`
 - Systeme reutilisable : `docs/reusable-system.md`
 - Tests : `docs/testing.md`
 

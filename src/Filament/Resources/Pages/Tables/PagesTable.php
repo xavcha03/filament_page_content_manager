@@ -2,6 +2,7 @@
 
 namespace Xavcha\PageContentManager\Filament\Resources\Pages\Tables;
 
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteBulkAction;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Xavcha\PageContentManager\Filament\Forms\PageDeletionPolicyForm;
 use Xavcha\PageContentManager\Services\PageDeletionService;
 use Xavcha\PageContentManager\Services\PagePreviewService;
+use Xavcha\PageContentManager\Services\Transfer\PageTransferService;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\IconColumn;
@@ -108,6 +110,14 @@ class PagesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('export_pages')
+                        ->label('Exporter')
+                        ->icon(Heroicon::OutlinedArrowDownTray)
+                        ->action(function (Collection $records) {
+                            $path = app(PageTransferService::class)->exportToFile($records);
+
+                            return response()->download($path, basename($path))->deleteFileAfterSend();
+                        }),
                     DeleteBulkAction::make()
                         ->modalHeading('Supprimer les pages sélectionnées')
                         ->modalDescription('Ces pages ne seront plus visibles sur le site.')

@@ -265,6 +265,20 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Export / Import de pages
+    |--------------------------------------------------------------------------
+    */
+
+    'transfer' => [
+        'format_version' => 1,
+        'extension' => 'xavcha-page.zip',
+        'import_force_draft_default' => true,
+        'max_upload_size_mb' => 50,
+        'version' => '0.3.0',
+    ],
+
     'block_groups' => [
         'pages' => [
             'blocks' => [

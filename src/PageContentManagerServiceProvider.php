@@ -98,6 +98,8 @@ class PageContentManagerServiceProvider extends ServiceProvider
                 \Xavcha\PageContentManager\Console\Commands\BlockEnableCommand::class,
                 \Xavcha\PageContentManager\Console\Commands\BlocksStatsCommand::class,
                 \Xavcha\PageContentManager\Console\Commands\BlocksValidateCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\PageExportCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\PageImportCommand::class,
             ]);
         }
 

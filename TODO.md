@@ -19,7 +19,7 @@
 5. Internationalisation (multi-langue par page et par bloc).
 6. SEO avance (meta auto, schema.org par type, OG dynamique).
 7. Bloc “repeater” configurable (sections dynamiques par template).
-8. Import / export de pages (JSON) avec validation et mapping medias.
+8. Import / export de pages (JSON/ZIP) avec validation et mapping medias — voir `docs/page-transfer.md`.
 9. Indexation / recherche full-text des contenus blocs.
 10. Templates de page (starter layouts reutilisables).
 11. “Content Diff” avant publication (comparaison visuelle).

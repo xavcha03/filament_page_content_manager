@@ -13,6 +13,7 @@ use Xavcha\PageContentManager\Filament\Resources\Pages\PageResource;
 use Xavcha\PageContentManager\Models\Page;
 use Xavcha\PageContentManager\Services\PageDeletionService;
 use Xavcha\PageContentManager\Services\PagePreviewService;
+use Xavcha\PageContentManager\Services\Transfer\PageTransferService;
 
 class EditPage extends EditRecord
 {
@@ -36,6 +37,16 @@ class EditPage extends EditRecord
                 ->visible(fn (Page $record): bool => ! $record->trashed() && ! $record->isPublished())
                 ->url(fn (Page $record): string => app(PagePreviewService::class)->buildFrontendPreviewUrl($record))
                 ->openUrlInNewTab(),
+            Action::make('export_page')
+                ->label('Exporter')
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->color('gray')
+                ->visible(fn (Page $record): bool => ! $record->trashed())
+                ->action(function (Page $record) {
+                    $path = app(PageTransferService::class)->exportToFile([$record]);
+
+                    return response()->download($path, basename($path))->deleteFileAfterSend();
+                }),
             DeleteAction::make()
                 ->modalHeading('Supprimer la page')
                 ->modalDescription(fn (Page $record): string => "Supprimer « {$record->title} » ? Cette page ne sera plus visible sur le site.")

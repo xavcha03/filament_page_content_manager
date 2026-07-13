@@ -61,6 +61,7 @@ Doc complete : `docs/agent-guide.md`.
 - `docs/api.md`
 - `docs/mcp-server.md`
 - `docs/reusable-system.md`
+- `docs/page-transfer.md`
 - `docs/testing.md`
 
 ## Licence

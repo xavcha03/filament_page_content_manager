@@ -31,6 +31,14 @@ La suppression definitive retire l'enregistrement de la base (slug libere).
 
 Integration frontend : `docs/preview-frontend.md`.
 
+### Export / Import
+
+- **Exporter** : depuis l'édition d'une page ou en sélection multiple dans la liste
+- **Importer** : action **Importer** dans la liste, avec récapitulatif avant validation
+- Format : archive `.xavcha-page.zip` (contenu + médias)
+
+Voir `docs/page-transfer.md`.
+
 ## Blocs disponibles
 
 Ne pas utiliser de liste statique.
