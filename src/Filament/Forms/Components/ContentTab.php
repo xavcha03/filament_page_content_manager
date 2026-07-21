@@ -2,9 +2,11 @@
 
 namespace Xavcha\PageContentManager\Filament\Forms\Components;
 
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Schemas\Components;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
+use Xavcha\PageContentManager\Filament\Forms\Components\Concerns\ConfiguresBlockPickerModal;
 
 class ContentTab
 {
@@ -24,6 +26,9 @@ class ContentTab
                 Forms\Components\Builder::make('content.sections')
                     ->label('Sections')
                     ->blocks($blocks)
+                    ->view('page-content-manager::filament.forms.builder')
+                    ->addAction(fn (Action $action): Action => ConfiguresBlockPickerModal::configure($action))
+                    ->addBetweenAction(fn (Action $action): Action => ConfiguresBlockPickerModal::configure($action))
                     ->collapsible()
                     ->collapsed()
                     ->columnSpanFull(),
@@ -139,4 +144,3 @@ class ContentTab
         return $blocks;
     }
 }
-

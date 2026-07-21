@@ -16,7 +16,7 @@ class MakeBlockCommand extends Command
      */
     protected $signature = 'page-content-manager:make-block 
                             {name? : Le nom du bloc (kebab-case)}
-                            {--group= : Le groupe du bloc (content/media/forms/other)}
+                            {--group= : Le groupe UI (Layout/Contenu/Média/Conversion/Social proof/Autres — aliases: layout, content, media, conversion, social, other)}
                             {--with-media : Utiliser le trait HasMediaTransformation}
                             {--order= : L\'ordre d\'affichage (défaut: 100)}
                             {--force : Écraser le fichier s\'il existe déjà}
@@ -103,26 +103,30 @@ class MakeBlockCommand extends Command
 
         if (!$group) {
             if ($isNonInteractive) {
-                $group = 'other';
+                $group = 'Autres';
             } elseif (class_exists(\Laravel\Prompts\Prompt::class)) {
                 $group = \Laravel\Prompts\select(
                     label: 'Quelle catégorie ?',
                     options: [
-                        'content' => 'Content',
-                        'media' => 'Media',
-                        'forms' => 'Forms',
-                        'other' => 'Other',
+                        'Layout' => 'Layout',
+                        'Contenu' => 'Contenu',
+                        'Média' => 'Média',
+                        'Conversion' => 'Conversion',
+                        'Social proof' => 'Social proof',
+                        'Autres' => 'Autres',
                     ],
-                    default: 'other'
+                    default: 'Autres'
                 );
             } else {
                 $group = $this->choice(
                     'Quelle catégorie ?',
-                    ['content', 'media', 'forms', 'other'],
-                    'other'
+                    ['Layout', 'Contenu', 'Média', 'Conversion', 'Social proof', 'Autres'],
+                    'Autres'
                 );
             }
         }
+
+        $group = $this->normalizeGroupLabel($group);
 
         if (!$isNonInteractive && !$this->option('with-media')) {
             if (class_exists(\Laravel\Prompts\Prompt::class)) {
@@ -150,8 +154,9 @@ class MakeBlockCommand extends Command
         $this->comment("📝 Prochaines étapes :");
         $this->line("   1. Implémentez la méthode transform() avec votre logique");
         $this->line("   2. Ajoutez vos champs dans la méthode make()");
+        $this->line("   3. (Optionnel) Preview : resources/images/block-previews/{$type}.webp");
         if ($withMedia) {
-            $this->line("   3. Utilisez les méthodes du trait HasMediaTransformation pour les médias");
+            $this->line("   4. Utilisez les méthodes du trait HasMediaTransformation pour les médias");
         }
         $this->newLine();
 
@@ -266,7 +271,8 @@ class MakeBlockCommand extends Command
         $stub = str_replace('{{ label }}', $label, $stub);
         $stub = str_replace('{{ icon }}', $icon, $stub);
         $stub = str_replace('{{ group }}', $group, $stub);
-        $stub = str_replace('{{ order }}', $order, $stub);
+        $stub = str_replace('{{ description }}', "Bloc {$label}.", $stub);
+        $stub = str_replace('{{ order }}', (string) $order, $stub);
         $stub = str_replace('{{ hasMediaUse }}', $hasMediaUse, $stub);
         $stub = str_replace('{{ hasMediaTrait }}', $hasMediaTrait, $stub);
 
@@ -294,6 +300,22 @@ class MakeBlockCommand extends Command
     }
 
     /**
+     * Normalise les aliases de groupe vers les labels UI Filament.
+     */
+    protected function normalizeGroupLabel(string $group): string
+    {
+        return match (mb_strtolower(trim($group))) {
+            'layout' => 'Layout',
+            'content', 'contenu' => 'Contenu',
+            'media', 'média' => 'Média',
+            'conversion', 'forms', 'form' => 'Conversion',
+            'social', 'social proof', 'social_proof' => 'Social proof',
+            'other', 'autres', 'autre' => 'Autres',
+            default => $group,
+        };
+    }
+
+    /**
      * Retourne l'icône par défaut selon le groupe.
      *
      * @param string $group
@@ -301,10 +323,12 @@ class MakeBlockCommand extends Command
      */
     protected function getIconForGroup(string $group): string
     {
-        return match ($group) {
-            'content' => 'document-text',
-            'media' => 'photo',
-            'forms' => 'clipboard-document-list',
+        return match ($this->normalizeGroupLabel($group)) {
+            'Layout' => 'squares-2x2',
+            'Contenu' => 'document-text',
+            'Média' => 'photo',
+            'Conversion' => 'arrow-right-circle',
+            'Social proof' => 'chat-bubble-left-right',
             default => 'cube',
         };
     }

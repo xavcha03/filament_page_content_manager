@@ -20,6 +20,16 @@ class GalleryBlock implements BlockInterface
         return 'gallery';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Média';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Galerie d’images pour présenter un portfolio ou des photos.';
+    }
+
     public static function make(): Block
     {
         return Block::make('gallery')

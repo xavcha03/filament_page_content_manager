@@ -18,6 +18,16 @@ class CTABlock implements BlockInterface
         return 'cta';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Conversion';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Bloc d’appel à l’action avec titre, texte et bouton.';
+    }
+
     public static function make(): Block
     {
         return Block::make('cta')

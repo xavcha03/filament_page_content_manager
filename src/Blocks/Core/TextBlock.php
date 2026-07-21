@@ -18,6 +18,16 @@ class TextBlock implements BlockInterface
         return 'text';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Contenu';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Titre et contenu riche pour les sections éditoriales.';
+    }
+
     public static function make(): Block
     {
         return Block::make('text')

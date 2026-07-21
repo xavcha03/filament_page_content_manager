@@ -3,6 +3,8 @@
 namespace Xavcha\PageContentManager;
 
 use Filament\Facades\Filament;
+use Filament\Support\Assets\Css;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Mcp\Facades\Mcp;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
@@ -53,10 +55,20 @@ class PageContentManagerServiceProvider extends ServiceProvider
         // Charger les migrations
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
+        // Vues Filament (sélecteur de blocs, builder custom)
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'page-content-manager');
+
+        FilamentAsset::register([
+            Css::make('block-picker', __DIR__ . '/../resources/css/block-picker.css'),
+        ], 'xavcha/page-content-manager');
+
         // Enregistrer les routes API si activées
         if (config('page-content-manager.routes', true)) {
             $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
         }
+
+        // Route pour servir les images de preview des blocs
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
 
         // Enregistrer le serveur MCP si activé et si l'enregistrement automatique est activé
         if (
@@ -84,6 +96,14 @@ class PageContentManagerServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/page-content-manager.php' => config_path('page-content-manager.php'),
         ], 'page-content-manager-config');
+
+        $this->publishes([
+            __DIR__ . '/../resources/views' => resource_path('views/vendor/page-content-manager'),
+        ], 'page-content-manager-views');
+
+        $this->publishes([
+            __DIR__ . '/../resources/images/block-previews' => public_path('images/block-previews'),
+        ], 'page-content-manager-block-previews');
 
         // Enregistrer les commandes Artisan
         if ($this->app->runningInConsole()) {

@@ -19,6 +19,16 @@ class FeaturesBlock implements BlockInterface
         return 'features';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Contenu';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Grille d’avantages ou fonctionnalités avec icônes.';
+    }
+
     public static function make(): Block
     {
         return Block::make('features')

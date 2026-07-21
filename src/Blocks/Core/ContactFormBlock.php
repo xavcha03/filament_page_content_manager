@@ -17,6 +17,16 @@ class ContactFormBlock implements BlockInterface
         return 'contact_form';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Conversion';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Formulaire de contact avec message de confirmation.';
+    }
+
     public static function make(): Block
     {
         return Block::make('contact_form')

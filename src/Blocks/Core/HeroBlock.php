@@ -20,6 +20,16 @@ class HeroBlock implements BlockInterface
         return 'hero';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Layout';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Bannière principale avec titre, texte, image et boutons.';
+    }
+
     public static function make(): Block
     {
         return Block::make('hero')

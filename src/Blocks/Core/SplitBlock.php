@@ -22,6 +22,16 @@ class SplitBlock implements BlockInterface
         return 'split';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Layout';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Mise en page deux colonnes : texte d’un côté, image de l’autre.';
+    }
+
     public static function make(): Block
     {
         return Block::make('split')

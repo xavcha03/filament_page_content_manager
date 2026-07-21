@@ -69,6 +69,8 @@ Ne jamais utiliser d'URL directes en MCP.
 
 Si vous voulez un ordre specifique, ajoutez la classe dans `block_groups`.
 
+Pour le sélecteur Filament (modale) : `getGroup()`, `getDescription()`, et preview optionnelle `{type}.webp` — voir [block-picker.md](block-picker.md).
+
 ## Tests minimum
 
 ```bash

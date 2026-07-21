@@ -12,9 +12,10 @@
 
 ## Build, Test, and Development Commands
 
+- **Dev local** : voir `docs/WORKBENCH.md` (Filament + API sans commit/push ; frontend via `xavcha-base-site/frontend`).
 - `composer test` : runs PHPUnit test suite.
-- `ddev exec vendor/bin/phpunit` : run tests inside DDEV.
-- `ddev artisan page-content-manager:block:list` : list discovered blocks.
+- `ddev exec vendor/bin/phpunit` : run tests inside DDEV (racine package).
+- `ddev artisan page-content-manager:block:list` : list discovered blocks (workbench, `composer_root` DDEV).
 - `ddev artisan page-content-manager:blocks:validate` : validate block definitions.
 - `ddev artisan vendor:publish --tag=page-content-manager-config` : publish config.
 

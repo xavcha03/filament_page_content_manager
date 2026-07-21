@@ -18,6 +18,16 @@ class TableBlock implements BlockInterface
         return 'table';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Contenu';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Tableau de données avec colonnes, lignes et note optionnelle.';
+    }
+
     public static function make(): Block
     {
         return Block::make('table')

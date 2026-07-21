@@ -23,10 +23,27 @@ class {{ blockName }}Block implements BlockInterface
         return {{ order }};
     }
 
+    /**
+     * Groupe affiché dans la modale Filament (Layout, Contenu, Média, Conversion, Social proof, Autres).
+     */
     public static function getGroup(): ?string
     {
         return '{{ group }}';
     }
+
+    /**
+     * Courte description affichée sous le label dans le sélecteur de blocs.
+     */
+    public static function getDescription(): string
+    {
+        return '{{ description }}';
+    }
+
+    /**
+     * Preview optionnelle : déposez une image WebP nommée `{{ type }}.webp` dans
+     * `resources/images/block-previews/` (ou `public/images/block-previews/`).
+     * Sinon surchargez getPreviewImageUrl(): ?string.
+     */
 
     public static function make(): Block
     {
@@ -87,7 +104,3 @@ class {{ blockName }}Block implements BlockInterface
         ];
     }
 }
-
-
-
-

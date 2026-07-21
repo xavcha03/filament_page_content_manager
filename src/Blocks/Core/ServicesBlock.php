@@ -23,6 +23,16 @@ class ServicesBlock implements BlockInterface
         return 'services';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Contenu';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Liste de services ou offres avec image, texte et lien.';
+    }
+
     public static function make(): Block
     {
         return Block::make('services')

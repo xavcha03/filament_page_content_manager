@@ -12,6 +12,10 @@ Fournir un "mini CMS" propre et rapide a integrer, avec :
 - Une API pour servir le contenu transforme
 - Un serveur MCP pour agents IA
 
+## Developpement local (package)
+
+Workbench DDEV + frontend Next.js sans commit/push : **`docs/WORKBENCH.md`**.
+
 ## Demarrage rapide
 
 ```bash

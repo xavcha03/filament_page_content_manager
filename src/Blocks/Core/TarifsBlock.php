@@ -19,6 +19,16 @@ class TarifsBlock implements BlockInterface
         return 'tarifs';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Conversion';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Grille d’offres tarifaires avec prix et boutons.';
+    }
+
     public static function make(): Block
     {
         return Block::make('tarifs')

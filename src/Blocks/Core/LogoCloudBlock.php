@@ -21,6 +21,16 @@ class LogoCloudBlock implements BlockInterface
         return 'logo_cloud';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Média';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Bandeau de logos clients ou partenaires.';
+    }
+
     public static function make(): Block
     {
         return Block::make('logo_cloud')

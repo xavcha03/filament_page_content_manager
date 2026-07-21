@@ -19,6 +19,16 @@ class CaseStudyBlock implements BlockInterface
         return 'case_study';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Social proof';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Étude de cas : problème, solution, résultat et CTA.';
+    }
+
     public static function make(): Block
     {
         return Block::make('case_study')

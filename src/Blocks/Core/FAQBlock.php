@@ -19,6 +19,16 @@ class FAQBlock implements BlockInterface
         return 'faq';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Contenu';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Questions / réponses accordéon pour les FAQ.';
+    }
+
     public static function make(): Block
     {
         return Block::make('faq')

@@ -23,6 +23,16 @@ class TestimonialsBlock implements BlockInterface
         return 'testimonials';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Social proof';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Avis clients avec auteur, note et photo optionnelle.';
+    }
+
     public static function make(): Block
     {
         return Block::make('testimonials')

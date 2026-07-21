@@ -43,6 +43,16 @@ class ImageBlock implements BlockInterface
         return 'image';
     }
 
+    public static function getGroup(): string
+    {
+        return 'Média';
+    }
+
+    public static function getDescription(): string
+    {
+        return 'Image seule avec alignement, taille et légende.';
+    }
+
     public static function make(): Block
     {
         return Block::make('image')

@@ -3,6 +3,7 @@
 ## Point d'entree
 
 - Lire d'abord : `docs/agent-guide.md`
+- **Dev local (workbench + frontend)** : `docs/WORKBENCH.md`
 - Installation : `docs/installation.md`
 - Usage rapide : `docs/usage.md`
 
