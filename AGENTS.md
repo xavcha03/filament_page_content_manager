@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-- `src/` : package source (blocks, MCP, Filament, models, HTTP, console commands).
+- `src/` : package source (blocks, experiences, MCP, Filament, models, HTTP, console commands).
 - `config/` : package config (`page-content-manager.php`).
 - `routes/` : API routes for pages.
 - `database/` : migrations.
@@ -17,6 +17,7 @@
 - `ddev exec vendor/bin/phpunit` : run tests inside DDEV (racine package).
 - `ddev artisan page-content-manager:block:list` : list discovered blocks (workbench, `composer_root` DDEV).
 - `ddev artisan page-content-manager:blocks:validate` : validate block definitions.
+- `ddev artisan page-content-manager:make-experience {name}` : scaffold une Experience dans `app/Experiences`.
 - `ddev artisan vendor:publish --tag=page-content-manager-config` : publish config.
 
 ## Coding Style & Naming Conventions
@@ -25,6 +26,7 @@
 - Blocks: one class per file, implements `BlockInterface` with `getType`, `make`, `transform`.
 - Block types: lowercase snake_case (e.g. `contact_form`).
 - Keep MCP metadata in blocks via `HasMcpMetadata` (fields + example).
+- Experiences: `app/Experiences/*Experience.php`, implements `ExperienceInterface` (`getKey`, `getLabel`, `make`, `transform`). Keys: kebab-case (e.g. `home-organic`). Structure is code-fixed; MCP edits values only.
 
 ## Testing Guidelines
 
@@ -42,4 +44,11 @@
 
 - MCP should be protected in production via token and/or auth middleware.
 - Disable unwanted blocks with `disabled_blocks` or by omitting them from `block_groups`.
+- Disable Experiences with `disabled_experiences`.
 - Don’t hardcode media URLs in MCP; use MediaFile IDs.
+
+## Experiences docs
+
+- Overview: `docs/experiences.md`
+- Frontend agent: `docs/agent-frontend-experiences.md`
+- Create Experience agent: `docs/agent-create-experience.md`

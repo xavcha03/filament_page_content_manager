@@ -9,6 +9,7 @@ use Filament\Actions\RestoreAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Resources\Pages\EditRecord;
 use Xavcha\PageContentManager\Filament\Forms\PageDeletionPolicyForm;
+use Xavcha\PageContentManager\Filament\Resources\Pages\Concerns\HandlesExperienceFormState;
 use Xavcha\PageContentManager\Filament\Resources\Pages\PageResource;
 use Xavcha\PageContentManager\Models\Page;
 use Xavcha\PageContentManager\Services\PageDeletionService;
@@ -17,7 +18,27 @@ use Xavcha\PageContentManager\Services\Transfer\PageTransferService;
 
 class EditPage extends EditRecord
 {
+    use HandlesExperienceFormState;
+
     protected static string $resource = PageResource::class;
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        return $this->hydrateExperienceFields($data);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        return $this->dehydrateExperienceFields($data);
+    }
 
     protected function getHeaderActions(): array
     {

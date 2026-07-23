@@ -9,6 +9,7 @@ Package Laravel Filament pour gerer des pages avec un systeme de blocs de conten
 Fournir un "mini CMS" propre et rapide a integrer, avec :
 - Des pages Filament (titre, slug, SEO, statut)
 - Un systeme de blocs modulaires
+- Un mode **Experience** (schema de page fige cote code) — voir `docs/experiences.md`
 - Une API pour servir le contenu transforme
 - Un serveur MCP pour agents IA
 
@@ -42,16 +43,17 @@ public function panel(Panel $panel): Panel
 - **Blocs auto-decouverts** :
   - Core : `src/Blocks/Core/`
   - Custom : `app/Blocks/Custom/`
+- **Experiences** (schema fige) : `app/Experiences/` — voir `docs/experiences.md`
 - **Bloc core Tarifs** : disponible via le type `tarifs` pour afficher des plans de prix (nom, prix, periode, points inclus, mise en avant, CTA).
 - **Source of truth** : toujours le registry (CLI ou MCP), jamais une liste statique.
-- **Desactivation** : via `disabled_blocks` ou `block_groups` dans `config/page-content-manager.php`.
+- **Desactivation** : via `disabled_blocks` / `disabled_experiences` ou `block_groups` dans `config/page-content-manager.php`.
 
 ## Pour agents IA
 
-Ne jamais supposer les blocs disponibles. Toujours :
-1. `list_blocks`
-2. `get_block_schema`
-3. ecrire/mettre a jour les blocs
+Ne jamais supposer les blocs ou Experiences disponibles. Toujours :
+1. `list_blocks` / `list_experiences`
+2. `get_block_schema` / `get_experience_schema`
+3. ecrire via `update_block_fields` / `update_experience_fields` (valeurs seulement pour Experiences)
 
 Doc complete : `docs/agent-guide.md`.
 
@@ -59,6 +61,9 @@ Doc complete : `docs/agent-guide.md`.
 
 - `docs/installation.md`
 - `docs/usage.md`
+- `docs/experiences.md`
+- `docs/agent-frontend-experiences.md`
+- `docs/agent-create-experience.md`
 - `docs/filament-upgrade.md`
 - `docs/blocks-architecture.md`
 - `docs/custom-blocks.md`

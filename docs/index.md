@@ -11,6 +11,9 @@
 
 - Architecture des blocs : `docs/blocks-architecture.md`
 - Creer un bloc custom : `docs/custom-blocks.md`
+- **Experiences (pages a schema fige)** : `docs/experiences.md`
+- Agent frontend Experiences : `docs/agent-frontend-experiences.md`
+- Agent creer une Experience : `docs/agent-create-experience.md`
 - MCP Server : `docs/mcp-server.md`
 - MCP Menu Tools : `docs/mcp-menu-tools.md`
 - API : `docs/api.md`

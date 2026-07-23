@@ -17,7 +17,7 @@ class GetPageContentTool extends Tool
 
     protected string $title = 'Get Page Content';
 
-    protected string $description = 'Use when you need to read a page\'s full content and blocks before editing or to verify after a change. Retrieves the complete content as in Filament: metadata (title, slug, type, status, SEO) and all content blocks from the "Contenu" tab with type and data. Identify the page with page_id or page_slug (e.g. "home" for home page).';
+    protected string $description = 'Use when you need to read a page\'s full content before editing or to verify after a change. Returns metadata (title, slug, type, content_mode, experience_key, status, SEO), block sections, and experience_content (keyed by Experience). Identify the page with page_id or page_slug (e.g. "home" for home page).';
 
     /**
      * @return array<string, mixed>
@@ -94,6 +94,8 @@ class GetPageContentTool extends Tool
                 'title' => $page->title,
                 'slug' => $page->slug,
                 'type' => $page->type,
+                'content_mode' => $page->content_mode ?? Page::CONTENT_MODE_BLOCKS,
+                'experience_key' => $page->experience_key,
                 'status' => $page->status,
                 'seo_title' => $page->seo_title,
                 'seo_description' => $page->seo_description,
@@ -103,6 +105,10 @@ class GetPageContentTool extends Tool
                     'sections' => $sections,
                     'metadata' => $content['metadata'] ?? [],
                 ],
+                'experience_content' => $page->experience_content ?? [],
+                'active_experience_content' => $page->isExperienceMode()
+                    ? $page->getActiveExperienceContent()
+                    : null,
             ]);
         } catch (\Exception $e) {
             return Response::error('Failed to get page content: ' . $e->getMessage());

@@ -15,6 +15,7 @@ Le prefix est configurable via `route_prefix` dans `config/page-content-manager.
   "title": "Accueil",
   "slug": "home",
   "type": "home",
+  "content_mode": "blocks",
   "seo_title": "...",
   "seo_description": "...",
   "robots": null,
@@ -26,9 +27,29 @@ Le prefix est configurable via `route_prefix` dans `config/page-content-manager.
   ],
   "metadata": {
     "schema_version": 1
+  },
+  "experience": null
+}
+```
+
+### Mode Experience
+
+Quand `content_mode` vaut `"experience"` :
+
+```json
+{
+  "content_mode": "experience",
+  "sections": [ "... conserve pour BC, ignorer en frontend ..." ],
+  "experience": {
+    "key": "home-organic",
+    "content": {
+      "hero_title": "..."
+    }
   }
 }
 ```
+
+Le frontend doit brancher le rendu sur `content_mode` (voir `docs/agent-frontend-experiences.md`).
 
 ## Champ `robots`
 

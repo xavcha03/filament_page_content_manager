@@ -142,6 +142,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Experiences (pages à schéma figé)
+    |--------------------------------------------------------------------------
+    |
+    | Les Experiences sont auto-découvertes dans app/Experiences/ (classes
+    | implémentant ExperienceInterface). La structure du formulaire est figée
+    | côté code ; l'admin et le MCP ne peuvent éditer que les valeurs.
+    |
+    */
+
+    'experiences' => [
+        'path' => null, // null = app_path('Experiences')
+        'namespace' => 'App\\Experiences',
+        'cache' => [
+            'enabled' => env('PAGE_CONTENT_MANAGER_EXPERIENCES_CACHE_ENABLED', true),
+            'key' => 'page-content-manager.experiences.registry',
+            'ttl' => env('PAGE_CONTENT_MANAGER_EXPERIENCES_CACHE_TTL', 3600),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Experiences désactivées
+    |--------------------------------------------------------------------------
+    |
+    | Liste des clés d'Experience à exclure du registry (ex: ['home-organic']).
+    |
+    */
+
+    'disabled_experiences' => [],
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache des blocs
     |--------------------------------------------------------------------------
     |

@@ -42,6 +42,13 @@ class PageExporter
                 $mediaManifest,
             );
 
+            if (is_array($serialized['experience_content'] ?? null)) {
+                $serialized['experience_content'] = $this->mediaReferenceResolver->replaceMediaIdsWithReferences(
+                    $serialized['experience_content'],
+                    $mediaManifest,
+                );
+            }
+
             $slug = (string) $page->slug;
             $serializedPages[$slug] = $serialized;
             $slugs[] = $slug;
@@ -99,6 +106,9 @@ class PageExporter
             'seo_title' => $page->seo_title,
             'seo_description' => $page->seo_description,
             'seo_noindex' => (bool) $page->seo_noindex,
+            'content_mode' => $page->content_mode ?? Page::CONTENT_MODE_BLOCKS,
+            'experience_key' => $page->experience_key,
+            'experience_content' => $page->experience_content ?? [],
             'content' => $page->content ?? [
                 'sections' => [],
                 'metadata' => ['schema_version' => 1],

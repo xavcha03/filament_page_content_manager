@@ -38,6 +38,8 @@ Header optionnel : `X-Page-Preview: 1`
 
 Sans `preview_token`, une page brouillon renvoie toujours **404** (comportement public inchangé).
 
+Si la page est en `content_mode: experience`, le frontend de preview doit utiliser le même branchement que le rendu public (voir `docs/agent-frontend-experiences.md`).
+
 ## Configuration backend (.env)
 
 ```env

@@ -9,6 +9,8 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Mcp\Facades\Mcp;
 use Xavcha\PageContentManager\Blocks\BlockRegistry;
 use Xavcha\PageContentManager\Blocks\BlockValidator;
+use Xavcha\PageContentManager\Experiences\ExperienceDataResolver;
+use Xavcha\PageContentManager\Experiences\ExperienceRegistry;
 use Xavcha\PageContentManager\Menu\Contracts\MenuLinksStore;
 use Xavcha\PageContentManager\Menu\MenuLinksService;
 use Xavcha\PageContentManager\Menu\Stores\NullMenuLinksStore;
@@ -26,6 +28,14 @@ class PageContentManagerServiceProvider extends ServiceProvider
         // Enregistrer BlockRegistry comme singleton pour la Facade
         $this->app->singleton(BlockRegistry::class, function ($app) {
             return new BlockRegistry();
+        });
+
+        $this->app->singleton(ExperienceRegistry::class, function ($app) {
+            return new ExperienceRegistry();
+        });
+
+        $this->app->singleton(ExperienceDataResolver::class, function ($app) {
+            return new ExperienceDataResolver($app->make(ExperienceRegistry::class));
         });
 
         $this->app->bind(MenuLinksStore::class, function ($app): MenuLinksStore {
@@ -111,6 +121,7 @@ class PageContentManagerServiceProvider extends ServiceProvider
                 \Xavcha\PageContentManager\Console\Commands\AddPageDetailColumnsCommand::class,
                 \Xavcha\PageContentManager\Console\Commands\ClearBlocksCacheCommand::class,
                 \Xavcha\PageContentManager\Console\Commands\MakeBlockCommand::class,
+                \Xavcha\PageContentManager\Console\Commands\MakeExperienceCommand::class,
                 \Xavcha\PageContentManager\Console\Commands\BlocksCommand::class,
                 \Xavcha\PageContentManager\Console\Commands\BlockListCommand::class,
                 \Xavcha\PageContentManager\Console\Commands\BlockInspectCommand::class,

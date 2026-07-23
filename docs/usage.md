@@ -3,9 +3,11 @@
 ## Pages dans Filament
 
 - Créer/editer une page dans l'admin Filament
-- **Onglet Général** : titre, slug, type, statut, date de publication (`d/m/Y H:i`)
+- **Onglet Général** : titre, slug, type (home/standard), **mode de contenu** (blocs / experience), modèle d'Experience si besoin, statut, date de publication (`d/m/Y H:i`)
 - **Onglet SEO** : titre SEO, description SEO, case **Ne pas indexer cette page** (`seo_noindex`)
-- **Onglet Contenu** : blocs (`content.sections`)
+- **Onglet Contenu** :
+  - mode **blocs** : builder (`content.sections`)
+  - mode **experience** : formulaire fixe de l'Experience selectionnee (voir `docs/experiences.md`)
 
 ### Liste des pages
 

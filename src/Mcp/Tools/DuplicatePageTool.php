@@ -101,7 +101,10 @@ class DuplicatePageTool extends Tool
             $duplicatedPage = Page::create([
                 'title' => $newTitle,
                 'slug' => $newSlug,
-                'type' => $originalPage->type,
+                'type' => 'standard', // Never duplicate as home
+                'content_mode' => $originalPage->content_mode ?? Page::CONTENT_MODE_BLOCKS,
+                'experience_key' => $originalPage->experience_key,
+                'experience_content' => $originalPage->experience_content ?? [],
                 'status' => $validated['status'] ?? 'draft',
                 'seo_title' => $originalPage->seo_title,
                 'seo_description' => $originalPage->seo_description,

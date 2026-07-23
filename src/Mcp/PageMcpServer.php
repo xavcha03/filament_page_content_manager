@@ -27,13 +27,17 @@ use Xavcha\PageContentManager\Mcp\Tools\DeletePageTool;
 use Xavcha\PageContentManager\Mcp\Tools\DuplicatePageTool;
 use Xavcha\PageContentManager\Mcp\Tools\ForceDeletePageTool;
 use Xavcha\PageContentManager\Mcp\Tools\GetBlockSchemaTool;
+use Xavcha\PageContentManager\Mcp\Tools\GetExperienceSchemaTool;
 use Xavcha\PageContentManager\Mcp\Tools\GetPageContentTool;
 use Xavcha\PageContentManager\Mcp\Tools\ListBlocksTool;
+use Xavcha\PageContentManager\Mcp\Tools\ListExperiencesTool;
 use Xavcha\PageContentManager\Mcp\Tools\ListPagesTool;
 use Xavcha\PageContentManager\Mcp\Tools\ReorderBlocksTool;
 use Xavcha\PageContentManager\Mcp\Tools\RestorePageTool;
+use Xavcha\PageContentManager\Mcp\Tools\SetPageContentModeTool;
 use Xavcha\PageContentManager\Mcp\Tools\UpdateBlockFieldsTool;
 use Xavcha\PageContentManager\Mcp\Tools\UpdateBlockTool;
+use Xavcha\PageContentManager\Mcp\Tools\UpdateExperienceFieldsTool;
 use Xavcha\PageContentManager\Mcp\Tools\UpdatePageTool;
 
 class PageMcpServer extends Server
@@ -44,7 +48,9 @@ class PageMcpServer extends Server
 
     protected string $instructions = <<<'MARKDOWN'
         This MCP server allows AI agents to create and manage pages in the Laravel application.
-        Pages can contain flexible content blocks that can be arranged and customized.
+        Pages support two content modes:
+        - blocks: flexible content blocks (list_blocks → get_block_schema → update_block_fields)
+        - experience: fixed schemas defined in code (list_experiences → get_experience_schema → update_experience_fields). Never invent Experience structure; only edit values.
         Optionally, when enabled in config, menu tools are also available to manage main navigation links.
     MARKDOWN;
 
@@ -74,6 +80,11 @@ class PageMcpServer extends Server
             UpdateBlockFieldsTool::class,
             DeleteBlockTool::class,
             ReorderBlocksTool::class,
+            // Experiences (content values only — structure is code-defined)
+            ListExperiencesTool::class,
+            GetExperienceSchemaTool::class,
+            UpdateExperienceFieldsTool::class,
+            SetPageContentModeTool::class,
         ];
 
         if ((bool) config('page-content-manager.menu.enabled', false)) {

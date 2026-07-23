@@ -1,8 +1,17 @@
 # Guide Agent IA (Backend)
 
-Ce guide est la source de verite pour utiliser ce package via MCP/CLI et pour ajouter/modifier des blocs.
+Ce guide est la source de verite pour utiliser ce package via MCP/CLI et pour ajouter/modifier des blocs **ou** des Experiences.
 
-## Regles obligatoires
+## Modes de contenu
+
+Une page a un `content_mode` :
+
+- `blocks` (defaut) : composition libre via blocs
+- `experience` : formulaire fixe defini en code (`app/Experiences`)
+
+Voir `docs/experiences.md`. Frontend : `docs/agent-frontend-experiences.md`. Nouvelle Experience : `docs/agent-create-experience.md`.
+
+## Regles obligatoires (blocs)
 
 1. Ne jamais supposer la liste des blocs.
    - Toujours appeler `list_blocks`.
@@ -12,6 +21,14 @@ Ce guide est la source de verite pour utiliser ce package via MCP/CLI et pour aj
    - Utiliser `update_block_fields`.
 4. Respecter les blocs desactives et les groupes.
 5. Les medias doivent etre uploadees via Filament (utiliser leurs IDs).
+
+## Regles obligatoires (Experiences)
+
+1. Ne jamais inventer la structure d'une Experience.
+2. Toujours : `list_experiences` puis `get_experience_schema`.
+3. Ecrire uniquement via `update_experience_fields` (merge de valeurs).
+4. Passer en mode experience via `set_page_content_mode` si besoin.
+5. La structure se code dans `app/Experiences` (dev), jamais via MCP.
 
 ## Workflow IA recommande
 
@@ -37,6 +54,13 @@ Ce guide est la source de verite pour utiliser ce package via MCP/CLI et pour aj
 1. `get_page_content`
 2. `reorder_blocks`
 
+### Remplir une page Experience
+
+1. `list_experiences` + `get_experience_schema`
+2. `set_page_content_mode` (`experience` + `experience_key`)
+3. `update_experience_fields`
+4. `get_page_content` pour verifier
+
 ## Creer un nouveau bloc (custom)
 
 1. Creer un fichier dans `app/Blocks/Custom/MonBloc.php`
@@ -45,6 +69,10 @@ Ce guide est la source de verite pour utiliser ce package via MCP/CLI et pour aj
 4. (Optionnel) Ajouter `HasMediaTransformation` si medias
 5. Si besoin d'ordre, ajouter le bloc dans `block_groups`
 6. **Frontend Next.js** (sites Xavcha starter) : composant React dans `frontend/components/blocks/custom/` + registre `frontend/lib/register-blocks.ts`. Voir [@xavcha/frontend-core — custom-blocks-pairing](https://github.com/xavcha03/xavcha-frontend-core/blob/master/docs/custom-blocks-pairing.md) et `xavcha-base-site/FRONTEND.md`.
+
+## Creer une nouvelle Experience
+
+Voir `docs/agent-create-experience.md` et `php artisan page-content-manager:make-experience {name}`.
 
 ## Desactiver un bloc core
 

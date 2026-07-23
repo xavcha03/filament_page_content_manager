@@ -41,8 +41,11 @@ Middleware Laravel :
 
 ## Regle IA
 
-Ne jamais supposer les blocs disponibles.
-Toujours : `list_blocks` puis `get_block_schema`.
+Ne jamais supposer les blocs ou Experiences disponibles.
+Toujours : `list_blocks` puis `get_block_schema` (blocs),
+ou `list_experiences` puis `get_experience_schema` (Experiences).
+
+Pour les Experiences : **contenu seulement** — jamais inventer/ajouter/supprimer des champs structurels.
 
 ## Outils disponibles (pages)
 
@@ -55,6 +58,7 @@ Toujours : `list_blocks` puis `get_block_schema`.
 - `delete_page` (soft delete + politique URL)
 - `restore_page`
 - `force_delete_page`
+- `set_page_content_mode` (bascule `blocks` / `experience`)
 
 ## Outils disponibles (blocs)
 
@@ -65,6 +69,20 @@ Toujours : `list_blocks` puis `get_block_schema`.
 - `update_block_fields`
 - `delete_block`
 - `reorder_blocks`
+
+## Outils disponibles (Experiences — valeurs uniquement)
+
+- `list_experiences`
+- `get_experience_schema`
+- `update_experience_fields`
+
+Workflow Experience :
+
+1. `list_experiences`
+2. `get_experience_schema`
+3. `set_page_content_mode` si besoin
+4. `update_experience_fields`
+5. `get_page_content` pour verifier
 
 ## Outils disponibles (menu, optionnels)
 

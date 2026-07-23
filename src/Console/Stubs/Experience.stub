@@ -1,0 +1,88 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Xavcha\PageContentManager\Experiences\Concerns\HasMcpMetadata;
+use Xavcha\PageContentManager\Experiences\Contracts\ExperienceInterface;
+{{ hasMediaUse }}
+
+/**
+ * Experience à schéma figé. L'admin / MCP ne peut éditer que les valeurs, pas la structure.
+ */
+class {{ className }} implements ExperienceInterface
+{
+{{ hasMediaTrait }}
+    use HasMcpMetadata;
+
+    public static function getKey(): string
+    {
+        return '{{ key }}';
+    }
+
+    public static function getLabel(): string
+    {
+        return '{{ label }}';
+    }
+
+    public static function make(): array
+    {
+        return [
+            TextInput::make('title')
+                ->label('Titre')
+                ->required()
+                ->maxLength(200)
+                ->columnSpanFull(),
+            Textarea::make('intro')
+                ->label('Introduction')
+                ->rows(4)
+                ->columnSpanFull(),
+            // Ajoutez ici les champs figés du design (pas de builder).
+        ];
+    }
+
+    public static function transform(array $data): array
+    {
+        return [
+            'title' => $data['title'] ?? '',
+            'intro' => $data['intro'] ?? '',
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function getMcpFields(): array
+    {
+        return [
+            [
+                'name' => 'title',
+                'label' => 'Titre',
+                'type' => 'string',
+                'required' => true,
+                'description' => 'Titre principal',
+            ],
+            [
+                'name' => 'intro',
+                'label' => 'Introduction',
+                'type' => 'string',
+                'required' => false,
+                'description' => 'Texte d\'introduction',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getMcpExample(): array
+    {
+        return [
+            'title' => 'Exemple de titre',
+            'intro' => 'Exemple d\'introduction.',
+        ];
+    }
+}
